@@ -1,0 +1,46 @@
+{
+  "greetings": [
+    "Hello! I'm your construction assistant. How can I help you today?",
+    "Hi there! Need help with estimates or construction info?",
+    "Welcome to Butwal Construction! What would you like to know?"
+  ],
+  "responses": [
+    {
+      "keywords": ["estimate", "cost", "price", "calculate"],
+      "answer": "I can help you calculate construction estimates! Visit our Estimate page to enter your area in square feet and material type for an instant quote."
+    },
+    {
+      "keywords": ["material", "rod", "cement", "steel"],
+      "answer": "We use premium quality materials:\n- Standard: NPR 8,000/sq ft\n- Premium: NPR 12,000/sq ft\n- Luxury: NPR 16,000/sq ft\n\nEach includes appropriate rod and cement quantities."
+    },
+    {
+      "keywords": ["contact", "call", "phone", "reach"],
+      "answer": "You can reach us at:\n📞 Phone: +977-71-XXXXXX\n📧 Email: info@butwalconstruction.com\n📍 Location: Butwal, Nepal"
+    },
+    {
+      "keywords": ["project", "portfolio", "work", "completed"],
+      "answer": "We've completed numerous projects including residential complexes, commercial hubs, and luxury villas. Check out our Projects page to see our work!"
+    },
+    {
+      "keywords": ["service", "what do you do", "offer"],
+      "answer": "We offer:\n✓ Residential Construction\n✓ Commercial Buildings\n✓ Interior Design\n✓ Renovation & Remodeling\n✓ Consultation Services"
+    },
+    {
+      "keywords": ["time", "duration", "how long"],
+      "answer": "Project duration varies based on size and complexity. Typical timelines:\n- Small residential: 3-6 months\n- Large residential: 6-12 months\n- Commercial: 8-18 months"
+    },
+    {
+      "keywords": ["quality", "warranty", "guarantee"],
+      "answer": "We provide quality assurance with:\n✓ Rigorous quality control\n✓ Premium materials\n✓ Expert supervision\n✓ Post-completion support"
+    },
+    {
+      "keywords": ["location", "where", "butwal"],
+      "answer": "We're based in Butwal, Nepal, serving the entire region. We're a sister company of Satyawati Devi Hardware."
+    }
+  ],
+  "fallback": [
+    "I'm not sure about that. Would you like to speak with our team? Visit our Contact page!",
+    "That's a great question! For detailed information, please contact our office or visit the relevant page.",
+    "I'd love to help! Could you rephrase that or ask about estimates, projects, or services?"
+  ]
+}

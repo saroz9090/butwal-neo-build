@@ -32,13 +32,14 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
+      {/* Hero Section with Parallax */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-1000"
           style={{
             backgroundImage: `url(${heroImage})`,
             filter: "brightness(0.4)",
+            transform: "scale(1.1)",
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/30 to-background" />
