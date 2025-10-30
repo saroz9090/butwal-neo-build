@@ -11,11 +11,13 @@ interface House3DProps {
 function HouseModel({ area, floors }: House3DProps) {
   const groupRef = useRef<THREE.Group>(null);
   
-  // Calculate dimensions based on area
-  const width = Math.sqrt(area / floors) * 0.05;
-  const depth = width * 0.8;
-  const floorHeight = 2.2;
+  // Calculate dimensions based on area (area is total, divided by floors)
+  // Using more realistic proportions for Nepal construction
+  const width = Math.sqrt(area / floors) * 0.08; // Increased from 0.05 for thicker appearance
+  const depth = width * 0.85; // Slightly adjusted ratio
+  const floorHeight = 2.5; // Increased floor height
   const totalHeight = floors * floorHeight;
+  const wallThickness = 0.3; // Thicker walls for more realistic look
 
   useFrame(() => {
     if (groupRef.current) {
@@ -26,9 +28,9 @@ function HouseModel({ area, floors }: House3DProps) {
   return (
     <group ref={groupRef}>
       {/* Foundation - Concrete base */}
-      <mesh position={[0, -0.2, 0]}>
-        <boxGeometry args={[width + 0.4, 0.4, depth + 0.4]} />
-        <meshStandardMaterial color="#6B5B4A" roughness={0.9} />
+      <mesh position={[0, -0.3, 0]}>
+        <boxGeometry args={[width + 0.6, 0.6, depth + 0.6]} />
+        <meshStandardMaterial color="#8B7355" roughness={0.9} />
       </mesh>
 
       {/* Building floors */}
@@ -43,9 +45,9 @@ function HouseModel({ area, floors }: House3DProps) {
             />
           </mesh>
 
-          {/* Floor slab */}
+      {/* Floor slab */}
           <mesh position={[0, 0, 0]}>
-            <boxGeometry args={[width, 0.15, depth]} />
+            <boxGeometry args={[width, 0.25, depth]} />
             <meshStandardMaterial color="#8B7355" roughness={0.7} />
           </mesh>
 
@@ -94,7 +96,7 @@ function HouseModel({ area, floors }: House3DProps) {
           {/* Columns/Pillars at corners */}
           {[[width/2, depth/2], [-width/2, depth/2], [width/2, -depth/2], [-width/2, -depth/2]].map((pos, i) => (
             <mesh key={`pillar-${i}`} position={[pos[0], floorHeight / 2, pos[1]]}>
-              <boxGeometry args={[0.2, floorHeight, 0.2]} />
+              <boxGeometry args={[0.35, floorHeight, 0.35]} />
               <meshStandardMaterial color="#5A4A3A" roughness={0.8} />
             </mesh>
           ))}

@@ -177,12 +177,16 @@ const Estimate = () => {
             <div className="space-y-6">
               {/* Area Input */}
               <div className="space-y-2">
-                <Label htmlFor="area" className="text-foreground">Area (Square Feet)</Label>
+                <Label htmlFor="area" className="text-foreground">Total Area (Square Feet)</Label>
+                <p className="text-sm text-muted-foreground">
+                  Total built-up area across all floors<br />
+                  <span className="text-xs">(e.g., 600 sq ft per floor × 2 floors = 1200 sq ft total)</span>
+                </p>
                 <Input
                   id="area"
                   type="number"
                   min="1"
-                  placeholder="Enter area in sq ft"
+                  placeholder="Enter total area in sq ft"
                   value={area}
                   onChange={(e) => {
                     const value = e.target.value;
