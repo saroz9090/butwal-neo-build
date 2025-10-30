@@ -13,13 +13,59 @@ const Estimate = () => {
   const [materialType, setMaterialType] = useState<string>("");
   const [showResults, setShowResults] = useState(false);
   const [animatedCost, setAnimatedCost] = useState(0);
-  const [animatedRod, setAnimatedRod] = useState(0);
-  const [animatedCement, setAnimatedCement] = useState(0);
+  const [results, setResults] = useState({
+    ppcCement: 0,
+    opcCement: 0,
+    rod8mm: 0,
+    rod10mm: 0,
+    rod12mm: 0,
+    rod16mm: 0,
+    rod20mm: 0,
+    pvcPipes: 0,
+    cpvcPipes: 0,
+    giPipes: 0,
+    bricks: 0,
+    sand: 0,
+    aggregate: 0
+  });
 
   const materialRates = {
-    standard: { rate: 8000, rodPerSqFt: 4.5, cementPerSqFt: 0.4 },
-    premium: { rate: 12000, rodPerSqFt: 5.0, cementPerSqFt: 0.45 },
-    luxury: { rate: 16000, rodPerSqFt: 5.5, cementPerSqFt: 0.5 }
+    standard: { 
+      rate: 8000, 
+      ppcCement: 0.25, // bags per sq ft
+      opcCement: 0.15,
+      rods: { "8mm": 2.0, "10mm": 1.5, "12mm": 1.0, "16mm": 0.5, "20mm": 0.3 }, // kg per sq ft
+      pvcPipes: 0.8, // ft per sq ft
+      cpvcPipes: 0.4,
+      giPipes: 0.2,
+      bricks: 8, // per sq ft
+      sand: 0.045, // cubic ft
+      aggregate: 0.09 // cubic ft
+    },
+    premium: { 
+      rate: 12000, 
+      ppcCement: 0.28,
+      opcCement: 0.17,
+      rods: { "8mm": 2.2, "10mm": 1.7, "12mm": 1.2, "16mm": 0.6, "20mm": 0.35 },
+      pvcPipes: 0.9,
+      cpvcPipes: 0.5,
+      giPipes: 0.25,
+      bricks: 9,
+      sand: 0.05,
+      aggregate: 0.1
+    },
+    luxury: { 
+      rate: 16000, 
+      ppcCement: 0.30,
+      opcCement: 0.20,
+      rods: { "8mm": 2.5, "10mm": 2.0, "12mm": 1.5, "16mm": 0.7, "20mm": 0.4 },
+      pvcPipes: 1.0,
+      cpvcPipes: 0.6,
+      giPipes: 0.3,
+      bricks: 10,
+      sand: 0.055,
+      aggregate: 0.11
+    }
   };
 
   const calculateEstimate = () => {
@@ -29,13 +75,36 @@ const Estimate = () => {
     const rates = materialRates[materialType as keyof typeof materialRates];
     
     const totalCost = sqFt * rates.rate;
-    const totalRod = sqFt * rates.rodPerSqFt;
-    const totalCement = sqFt * rates.cementPerSqFt;
+    
+    const calculatedResults = {
+      ppcCement: sqFt * rates.ppcCement,
+      opcCement: sqFt * rates.opcCement,
+      rod8mm: sqFt * rates.rods["8mm"],
+      rod10mm: sqFt * rates.rods["10mm"],
+      rod12mm: sqFt * rates.rods["12mm"],
+      rod16mm: sqFt * rates.rods["16mm"],
+      rod20mm: sqFt * rates.rods["20mm"],
+      pvcPipes: sqFt * rates.pvcPipes,
+      cpvcPipes: sqFt * rates.cpvcPipes,
+      giPipes: sqFt * rates.giPipes,
+      bricks: sqFt * rates.bricks,
+      sand: sqFt * rates.sand,
+      aggregate: sqFt * rates.aggregate
+    };
 
     setShowResults(true);
     animateValue(setAnimatedCost, 0, totalCost, 1500);
-    animateValue(setAnimatedRod, 0, totalRod, 1500);
-    animateValue(setAnimatedCement, 0, totalCement, 1500);
+    
+    // Animate all results
+    Object.keys(calculatedResults).forEach((key) => {
+      const value = calculatedResults[key as keyof typeof calculatedResults];
+      animateValue(
+        (val) => setResults(prev => ({ ...prev, [key]: val })),
+        0,
+        value,
+        1500
+      );
+    });
   };
 
   const animateValue = (setter: (val: number) => void, start: number, end: number, duration: number) => {
@@ -175,30 +244,154 @@ const Estimate = () => {
 
         {/* Results */}
         {showResults && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
-            <Card className="glass p-6 text-center hover-lift animate-glow-pulse">
-              <div className="text-sm text-muted-foreground mb-2">Estimated Cost</div>
-              <div className="text-4xl font-bold text-primary mb-1">
+          <div className="space-y-8 animate-fade-in">
+            {/* Total Cost */}
+            <Card className="glass p-8 text-center hover-lift animate-glow-pulse">
+              <div className="text-lg text-muted-foreground mb-3">Total Estimated Cost</div>
+              <div className="text-5xl font-bold text-primary mb-2">
                 NPR {animatedCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
               </div>
-              <div className="text-xs text-muted-foreground">Total Project Cost</div>
+              <div className="text-sm text-muted-foreground">Complete Project Cost</div>
             </Card>
 
-            <Card className="glass p-6 text-center hover-lift">
-              <div className="text-sm text-muted-foreground mb-2">Steel Rod Required</div>
-              <div className="text-4xl font-bold text-accent mb-1">
-                {animatedRod.toLocaleString('en-IN', { maximumFractionDigits: 1 })} kg
+            {/* Cement Section */}
+            <div>
+              <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
+                  <Building2 className="text-accent" size={20} />
+                </div>
+                Cement Requirements
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="glass p-6 hover-lift">
+                  <div className="text-sm text-muted-foreground mb-2">PPC Cement</div>
+                  <div className="text-3xl font-bold text-accent mb-2">
+                    {results.ppcCement.toLocaleString('en-IN', { maximumFractionDigits: 1 })} bags
+                  </div>
+                  <div className="text-xs text-muted-foreground">For plastering, brickwork & general use</div>
+                </Card>
+                <Card className="glass p-6 hover-lift">
+                  <div className="text-sm text-muted-foreground mb-2">OPC Cement</div>
+                  <div className="text-3xl font-bold text-accent mb-2">
+                    {results.opcCement.toLocaleString('en-IN', { maximumFractionDigits: 1 })} bags
+                  </div>
+                  <div className="text-xs text-muted-foreground">For slabs, beams & structural work</div>
+                </Card>
               </div>
-              <div className="text-xs text-muted-foreground">Reinforcement Steel</div>
-            </Card>
+            </div>
 
-            <Card className="glass p-6 text-center hover-lift">
-              <div className="text-sm text-muted-foreground mb-2">Cement Required</div>
-              <div className="text-4xl font-bold text-accent mb-1">
-                {animatedCement.toLocaleString('en-IN', { maximumFractionDigits: 1 })} bags
+            {/* Steel Rods Section */}
+            <div>
+              <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="text-accent" size={20} />
+                </div>
+                Steel Reinforcement (TMT Bars)
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <Card className="glass p-4 hover-lift">
+                  <div className="text-xs text-muted-foreground mb-1">8mm Rod</div>
+                  <div className="text-2xl font-bold text-accent mb-1">
+                    {results.rod8mm.toLocaleString('en-IN', { maximumFractionDigits: 0 })} kg
+                  </div>
+                  <div className="text-xs text-muted-foreground">Stirrups & ties</div>
+                </Card>
+                <Card className="glass p-4 hover-lift">
+                  <div className="text-xs text-muted-foreground mb-1">10mm Rod</div>
+                  <div className="text-2xl font-bold text-accent mb-1">
+                    {results.rod10mm.toLocaleString('en-IN', { maximumFractionDigits: 0 })} kg
+                  </div>
+                  <div className="text-xs text-muted-foreground">Slab distribution</div>
+                </Card>
+                <Card className="glass p-4 hover-lift">
+                  <div className="text-xs text-muted-foreground mb-1">12mm Rod</div>
+                  <div className="text-2xl font-bold text-accent mb-1">
+                    {results.rod12mm.toLocaleString('en-IN', { maximumFractionDigits: 0 })} kg
+                  </div>
+                  <div className="text-xs text-muted-foreground">Slab main bars</div>
+                </Card>
+                <Card className="glass p-4 hover-lift">
+                  <div className="text-xs text-muted-foreground mb-1">16mm Rod</div>
+                  <div className="text-2xl font-bold text-accent mb-1">
+                    {results.rod16mm.toLocaleString('en-IN', { maximumFractionDigits: 0 })} kg
+                  </div>
+                  <div className="text-xs text-muted-foreground">Beam & column</div>
+                </Card>
+                <Card className="glass p-4 hover-lift">
+                  <div className="text-xs text-muted-foreground mb-1">20mm Rod</div>
+                  <div className="text-2xl font-bold text-accent mb-1">
+                    {results.rod20mm.toLocaleString('en-IN', { maximumFractionDigits: 0 })} kg
+                  </div>
+                  <div className="text-xs text-muted-foreground">Heavy columns</div>
+                </Card>
               </div>
-              <div className="text-xs text-muted-foreground">50kg Cement Bags</div>
-            </Card>
+            </div>
+
+            {/* Pipes & Fittings Section */}
+            <div>
+              <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
+                  <Calculator className="text-accent" size={20} />
+                </div>
+                Pipes & Fittings
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="glass p-6 hover-lift">
+                  <div className="text-sm text-muted-foreground mb-2">PVC Pipes</div>
+                  <div className="text-3xl font-bold text-accent mb-2">
+                    {results.pvcPipes.toLocaleString('en-IN', { maximumFractionDigits: 0 })} ft
+                  </div>
+                  <div className="text-xs text-muted-foreground">Drainage & sewage lines</div>
+                </Card>
+                <Card className="glass p-6 hover-lift">
+                  <div className="text-sm text-muted-foreground mb-2">CPVC Pipes</div>
+                  <div className="text-3xl font-bold text-accent mb-2">
+                    {results.cpvcPipes.toLocaleString('en-IN', { maximumFractionDigits: 0 })} ft
+                  </div>
+                  <div className="text-xs text-muted-foreground">Hot & cold water supply</div>
+                </Card>
+                <Card className="glass p-6 hover-lift">
+                  <div className="text-sm text-muted-foreground mb-2">GI Pipes</div>
+                  <div className="text-3xl font-bold text-accent mb-2">
+                    {results.giPipes.toLocaleString('en-IN', { maximumFractionDigits: 0 })} ft
+                  </div>
+                  <div className="text-xs text-muted-foreground">Main water line</div>
+                </Card>
+              </div>
+            </div>
+
+            {/* Other Materials Section */}
+            <div>
+              <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
+                  <Building2 className="text-accent" size={20} />
+                </div>
+                Other Materials
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="glass p-6 hover-lift">
+                  <div className="text-sm text-muted-foreground mb-2">Bricks</div>
+                  <div className="text-3xl font-bold text-accent mb-2">
+                    {results.bricks.toLocaleString('en-IN', { maximumFractionDigits: 0 })} pcs
+                  </div>
+                  <div className="text-xs text-muted-foreground">Standard size clay bricks</div>
+                </Card>
+                <Card className="glass p-6 hover-lift">
+                  <div className="text-sm text-muted-foreground mb-2">Sand</div>
+                  <div className="text-3xl font-bold text-accent mb-2">
+                    {results.sand.toLocaleString('en-IN', { maximumFractionDigits: 1 })} cft
+                  </div>
+                  <div className="text-xs text-muted-foreground">River sand for construction</div>
+                </Card>
+                <Card className="glass p-6 hover-lift">
+                  <div className="text-sm text-muted-foreground mb-2">Aggregate</div>
+                  <div className="text-3xl font-bold text-accent mb-2">
+                    {results.aggregate.toLocaleString('en-IN', { maximumFractionDigits: 1 })} cft
+                  </div>
+                  <div className="text-xs text-muted-foreground">20mm & 10mm chips</div>
+                </Card>
+              </div>
+            </div>
           </div>
         )}
 
