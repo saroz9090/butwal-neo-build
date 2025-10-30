@@ -1,13 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calculator, TrendingUp } from "lucide-react";
+import { Calculator, TrendingUp, Building2 } from "lucide-react";
+import House3D from "@/components/House3D";
 
 const Estimate = () => {
   const [area, setArea] = useState<string>("");
+  const [floors, setFloors] = useState<string>("1");
   const [materialType, setMaterialType] = useState<string>("");
   const [showResults, setShowResults] = useState(false);
   const [animatedCost, setAnimatedCost] = useState(0);
@@ -57,19 +59,45 @@ const Estimate = () => {
 
   return (
     <div className="min-h-screen pt-32 pb-20">
-      <div className="container mx-auto px-4 max-w-4xl">
+      <div className="container mx-auto px-4 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
             Cost <span className="text-primary">Estimate</span>
           </h1>
           <p className="text-xl text-muted-foreground">
-            Get an instant estimate for your construction project
+            Visualize and calculate your dream construction project in 3D
           </p>
         </div>
 
-        {/* Calculator Card */}
-        <Card className="glass p-8 md:p-12 mb-8 animate-slide-up">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* 3D Visualization */}
+          <div className="animate-fade-in">
+            <Card className="glass p-6 mb-4">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <Building2 className="text-primary" size={20} />
+                </div>
+                <h2 className="text-xl font-bold text-foreground">3D Preview</h2>
+              </div>
+              <Suspense fallback={
+                <div className="w-full h-[400px] rounded-xl glass flex items-center justify-center">
+                  <div className="text-muted-foreground">Loading 3D model...</div>
+                </div>
+              }>
+                <House3D 
+                  area={parseFloat(area) || 1000} 
+                  floors={parseInt(floors) || 1} 
+                />
+              </Suspense>
+              <p className="text-sm text-muted-foreground mt-4 text-center">
+                Drag to rotate • Scroll to zoom
+              </p>
+            </Card>
+          </div>
+
+          {/* Calculator Card */}
+          <Card className="glass p-8 md:p-12 animate-slide-up">
           <div className="flex items-center space-x-3 mb-8">
             <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
               <Calculator className="text-primary" size={24} />
@@ -77,46 +105,73 @@ const Estimate = () => {
             <h2 className="text-2xl font-bold text-foreground">Construction Calculator</h2>
           </div>
 
-          <div className="space-y-6">
-            {/* Area Input */}
-            <div className="space-y-2">
-              <Label htmlFor="area" className="text-foreground">Area (Square Feet)</Label>
-              <Input
-                id="area"
-                type="number"
-                placeholder="Enter area in sq ft"
-                value={area}
-                onChange={(e) => setArea(e.target.value)}
-                className="glass border-primary/30 focus:border-primary text-lg h-14"
-              />
-            </div>
+            <div className="space-y-6">
+              {/* Area Input */}
+              <div className="space-y-2">
+                <Label htmlFor="area" className="text-foreground">Area (Square Feet)</Label>
+                <Input
+                  id="area"
+                  type="number"
+                  min="1"
+                  placeholder="Enter area in sq ft"
+                  value={area}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "" || parseFloat(value) >= 0) {
+                      setArea(value);
+                    }
+                  }}
+                  className="glass border-primary/30 focus:border-primary text-lg h-14"
+                />
+              </div>
 
-            {/* Material Type */}
-            <div className="space-y-2">
-              <Label htmlFor="material" className="text-foreground">Material Type</Label>
-              <Select value={materialType} onValueChange={setMaterialType}>
-                <SelectTrigger className="glass border-primary/30 focus:border-primary text-lg h-14">
-                  <SelectValue placeholder="Select material type" />
-                </SelectTrigger>
-                <SelectContent className="glass">
-                  <SelectItem value="standard">Standard (NPR 8,000/sq ft)</SelectItem>
-                  <SelectItem value="premium">Premium (NPR 12,000/sq ft)</SelectItem>
-                  <SelectItem value="luxury">Luxury (NPR 16,000/sq ft)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              {/* Floors Input */}
+              <div className="space-y-2">
+                <Label htmlFor="floors" className="text-foreground">Number of Floors</Label>
+                <Input
+                  id="floors"
+                  type="number"
+                  min="1"
+                  max="10"
+                  placeholder="Enter number of floors"
+                  value={floors}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "" || (parseFloat(value) >= 1 && parseFloat(value) <= 10)) {
+                      setFloors(value);
+                    }
+                  }}
+                  className="glass border-primary/30 focus:border-primary text-lg h-14"
+                />
+              </div>
 
-            {/* Calculate Button */}
-            <Button
-              onClick={calculateEstimate}
-              disabled={!area || !materialType}
-              className="w-full bg-primary hover:bg-primary/90 text-foreground text-lg h-14 glow"
-            >
-              Calculate Estimate
-              <TrendingUp className="ml-2" size={20} />
-            </Button>
-          </div>
-        </Card>
+              {/* Material Type */}
+              <div className="space-y-2">
+                <Label htmlFor="material" className="text-foreground">Material Type</Label>
+                <Select value={materialType} onValueChange={setMaterialType}>
+                  <SelectTrigger className="glass border-primary/30 focus:border-primary text-lg h-14">
+                    <SelectValue placeholder="Select material type" />
+                  </SelectTrigger>
+                  <SelectContent className="glass">
+                    <SelectItem value="standard">Standard (NPR 8,000/sq ft)</SelectItem>
+                    <SelectItem value="premium">Premium (NPR 12,000/sq ft)</SelectItem>
+                    <SelectItem value="luxury">Luxury (NPR 16,000/sq ft)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Calculate Button */}
+              <Button
+                onClick={calculateEstimate}
+                disabled={!area || !materialType || parseFloat(area) <= 0}
+                className="w-full bg-primary hover:bg-primary/90 text-foreground text-lg h-14 glow"
+              >
+                Calculate Estimate
+                <TrendingUp className="ml-2" size={20} />
+              </Button>
+            </div>
+          </Card>
+        </div>
 
         {/* Results */}
         {showResults && (
