@@ -71,25 +71,27 @@ const Estimate = () => {
   const calculateEstimate = () => {
     if (!area || !materialType) return;
 
-    const sqFt = parseFloat(area);
+    const areaPerFloor = parseFloat(area);
+    const numFloors = parseInt(floors) || 1;
+    const totalArea = areaPerFloor * numFloors;
     const rates = materialRates[materialType as keyof typeof materialRates];
     
-    const totalCost = sqFt * rates.rate;
+    const totalCost = totalArea * rates.rate;
     
     const calculatedResults = {
-      ppcCement: sqFt * rates.ppcCement,
-      opcCement: sqFt * rates.opcCement,
-      rod8mm: sqFt * rates.rods["8mm"],
-      rod10mm: sqFt * rates.rods["10mm"],
-      rod12mm: sqFt * rates.rods["12mm"],
-      rod16mm: sqFt * rates.rods["16mm"],
-      rod20mm: sqFt * rates.rods["20mm"],
-      pvcPipes: sqFt * rates.pvcPipes,
-      cpvcPipes: sqFt * rates.cpvcPipes,
-      giPipes: sqFt * rates.giPipes,
-      bricks: sqFt * rates.bricks,
-      sand: sqFt * rates.sand,
-      aggregate: sqFt * rates.aggregate
+      ppcCement: totalArea * rates.ppcCement,
+      opcCement: totalArea * rates.opcCement,
+      rod8mm: totalArea * rates.rods["8mm"],
+      rod10mm: totalArea * rates.rods["10mm"],
+      rod12mm: totalArea * rates.rods["12mm"],
+      rod16mm: totalArea * rates.rods["16mm"],
+      rod20mm: totalArea * rates.rods["20mm"],
+      pvcPipes: totalArea * rates.pvcPipes,
+      cpvcPipes: totalArea * rates.cpvcPipes,
+      giPipes: totalArea * rates.giPipes,
+      bricks: totalArea * rates.bricks,
+      sand: totalArea * rates.sand,
+      aggregate: totalArea * rates.aggregate
     };
 
     setShowResults(true);
@@ -155,7 +157,7 @@ const Estimate = () => {
                 </div>
               }>
                 <House3D 
-                  area={parseFloat(area) || 1000} 
+                  area={(parseFloat(area) || 600) * (parseInt(floors) || 1)} 
                   floors={parseInt(floors) || 1} 
                 />
               </Suspense>
@@ -177,16 +179,16 @@ const Estimate = () => {
             <div className="space-y-6">
               {/* Area Input */}
               <div className="space-y-2">
-                <Label htmlFor="area" className="text-foreground">Total Area (Square Feet)</Label>
+                <Label htmlFor="area" className="text-foreground">Area Per Floor (Square Feet)</Label>
                 <p className="text-sm text-muted-foreground">
-                  Total built-up area across all floors<br />
-                  <span className="text-xs">(e.g., 600 sq ft per floor × 2 floors = 1200 sq ft total)</span>
+                  Built-up area for each floor
+                  <span className="text-xs block">(e.g., 600 sq ft per floor)</span>
                 </p>
                 <Input
                   id="area"
                   type="number"
                   min="1"
-                  placeholder="Enter total area in sq ft"
+                  placeholder="Enter area per floor in sq ft"
                   value={area}
                   onChange={(e) => {
                     const value = e.target.value;
