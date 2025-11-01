@@ -1,5 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { MessageCircle } from "lucide-react";
 import project1 from "@/assets/project-1.jpg";
 import project2 from "@/assets/project-2.jpg";
 
@@ -100,6 +102,14 @@ const Projects = () => {
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
             Let's discuss your construction needs and bring your vision to life
           </p>
+          <Button 
+            size="lg" 
+            className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+            onClick={() => window.open('https://wa.me/9779845323733?text=Hello! I am interested in starting a construction project.', '_blank')}
+          >
+            <MessageCircle className="mr-2" size={20} />
+            Start Your Project
+          </Button>
         </Card>
       </div>
     </div>

@@ -64,18 +64,18 @@ export const Chatbot = () => {
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button - adjusted for mobile bottom nav */}
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-primary hover:bg-primary/90 shadow-lg glow"
+        className="fixed bottom-6 md:bottom-6 bottom-24 right-6 z-50 h-16 w-16 rounded-full bg-primary hover:bg-primary/90 shadow-lg glow"
         aria-label="Toggle chat"
       >
         {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
       </Button>
 
-      {/* Chat Window */}
+      {/* Chat Window - adjusted for mobile */}
       {isOpen && (
-        <Card className="fixed bottom-24 right-6 z-50 w-96 max-w-[calc(100vw-3rem)] glass animate-fade-in">
+        <Card className="fixed bottom-24 md:bottom-24 bottom-44 right-6 z-50 w-96 max-w-[calc(100vw-3rem)] glass animate-fade-in">
           {/* Header */}
           <div className="bg-primary/10 p-4 border-b border-primary/20">
             <h3 className="font-bold text-lg flex items-center gap-2">

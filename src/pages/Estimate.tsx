@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calculator, TrendingUp, Building2 } from "lucide-react";
+import { Calculator, TrendingUp, Building2, MessageCircle } from "lucide-react";
 import House3D from "@/components/House3D";
 
 const Estimate = () => {
@@ -244,6 +244,20 @@ const Estimate = () => {
                 Calculate Estimate
                 <TrendingUp className="ml-2" size={20} />
               </Button>
+
+              {/* WhatsApp Button - always visible */}
+              <Button
+                onClick={() => {
+                  const message = area && floors 
+                    ? `Hello! I need an estimation for ${area} sq ft per floor with ${floors} floor(s).`
+                    : "Hello! I'm interested in getting a construction estimate.";
+                  window.open(`https://wa.me/9779845323733?text=${encodeURIComponent(message)}`, '_blank');
+                }}
+                className="w-full bg-[#25D366] hover:bg-[#20BA5A] text-white text-lg h-14"
+              >
+                <MessageCircle className="mr-2" size={20} />
+                Chat on WhatsApp
+              </Button>
             </div>
           </Card>
         </div>
@@ -257,7 +271,20 @@ const Estimate = () => {
               <div className="text-5xl font-bold text-primary mb-2">
                 NPR {animatedCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
               </div>
-              <div className="text-sm text-muted-foreground">Complete Project Cost</div>
+              <div className="text-sm text-muted-foreground mb-4">Complete Project Cost</div>
+              
+              {/* WhatsApp Share Button */}
+              <Button
+                onClick={() => {
+                  const message = `Hello! I've calculated an estimate:\n\nArea: ${area} sq ft per floor\nFloors: ${floors}\nTotal Area: ${(parseFloat(area) * parseInt(floors)).toLocaleString('en-IN')} sq ft\nMaterial Type: ${materialType}\nEstimated Cost: NPR ${animatedCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}\n\nI'd like to discuss this project further.`;
+                  window.open(`https://wa.me/9779845323733?text=${encodeURIComponent(message)}`, '_blank');
+                }}
+                className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+                size="lg"
+              >
+                <MessageCircle className="mr-2" size={20} />
+                Share on WhatsApp
+              </Button>
             </Card>
 
             {/* Cement Section */}

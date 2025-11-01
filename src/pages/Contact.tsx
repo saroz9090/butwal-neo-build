@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, MapPin, Send } from "lucide-react";
+import { Mail, Phone, MapPin, Send, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Contact = () => {
@@ -48,6 +48,26 @@ const Contact = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Contact Info */}
           <div className="space-y-6">
+            <Card className="glass p-6 hover-lift bg-[#25D366]/10 border-[#25D366]/30">
+              <a 
+                href="https://wa.me/9779845323733" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-start space-x-4 group"
+              >
+                <div className="w-12 h-12 bg-[#25D366] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <MessageCircle className="text-white" size={24} />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground mb-2">WhatsApp (Primary)</h3>
+                  <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                    +977 984-5323733<br />
+                    <span className="text-[#25D366]">Click to chat instantly →</span>
+                  </p>
+                </div>
+              </a>
+            </Card>
+
             <Card className="glass p-6 hover-lift">
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -71,8 +91,7 @@ const Contact = () => {
                 <div>
                   <h3 className="font-semibold text-foreground mb-2">Phone</h3>
                   <p className="text-sm text-muted-foreground">
-                    +977 XXX-XXXXXXX<br />
-                    +977 XXX-XXXXXXX
+                    +977 984-5323733
                   </p>
                 </div>
               </div>

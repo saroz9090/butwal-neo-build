@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
-import { Home, Building, Hammer, Ruler, Cog, ClipboardCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Home, Building, Hammer, Ruler, Cog, ClipboardCheck, MessageCircle } from "lucide-react";
 
 const Services = () => {
   const services = [
@@ -113,6 +114,14 @@ const Services = () => {
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
             Every project is unique. Let's discuss your specific requirements and create a tailored solution.
           </p>
+          <Button 
+            size="lg" 
+            className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+            onClick={() => window.open('https://wa.me/9779845323733?text=Hello! I need a custom construction solution.', '_blank')}
+          >
+            <MessageCircle className="mr-2" size={20} />
+            Discuss on WhatsApp
+          </Button>
         </Card>
       </div>
     </div>

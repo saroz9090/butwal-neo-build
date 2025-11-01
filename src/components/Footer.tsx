@@ -1,4 +1,4 @@
-import { Building2, Mail, Phone, MapPin } from "lucide-react";
+import { Building2, Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -58,9 +58,18 @@ const Footer = () => {
                 <MapPin size={16} className="text-primary mt-1 flex-shrink-0" />
                 <p className="text-sm text-muted-foreground">Butwal, Nepal</p>
               </div>
+              <a 
+                href="https://wa.me/9779845323733" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 hover:text-primary transition-colors group"
+              >
+                <MessageCircle size={16} className="text-primary flex-shrink-0 group-hover:scale-110 transition-transform" />
+                <p className="text-sm text-muted-foreground group-hover:text-primary">+977 984-5323733</p>
+              </a>
               <div className="flex items-center space-x-2">
                 <Phone size={16} className="text-primary flex-shrink-0" />
-                <p className="text-sm text-muted-foreground">+977 XXX-XXXXXXX</p>
+                <p className="text-sm text-muted-foreground">+977 984-5323733</p>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail size={16} className="text-primary flex-shrink-0" />

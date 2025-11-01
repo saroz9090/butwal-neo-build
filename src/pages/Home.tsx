@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Building2, Shield, Users, Award, ArrowRight } from "lucide-react";
+import { Building2, Shield, Users, Award, ArrowRight, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-construction.jpg";
 import project1 from "@/assets/project-1.jpg";
@@ -52,6 +52,14 @@ const Home = () => {
             Modern construction solutions with trusted quality and innovative design
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              size="lg" 
+              className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+              onClick={() => window.open('https://wa.me/9779845323733?text=Hello! I am interested in your construction services.', '_blank')}
+            >
+              <MessageCircle className="mr-2" size={20} />
+              Chat on WhatsApp
+            </Button>
             <Link to="/estimate">
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-foreground glow">
                 Get Estimate
@@ -154,6 +162,14 @@ const Home = () => {
             Get a free estimate and let's build something amazing together
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              size="lg" 
+              className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
+              onClick={() => window.open('https://wa.me/9779845323733?text=Hello! I want to start a construction project.', '_blank')}
+            >
+              <MessageCircle className="mr-2" size={20} />
+              WhatsApp Us
+            </Button>
             <Link to="/estimate">
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-foreground glow">
                 Calculate Estimate
