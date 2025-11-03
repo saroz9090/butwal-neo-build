@@ -158,7 +158,8 @@ const Estimate = () => {
               }>
                 <House3D 
                   area={(parseFloat(area) || 600) * (parseInt(floors) || 1)} 
-                  floors={parseInt(floors) || 1} 
+                  floors={parseInt(floors) || 1}
+                  materialType={materialType || "standard"}
                 />
               </Suspense>
               <p className="text-sm text-muted-foreground mt-4 text-center">
