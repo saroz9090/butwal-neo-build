@@ -24,8 +24,9 @@ const Navigation = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navItems = [
+  const mainNavItems = [
     { name: "Home", path: "/", icon: Home },
+    { name: "About & Services", path: "/about", icon: Info },
     { name: "Projects", path: "/projects", icon: Briefcase },
     { name: "Blog", path: "/blog", icon: BookOpen },
     { name: "Estimate", path: "/estimate", icon: Calculator },
@@ -61,19 +62,23 @@ const Navigation = () => {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-1">
-              <Link to="/about">
-                <Button
-                  variant="ghost"
-                  className={`${
-                    isActive("/about")
-                      ? "bg-primary text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  } transition-all duration-300`}
-                >
-                  About & Services
-                </Button>
-              </Link>
+              {/* Main Navigation Items */}
+              {mainNavItems.map((item) => (
+                <Link key={item.path} to={item.path}>
+                  <Button
+                    variant="ghost"
+                    className={`${
+                      isActive(item.path)
+                        ? "bg-primary text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    } transition-all duration-300`}
+                  >
+                    {item.name}
+                  </Button>
+                </Link>
+              ))}
               
+              {/* Tools Dropdown */}
               <NavigationMenu>
                 <NavigationMenuList>
                   <NavigationMenuItem>
@@ -97,21 +102,6 @@ const Navigation = () => {
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
-
-              {navItems.map((item) => (
-                <Link key={item.path} to={item.path}>
-                  <Button
-                    variant="ghost"
-                    className={`${
-                      isActive(item.path)
-                        ? "bg-primary text-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    } transition-all duration-300`}
-                  >
-                    {item.name}
-                  </Button>
-                </Link>
-              ))}
             </div>
 
             {/* Mobile Menu Button */}
@@ -128,20 +118,28 @@ const Navigation = () => {
         {isOpen && (
           <div className="md:hidden glass border-t border-border animate-fade-in">
             <div className="container mx-auto px-4 py-4 space-y-2">
-              <Link to="/about" onClick={() => setIsOpen(false)}>
-                <Button
-                  variant="ghost"
-                  className={`w-full justify-start ${
-                    isActive("/about")
-                      ? "bg-primary text-foreground"
-                      : "text-muted-foreground"
-                  }`}
+              {/* Main Navigation Items for Mobile */}
+              {mainNavItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
                 >
-                  <Info className="mr-2 h-4 w-4" />
-                  About & Services
-                </Button>
-              </Link>
+                  <Button
+                    variant="ghost"
+                    className={`w-full justify-start ${
+                      isActive(item.path)
+                        ? "bg-primary text-foreground"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    <item.icon className="mr-2 h-4 w-4" />
+                    {item.name}
+                  </Button>
+                </Link>
+              ))}
 
+              {/* Tools Section for Mobile */}
               <div className="pl-4 space-y-2 border-l-2 border-primary/30">
                 <div className="text-xs font-semibold text-primary mb-2">Tools</div>
                 {toolsItems.map((item) => (
@@ -164,26 +162,6 @@ const Navigation = () => {
                   </Link>
                 ))}
               </div>
-
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setIsOpen(false)}
-                >
-                  <Button
-                    variant="ghost"
-                    className={`w-full justify-start ${
-                      isActive(item.path)
-                        ? "bg-primary text-foreground"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    <item.icon className="mr-2 h-4 w-4" />
-                    {item.name}
-                  </Button>
-                </Link>
-              ))}
             </div>
           </div>
         )}
@@ -192,7 +170,7 @@ const Navigation = () => {
       {/* Mobile Bottom Navigation */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass border-t border-border">
         <div className="flex items-center justify-around px-2 py-3">
-          {navItems.map((item) => (
+          {mainNavItems.map((item) => (
             <Link key={item.path} to={item.path} className="flex-1">
               <div
                 className={`flex flex-col items-center space-y-1 ${
