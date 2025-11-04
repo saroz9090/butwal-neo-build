@@ -6,12 +6,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
-import About from "./pages/About";
+import AboutServices from "./pages/AboutServices";
 import Projects from "./pages/Projects";
-import Services from "./pages/Services";
 import Blog from "./pages/Blog";
 import Estimate from "./pages/Estimate";
 import Contact from "./pages/Contact";
+import PermitAssistant from "./pages/tools/PermitAssistant";
+import Calculators from "./pages/tools/Calculators";
 import NotFound from "./pages/NotFound";
 import { Chatbot } from "./components/Chatbot";
 
@@ -26,9 +27,10 @@ const App = () => (
         <Navigation />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/about" element={<AboutServices />} />
           <Route path="/projects" element={<Projects />} />
-          <Route path="/services" element={<Services />} />
+          <Route path="/tools/permits" element={<PermitAssistant />} />
+          <Route path="/tools/calculators" element={<Calculators />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/estimate" element={<Estimate />} />
           <Route path="/contact" element={<Contact />} />
