@@ -26,7 +26,7 @@ const Navigation = () => {
 
   const mainNavItems = [
     { name: "Home", path: "/", icon: Home },
-    { name: "About & Services", path: "/about", icon: Info },
+    { name: "About", path: "/about", icon: Info },
     { name: "Projects", path: "/projects", icon: Briefcase },
     { name: "Blog", path: "/blog", icon: BookOpen },
     { name: "Estimate", path: "/estimate", icon: Calculator },
