@@ -13,6 +13,7 @@ import Estimate from "./pages/Estimate";
 import Contact from "./pages/Contact";
 import PermitAssistant from "./pages/tools/PermitAssistant";
 import Calculators from "./pages/tools/Calculators";
+import VastuGuide from "./pages/tools/VastuGuide";
 import NotFound from "./pages/NotFound";
 import { Chatbot } from "./components/Chatbot";
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/projects" element={<Projects />} />
           <Route path="/tools/permits" element={<PermitAssistant />} />
           <Route path="/tools/calculators" element={<Calculators />} />
+          <Route path="/tools/vastu" element={<VastuGuide />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/estimate" element={<Estimate />} />
           <Route path="/contact" element={<Contact />} />

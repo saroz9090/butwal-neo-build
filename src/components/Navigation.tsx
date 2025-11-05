@@ -35,7 +35,8 @@ const Navigation = () => {
 
   const toolsItems = [
     { name: "Permit Assistant", path: "/tools/permits", description: "Nepal building permits & legal help" },
-    { name: "Calculators", path: "/tools/calculators", description: "EMI, ROI, Vastu tools" },
+    { name: "Financial Calculators", path: "/tools/calculators", description: "EMI, ROI & rental yield tools" },
+    { name: "Vastu Guide", path: "/tools/vastu", description: "Complete Vastu Shastra guidance" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
