@@ -16,6 +16,8 @@ import Calculators from "./pages/tools/Calculators";
 import VastuGuide from "./pages/tools/VastuGuide";
 import NotFound from "./pages/NotFound";
 import { Chatbot } from "./components/Chatbot";
+import FloorPlannerPage from './pages/FloorPlannerPage';
+import UnderConstructionPage from './pages/UnderConstructionPage'; // Add this import
 
 const queryClient = new QueryClient();
 
@@ -36,6 +38,8 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="/estimate" element={<Estimate />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/floor-planner" element={<FloorPlannerPage />} />
+          <Route path="/under-construction" element={<UnderConstructionPage />} /> {/* Add this line */}
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />
