@@ -407,68 +407,169 @@ Colors: Light blue, yellow, saffron, light green`
   const CurrentVastuSection = vastuData[selectedVastuSection as keyof typeof vastuData];
 
   return (
-    <div className="min-h-screen bg-background py-20 px-4">
+    <div className="min-h-screen bg-background pt-32 pb-20 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gradient">
-            Vastu Shastra Guide
+        <div className="text-center mb-12 animate-fade-in">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-foreground">
+            Vastu Shastra <span className="text-primary">Guide</span>
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Ancient Indian architectural science for harmonious living spaces
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <Card className="p-6 glass hover-lift cursor-pointer" onClick={() => setSelectedVastuSection("overview")}>
-            <Compass className="w-12 h-12 text-primary mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Overview</h3>
-            <p className="text-muted-foreground">Introduction to Vastu Shastra</p>
-          </Card>
-          <Card className="p-6 glass hover-lift cursor-pointer" onClick={() => setSelectedVastuSection("principles")}>
-            <Home className="w-12 h-12 text-accent mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Five Elements</h3>
-            <p className="text-muted-foreground">Core principles & directions</p>
-          </Card>
-          <Card className="p-6 glass hover-lift cursor-pointer" onClick={() => setSelectedVastuSection("land")}>
-            <MapPin className="w-12 h-12 text-primary mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Land Selection</h3>
-            <p className="text-muted-foreground">Choosing the right plot</p>
-          </Card>
-          <Card className="p-6 glass hover-lift cursor-pointer" onClick={() => setSelectedVastuSection("doors")}>
-            <DoorOpen className="w-12 h-12 text-accent mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Doors & Entrance</h3>
-            <p className="text-muted-foreground">Main door placement</p>
-          </Card>
-          <Card className="p-6 glass hover-lift cursor-pointer" onClick={() => setSelectedVastuSection("rooms")}>
-            <Bed className="w-12 h-12 text-primary mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Room Placement</h3>
-            <p className="text-muted-foreground">Optimal room positions</p>
-          </Card>
-          <Card className="p-6 glass hover-lift cursor-pointer" onClick={() => setSelectedVastuSection("kitchen")}>
-            <Utensils className="w-12 h-12 text-accent mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Kitchen & Dining</h3>
-            <p className="text-muted-foreground">Food preparation areas</p>
-          </Card>
+        {/* Quick Navigation Buttons */}
+        <div className="flex flex-wrap gap-3 justify-center mb-8">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const element = document.getElementById('directional-analysis');
+              element?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="border-primary/20 hover:border-primary"
+          >
+            <Compass className="w-4 h-4 mr-2" />
+            Directional Analysis
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const element = document.getElementById('room-specific-vastu');
+              element?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="border-primary/20 hover:border-primary"
+          >
+            <Home className="w-4 h-4 mr-2" />
+            Room Specific Vastu
+          </Button>
         </div>
 
-        <Card className="p-8 glass mb-8">
-          <div className="flex items-center gap-4 mb-6">
-            <CurrentVastuSection.icon className="w-10 h-10 text-primary" />
-            <h2 className="text-3xl font-bold">{CurrentVastuSection.title}</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div>
+            <Card 
+              className="p-6 glass hover-lift cursor-pointer border border-border" 
+              onClick={() => setSelectedVastuSection(selectedVastuSection === "overview" ? "" : "overview")}
+            >
+              <Compass className="w-12 h-12 text-primary mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-foreground">Overview</h3>
+              <p className="text-muted-foreground">Introduction to Vastu Shastra</p>
+            </Card>
+            {selectedVastuSection === "overview" && (
+              <Card className="glass p-6 mt-4 border border-border animate-fade-in">
+                <div className="prose prose-invert max-w-none">
+                  <p className="whitespace-pre-line text-foreground leading-relaxed">
+                    {CurrentVastuSection.content}
+                  </p>
+                </div>
+              </Card>
+            )}
           </div>
-          <div className="prose prose-invert max-w-none">
-            <p className="whitespace-pre-line text-foreground leading-relaxed">
-              {CurrentVastuSection.content}
-            </p>
+          <div>
+            <Card 
+              className="p-6 glass hover-lift cursor-pointer border border-border" 
+              onClick={() => setSelectedVastuSection(selectedVastuSection === "principles" ? "" : "principles")}
+            >
+              <Home className="w-12 h-12 text-accent mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-foreground">Five Elements</h3>
+              <p className="text-muted-foreground">Core principles & directions</p>
+            </Card>
+            {selectedVastuSection === "principles" && (
+              <Card className="glass p-6 mt-4 border border-border animate-fade-in">
+                <div className="prose prose-invert max-w-none">
+                  <p className="whitespace-pre-line text-foreground leading-relaxed">
+                    {vastuData.principles.content}
+                  </p>
+                </div>
+              </Card>
+            )}
           </div>
-        </Card>
+          <div>
+            <Card 
+              className="p-6 glass hover-lift cursor-pointer border border-border" 
+              onClick={() => setSelectedVastuSection(selectedVastuSection === "land" ? "" : "land")}
+            >
+              <MapPin className="w-12 h-12 text-primary mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-foreground">Land Selection</h3>
+              <p className="text-muted-foreground">Choosing the right plot</p>
+            </Card>
+            {selectedVastuSection === "land" && (
+              <Card className="glass p-6 mt-4 border border-border animate-fade-in">
+                <div className="prose prose-invert max-w-none">
+                  <p className="whitespace-pre-line text-foreground leading-relaxed">
+                    {vastuData.land.content}
+                  </p>
+                </div>
+              </Card>
+            )}
+          </div>
+          <div>
+            <Card 
+              className="p-6 glass hover-lift cursor-pointer border border-border" 
+              onClick={() => setSelectedVastuSection(selectedVastuSection === "doors" ? "" : "doors")}
+            >
+              <DoorOpen className="w-12 h-12 text-accent mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-foreground">Doors & Entrance</h3>
+              <p className="text-muted-foreground">Main door placement</p>
+            </Card>
+            {selectedVastuSection === "doors" && (
+              <Card className="glass p-6 mt-4 border border-border animate-fade-in">
+                <div className="prose prose-invert max-w-none">
+                  <p className="whitespace-pre-line text-foreground leading-relaxed">
+                    {vastuData.doors.content}
+                  </p>
+                </div>
+              </Card>
+            )}
+          </div>
+          <div>
+            <Card 
+              className="p-6 glass hover-lift cursor-pointer border border-border" 
+              onClick={() => setSelectedVastuSection(selectedVastuSection === "rooms" ? "" : "rooms")}
+            >
+              <Bed className="w-12 h-12 text-primary mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-foreground">Room Placement</h3>
+              <p className="text-muted-foreground">Optimal room positions</p>
+            </Card>
+            {selectedVastuSection === "rooms" && (
+              <Card className="glass p-6 mt-4 border border-border animate-fade-in">
+                <div className="prose prose-invert max-w-none">
+                  <p className="whitespace-pre-line text-foreground leading-relaxed">
+                    {vastuData.rooms.content}
+                  </p>
+                </div>
+              </Card>
+            )}
+          </div>
+          <div>
+            <Card 
+              className="p-6 glass hover-lift cursor-pointer border border-border" 
+              onClick={() => setSelectedVastuSection(selectedVastuSection === "kitchen" ? "" : "kitchen")}
+            >
+              <Utensils className="w-12 h-12 text-accent mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-foreground">Kitchen & Dining</h3>
+              <p className="text-muted-foreground">Food preparation areas</p>
+            </Card>
+            {selectedVastuSection === "kitchen" && (
+              <Card className="glass p-6 mt-4 border border-border animate-fade-in">
+                <div className="prose prose-invert max-w-none">
+                  <p className="whitespace-pre-line text-foreground leading-relaxed">
+                    {vastuData.kitchen.content}
+                  </p>
+                </div>
+              </Card>
+            )}
+          </div>
+        </div>
 
         {/* Directional Analysis */}
-        <Card className="p-8 glass mb-8">
-          <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
-            <Compass className="w-8 h-8 text-primary" />
-            Directional Analysis
-          </h2>
+        <div id="directional-analysis">
+          <Card className="glass p-8 mb-8 border border-border">
+            <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 text-foreground">
+              <Compass className="w-8 h-8 text-primary" />
+              Directional Analysis
+            </h2>
           <div className="space-y-6">
             <div>
               <Label className="text-lg mb-2 block">Select Direction</Label>
@@ -493,18 +594,18 @@ Colors: Light blue, yellow, saffron, light green`
             </Button>
 
             {vastuRecommendation && (
-              <Card className={`p-6 border-2 ${vastuRecommendation.color}`}>
+              <div className={`p-6 rounded-lg border ${vastuRecommendation.color} animate-fade-in`}>
                 <p className="text-foreground mb-6 text-lg leading-relaxed">{vastuRecommendation.description}</p>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <h4 className="font-semibold text-accent mb-3 flex items-center gap-2">
+                    <h4 className="font-semibold text-primary mb-3 flex items-center gap-2">
                       <CheckCircle className="w-5 h-5" />
-                      Recommendations
+                      Do's
                     </h4>
                     <ul className="space-y-2">
                       {vastuRecommendation.dos.map((item, idx) => (
                         <li key={idx} className="flex items-start gap-2 text-foreground">
-                          <span className="text-accent mt-1">•</span>
+                          <span className="text-primary mt-1">✓</span>
                           <span>{item}</span>
                         </li>
                       ))}
@@ -513,102 +614,105 @@ Colors: Light blue, yellow, saffron, light green`
                   <div>
                     <h4 className="font-semibold text-destructive mb-3 flex items-center gap-2">
                       <XCircle className="w-5 h-5" />
-                      Things to Avoid
+                      Don'ts
                     </h4>
                     <ul className="space-y-2">
                       {vastuRecommendation.donts.map((item, idx) => (
                         <li key={idx} className="flex items-start gap-2 text-foreground">
-                          <span className="text-destructive mt-1">•</span>
+                          <span className="text-destructive mt-1">✗</span>
                           <span>{item}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
                 </div>
-              </Card>
+              </div>
             )}
           </div>
-        </Card>
+          </Card>
+        </div>
 
         {/* Room-Specific Vastu */}
-        <Card className="p-8 glass">
-          <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
-            <Bed className="w-8 h-8 text-primary" />
-            Room-Specific Vastu
-          </h2>
-          <div className="space-y-6">
-            <div>
-              <Label className="text-lg mb-2 block">Select Room Type</Label>
-              <Select value={selectedRoom} onValueChange={setSelectedRoom}>
-                <SelectTrigger className="bg-input border-border">
-                  <SelectValue placeholder="Choose a room" />
-                </SelectTrigger>
-                <SelectContent>
+        <div id="room-specific-vastu">
+          <Card className="glass p-8 border border-border">
+            <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 text-foreground">
+              <Home className="w-8 h-8 text-primary" />
+              Room-Specific Vastu
+            </h2>
+            <div className="space-y-6">
+              <div>
+                <Label htmlFor="room" className="text-foreground">Select Room Type</Label>
+                <Select value={selectedRoom} onValueChange={setSelectedRoom}>
+                  <SelectTrigger id="room" className="bg-input border-border text-foreground">
+                    <SelectValue placeholder="Choose a room" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border z-50">
                   <SelectItem value="bedroom">Bedroom</SelectItem>
                   <SelectItem value="kitchen">Kitchen</SelectItem>
                   <SelectItem value="livingroom">Living Room</SelectItem>
-                  <SelectItem value="poojaroom">Pooja/Prayer Room</SelectItem>
+                  <SelectItem value="poojaroom">Pooja Room</SelectItem>
                   <SelectItem value="bathroom">Bathroom</SelectItem>
                   <SelectItem value="studyroom">Study Room</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={analyzeRoomVastu} className="w-full">
-              Get Room Guidance
+            <Button onClick={analyzeRoomVastu} className="w-full" size="lg">
+              Analyze Room Vastu
             </Button>
 
             {roomRecommendation && (
-              <Card className="p-6 border-2 bg-card/50 border-primary/20">
-                <div className="space-y-4 mb-6">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-1">Ideal Placement</h4>
-                      <p className="text-foreground">{roomRecommendation.ideal}</p>
-                    </div>
+              <div className="bg-card/50 border border-primary/20 p-6 rounded-lg animate-fade-in">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-bold text-lg mb-2 flex items-center gap-2 text-primary">
+                      <MapPin className="w-5 h-5" />
+                      Ideal Direction
+                    </h3>
+                    <p className="text-foreground">{roomRecommendation.ideal}</p>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Compass className="w-5 h-5 text-accent mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="font-bold text-lg mb-2 flex items-center gap-2 text-accent">
+                      <Compass className="w-5 h-5" />
+                      Facing Direction
+                    </h3>
+                    <p className="text-foreground">{roomRecommendation.direction}</p>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <h4 className="font-semibold text-foreground mb-1">Direction</h4>
-                      <p className="text-foreground">{roomRecommendation.direction}</p>
+                      <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-primary">
+                        <CheckCircle className="w-5 h-5" />
+                        Tips
+                      </h3>
+                      <ul className="space-y-2">
+                        {roomRecommendation.tips.map((item, index) => (
+                          <li key={index} className="flex items-start gap-2 text-foreground">
+                            <span className="text-primary mt-1">✓</span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-destructive">
+                        <AlertCircle className="w-5 h-5" />
+                        Avoid
+                      </h3>
+                      <ul className="space-y-2">
+                        {roomRecommendation.avoid.map((item, index) => (
+                          <li key={index} className="flex items-start gap-2 text-foreground">
+                            <span className="text-destructive mt-1">✗</span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
                 </div>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-semibold text-accent mb-3 flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5" />
-                      Tips
-                    </h4>
-                    <ul className="space-y-2">
-                      {roomRecommendation.tips.map((item, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-foreground">
-                          <span className="text-accent mt-1">•</span>
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-destructive mb-3 flex items-center gap-2">
-                      <XCircle className="w-5 h-5" />
-                      Things to Avoid
-                    </h4>
-                    <ul className="space-y-2">
-                      {roomRecommendation.avoid.map((item, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-foreground">
-                          <span className="text-destructive mt-1">•</span>
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </Card>
+              </div>
             )}
           </div>
-        </Card>
+          </Card>
+        </div>
       </div>
     </div>
   );

@@ -167,7 +167,8 @@ const Calculators = () => {
 
           {/* ROI Calculator */}
           <TabsContent value="roi">
-            <Card className="glass p-8 max-w-2xl mx-auto border border-border">
+            <div className="max-w-2xl mx-auto">
+              <Card className="glass p-8 border border-border">
               <div className="flex items-center space-x-3 mb-6">
                 <TrendingUp className="text-primary" size={32} />
                 <h2 className="text-2xl font-bold text-foreground">Property Appreciation Calculator</h2>
@@ -223,12 +224,14 @@ const Calculators = () => {
                   </div>
                 )}
               </div>
-            </Card>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* Rental Yield Calculator */}
           <TabsContent value="rental">
-            <Card className="glass p-8 max-w-2xl mx-auto border border-border">
+            <div className="max-w-2xl mx-auto">
+              <Card className="glass p-8 border border-border">
               <div className="flex items-center space-x-3 mb-6">
                 <Home className="text-primary" size={32} />
                 <h2 className="text-2xl font-bold text-foreground">Rental Yield Calculator</h2>
@@ -274,7 +277,8 @@ const Calculators = () => {
                   </div>
                 )}
               </div>
-            </Card>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
 
