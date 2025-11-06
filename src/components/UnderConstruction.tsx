@@ -15,7 +15,8 @@ import {
   Play,
   Pause,
   RotateCcw,
-  Calendar
+  Calendar,
+  MessageCircle
 } from 'lucide-react';
 
 const UnderConstruction = () => {
@@ -174,11 +175,11 @@ const UnderConstruction = () => {
     if (!ctx) return;
 
     // Clear canvas
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = 'hsl(290 47% 8%)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw grid
-    ctx.strokeStyle = '#1e293b';
+    ctx.strokeStyle = 'hsl(300 5% 25%)';
     ctx.lineWidth = 1;
     for (let x = 0; x < canvas.width; x += 20) {
       ctx.beginPath();
@@ -195,23 +196,23 @@ const UnderConstruction = () => {
 
     // Draw snake
     snake.forEach((segment, index) => {
-      ctx.fillStyle = index === 0 ? '#3b82f6' : '#60a5fa';
+      ctx.fillStyle = index === 0 ? 'hsl(349 96% 30%)' : 'hsl(349 96% 40%)';
       ctx.fillRect(segment.x * 20, segment.y * 20, 18, 18);
-      ctx.strokeStyle = '#1d4ed8';
+      ctx.strokeStyle = 'hsl(349 96% 25%)';
       ctx.strokeRect(segment.x * 20, segment.y * 20, 18, 18);
     });
 
     // Draw food
-    ctx.fillStyle = '#ef4444';
+    ctx.fillStyle = 'hsl(40 95% 53%)';
     ctx.beginPath();
     ctx.arc(food.x * 20 + 10, food.y * 20 + 10, 8, 0, 2 * Math.PI);
     ctx.fill();
-    ctx.strokeStyle = '#dc2626';
+    ctx.strokeStyle = 'hsl(40 95% 45%)';
     ctx.stroke();
 
     // Draw score
     if (gameStarted) {
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = 'hsl(150 80% 99%)';
       ctx.font = '16px Arial';
       ctx.fillText(`Score: ${score}`, 10, 20);
     }
@@ -254,20 +255,20 @@ const UnderConstruction = () => {
   }, [totalDuration]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-4xl w-full">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="relative">
-              <Construction className="w-16 h-16 text-blue-600" />
-              <HardHat className="w-8 h-8 text-blue-700 absolute -top-2 -right-2" />
+              <Construction className="w-16 h-16 text-primary" />
+              <HardHat className="w-8 h-8 text-accent absolute -top-2 -right-2" />
             </div>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
             Under Construction
           </h1>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
             We're working hard to bring you an amazing experience. 
             While you wait, enjoy a game of Snake!
           </p>
@@ -277,43 +278,43 @@ const UnderConstruction = () => {
           {/* Left Column - Info */}
           <div className="space-y-6">
             {/* Progress Card */}
-            <Card className="bg-white/80 backdrop-blur-sm border-blue-200">
+            <Card className="glass">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <Hammer className="w-6 h-6 text-blue-600" />
-                  <h3 className="text-xl font-semibold text-gray-900">Construction Progress</h3>
+                  <Hammer className="w-6 h-6 text-primary" />
+                  <h3 className="text-xl font-semibold text-foreground">Construction Progress</h3>
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <div className="flex justify-between text-sm text-gray-600 mb-2">
+                    <div className="flex justify-between text-sm text-muted-foreground mb-2">
                       <span>Completion</span>
                       <span>{Math.round(progress)}%</span>
                     </div>
-                    <Progress value={progress} className="h-3 bg-blue-100" />
+                    <Progress value={progress} className="h-3" />
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-gray-600">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="w-4 h-4" />
                         <span className="font-medium">Started:</span>
                       </div>
-                      <div className="text-blue-600 font-semibold">
+                      <div className="text-primary font-semibold">
                         {formatDate(startDate)}
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-gray-600">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="w-4 h-4" />
                         <span className="font-medium">Est. Completion:</span>
                       </div>
-                      <div className="text-green-600 font-semibold">
+                      <div className="text-accent font-semibold">
                         {formatDate(endDate)}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="w-4 h-4" />
                     <span>Time remaining: {daysLeft > 0 ? `${daysLeft} days` : 'Any day now!'}</span>
                   </div>
@@ -322,27 +323,27 @@ const UnderConstruction = () => {
             </Card>
 
             {/* Features Card */}
-            <Card className="bg-white/80 backdrop-blur-sm border-blue-200">
+            <Card className="glass">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <Wrench className="w-6 h-6 text-blue-600" />
-                  <h3 className="text-xl font-semibold text-gray-900">What's Coming</h3>
+                  <Wrench className="w-6 h-6 text-primary" />
+                  <h3 className="text-xl font-semibold text-foreground">What's Coming</h3>
                 </div>
-                <ul className="space-y-3 text-gray-600">
+                <ul className="space-y-3 text-muted-foreground">
                   <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-primary rounded-full"></div>
                     Amazing new floor planning features
                   </li>
                   <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-primary rounded-full"></div>
                     Enhanced 3D visualization
                   </li>
                   <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-primary rounded-full"></div>
                     Real-time collaboration tools
                   </li>
                   <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-primary rounded-full"></div>
                     Professional export capabilities
                   </li>
                 </ul>
@@ -350,37 +351,34 @@ const UnderConstruction = () => {
             </Card>
 
             {/* Contact Card */}
-            <Card className="bg-white/80 backdrop-blur-sm border-blue-200">
+            <Card className="glass">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <Mail className="w-6 h-6 text-blue-600" />
-                  <h3 className="text-xl font-semibold text-gray-900">Get Notified</h3>
+                  <MessageCircle className="w-6 h-6 text-[#25D366]" />
+                  <h3 className="text-xl font-semibold text-foreground">Contact Us</h3>
                 </div>
                 <div className="space-y-4">
-                  <p className="text-gray-600 text-sm">
-                    We'll let you know when we're ready. Leave your email and be the first to access!
+                  <p className="text-muted-foreground text-sm">
+                    Have questions? Get in touch via WhatsApp and we'll help you out!
                   </p>
-                  <div className="flex gap-2">
-                    <input
-                      type="email"
-                      placeholder="Enter your email"
-                      className="flex-1 px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                      Notify Me
-                    </Button>
-                  </div>
+                  <Button 
+                    onClick={() => window.open('https://wa.me/9779845323733?text=Hi! I would like to know more about your services.', '_blank')}
+                    className="w-full bg-[#25D366] hover:bg-[#20BA5A] text-white"
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Chat on WhatsApp
+                  </Button>
                 </div>
               </CardContent>
             </Card>
 
             {/* Navigation */}
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-50">
+              <Button variant="outline" className="flex-1" onClick={() => window.location.href = '/'}>
                 <Home className="w-4 h-4 mr-2" />
                 Back to Home
               </Button>
-              <Button variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50">
+              <Button variant="outline" onClick={() => window.history.back()}>
                 <ArrowLeft className="w-4 h-4" />
               </Button>
             </div>
@@ -388,22 +386,22 @@ const UnderConstruction = () => {
 
           {/* Right Column - Game */}
           <div className="space-y-6">
-            <Card className="bg-white/80 backdrop-blur-sm border-blue-200">
+            <Card className="glass">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-semibold text-gray-900">Play Snake</h3>
+                  <h3 className="text-xl font-semibold text-foreground">Play Snake</h3>
                   <div className="flex items-center gap-2">
                     {!gameStarted ? (
-                      <Button onClick={startGame} className="bg-green-600 hover:bg-green-700 text-white">
+                      <Button onClick={startGame} className="bg-accent text-accent-foreground hover:opacity-90">
                         <Play className="w-4 h-4 mr-2" />
                         Start Game
                       </Button>
                     ) : (
                       <>
-                        <Button onClick={togglePause} variant="outline" className="border-blue-300">
+                        <Button onClick={togglePause} variant="outline">
                           {gamePaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
                         </Button>
-                        <Button onClick={resetGame} variant="outline" className="border-blue-300">
+                        <Button onClick={resetGame} variant="outline">
                           <RotateCcw className="w-4 h-4" />
                         </Button>
                       </>
@@ -412,40 +410,40 @@ const UnderConstruction = () => {
                 </div>
 
                 {/* Game Canvas */}
-                <div className="border-2 border-blue-300 rounded-lg bg-blue-50 p-4">
+                <div className="border-2 border-border rounded-lg bg-card p-4">
                   <canvas
                     ref={canvasRef}
                     width={400}
                     height={400}
-                    className="w-full h-auto max-w-full border border-blue-200 rounded bg-slate-900 mx-auto block"
+                    className="w-full h-auto max-w-full border border-border rounded mx-auto block"
                     onClick={() => canvasRef.current?.focus()} // Focus on click
                     tabIndex={0} // Make it focusable
                   />
                   
                   {!gameStarted && (
-                    <div className="text-center mt-4 p-4 bg-blue-100 rounded-lg">
-                      <p className="text-blue-800 font-semibold mb-2">How to Play:</p>
-                      <p className="text-blue-700 text-sm">
+                    <div className="text-center mt-4 p-4 glass rounded-lg">
+                      <p className="text-foreground font-semibold mb-2">How to Play:</p>
+                      <p className="text-muted-foreground text-sm">
                         Click on the game area, then use arrow keys to control the snake. 
-                        Eat the red food to grow and earn points!
+                        Eat the golden food to grow and earn points!
                       </p>
                     </div>
                   )}
 
                   {gameOver && (
-                    <div className="text-center mt-4 p-4 bg-red-100 rounded-lg">
-                      <p className="text-red-800 font-semibold mb-2">Game Over!</p>
-                      <p className="text-red-700">Final Score: {score}</p>
-                      <Button onClick={resetGame} className="mt-2 bg-red-600 hover:bg-red-700 text-white">
+                    <div className="text-center mt-4 p-4 glass rounded-lg border-2 border-primary">
+                      <p className="text-foreground font-semibold mb-2">Game Over!</p>
+                      <p className="text-muted-foreground">Final Score: {score}</p>
+                      <Button onClick={resetGame} className="mt-2 bg-primary hover:opacity-90">
                         Play Again
                       </Button>
                     </div>
                   )}
 
                   {gamePaused && (
-                    <div className="text-center mt-4 p-4 bg-blue-100 rounded-lg">
-                      <p className="text-blue-800 font-semibold">Game Paused</p>
-                      <p className="text-blue-700 text-sm">Press play to continue</p>
+                    <div className="text-center mt-4 p-4 glass rounded-lg">
+                      <p className="text-foreground font-semibold">Game Paused</p>
+                      <p className="text-muted-foreground text-sm">Press play to continue</p>
                     </div>
                   )}
                 </div>
@@ -453,17 +451,17 @@ const UnderConstruction = () => {
                 {/* Game Stats */}
                 {(gameStarted || gameOver) && (
                   <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-                    <div className="bg-blue-100 p-3 rounded-lg">
-                      <p className="text-sm text-blue-800">Score</p>
-                      <p className="text-xl font-bold text-blue-900">{score}</p>
+                    <div className="glass p-3 rounded-lg border border-border">
+                      <p className="text-sm text-muted-foreground">Score</p>
+                      <p className="text-xl font-bold text-primary">{score}</p>
                     </div>
-                    <div className="bg-blue-100 p-3 rounded-lg">
-                      <p className="text-sm text-blue-800">Length</p>
-                      <p className="text-xl font-bold text-blue-900">{snake.length}</p>
+                    <div className="glass p-3 rounded-lg border border-border">
+                      <p className="text-sm text-muted-foreground">Length</p>
+                      <p className="text-xl font-bold text-accent">{snake.length}</p>
                     </div>
-                    <div className="bg-blue-100 p-3 rounded-lg">
-                      <p className="text-sm text-blue-800">Status</p>
-                      <p className="text-xl font-bold text-blue-900">
+                    <div className="glass p-3 rounded-lg border border-border">
+                      <p className="text-sm text-muted-foreground">Status</p>
+                      <p className="text-xl font-bold text-foreground">
                         {gameOver ? 'Game Over' : gamePaused ? 'Paused' : 'Playing'}
                       </p>
                     </div>
