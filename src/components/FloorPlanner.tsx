@@ -1,12 +1,10 @@
 // src/components/FloorPlanner.tsx
 import React, { useState, useRef, useEffect } from 'react';
-import { Canvas as FabricCanvas, Rect, Circle, Path, TextboxProps, Textbox } from 'fabric';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Square, 
   Move, 
@@ -14,613 +12,411 @@ import {
   Trash2, 
   Ruler, 
   Home, 
-  Bed, 
   Sofa,
-  Utensils,
-  Bath,
-  DoorClosed,
   MessageCircle,
   RotateCcw,
-  Maximize2,
-  Eye,
-  Grid3x3
+  Plus,
+  Minus
 } from 'lucide-react';
-import House3D from './House3D';
 import { toast } from 'sonner';
+
+interface Room {
+  id: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  type: string;
+  name: string;
+}
+
+interface Furniture {
+  id: number;
+  type: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 const FloorPlanner = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
-  const [selectedTool, setSelectedTool] = useState<'select' | 'room' | 'furniture'>('select');
-  const [showGrid, setShowGrid] = useState(true);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [furniture, setFurniture] = useState<Furniture[]>([]);
+  const [selectedTool, setSelectedTool] = useState('select');
+  const [gridSize] = useState(20);
   const [roomName, setRoomName] = useState('');
   const [roomType, setRoomType] = useState('living');
-  const [furnitureType, setFurnitureType] = useState('sofa');
   const [projectName, setProjectName] = useState('My Home Design');
-  const [totalArea, setTotalArea] = useState(0);
-  const [showViewToggle, setShowViewToggle] = useState(false);
-  const [view3D, setView3D] = useState(false);
+  const [selectedElement, setSelectedElement] = useState<{ type: 'room' | 'furniture', id: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   const roomTypes = {
     living: { name: 'Living Room', color: '#FFB6C1' },
     bedroom: { name: 'Bedroom', color: '#87CEEB' },
     kitchen: { name: 'Kitchen', color: '#FFD700' },
     bathroom: { name: 'Bathroom', color: '#98FB98' },
-    dining: { name: 'Dining Room', color: '#DDA0DD' },
-    study: { name: 'Study Room', color: '#F0E68C' },
-    balcony: { name: 'Balcony', color: '#B0E0E6' }
+    dining: { name: 'Dining Room', color: '#DDA0DD' }
   };
 
-  const furnitureItems = {
-    sofa: { name: 'Sofa', width: 120, height: 60, color: '#8B4513' },
-    bed: { name: 'Bed', width: 100, height: 140, color: '#4682B4' },
-    table: { name: 'Table', width: 80, height: 80, color: '#D2691E' },
-    chair: { name: 'Chair', width: 40, height: 40, color: '#8B4513' },
-    door: { name: 'Door', width: 40, height: 80, color: '#8B4513' },
-    window: { name: 'Window', width: 100, height: 30, color: '#87CEEB' }
-  };
+  const furnitureItems = [
+    { type: 'sofa', name: 'Sofa', width: 120, height: 60, color: '#8B4513' },
+    { type: 'bed', name: 'Bed', width: 100, height: 140, color: '#4682B4' },
+    { type: 'table', name: 'Table', width: 80, height: 80, color: '#D2691E' },
+    { type: 'chair', name: 'Chair', width: 40, height: 40, color: '#8B4513' }
+  ];
 
-  useEffect(() => {
-    if (!canvasRef.current) return;
-
-    const canvas = new FabricCanvas(canvasRef.current, {
-      width: 800,
-      height: 600,
-      backgroundColor: '#ffffff',
-      selection: selectedTool === 'select'
-    });
-
-    setFabricCanvas(canvas);
-    toast.success('Floor Planner Ready!');
-
-    return () => {
-      canvas.dispose();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!fabricCanvas) return;
-    fabricCanvas.selection = selectedTool === 'select';
-    fabricCanvas.defaultCursor = selectedTool === 'select' ? 'default' : 'crosshair';
-  }, [selectedTool, fabricCanvas]);
-
-  // Calculate total area whenever objects change
-  useEffect(() => {
-    if (!fabricCanvas) return;
-
-    const handleObjectModified = () => {
-      calculateTotalArea();
-    };
-
-    fabricCanvas.on('object:modified', handleObjectModified);
-    fabricCanvas.on('object:added', handleObjectModified);
-    fabricCanvas.on('object:removed', handleObjectModified);
-
-    return () => {
-      fabricCanvas.off('object:modified', handleObjectModified);
-      fabricCanvas.off('object:added', handleObjectModified);
-      fabricCanvas.off('object:removed', handleObjectModified);
-    };
-  }, [fabricCanvas]);
-
-  const calculateTotalArea = () => {
-    if (!fabricCanvas) return;
-
-    let area = 0;
-    fabricCanvas.getObjects().forEach((obj: any) => {
-      if (obj.roomType) {
-        // Convert pixels to square feet (1 grid = 1ft, 20px = 1ft)
-        const width = (obj.width * obj.scaleX) / 20;
-        const height = (obj.height * obj.scaleY) / 20;
-        area += width * height;
-      }
-    });
-    setTotalArea(area);
-  };
-
-  const addRoom = () => {
-    if (!fabricCanvas) return;
-
-    const roomConfig = roomTypes[roomType as keyof typeof roomTypes];
-    const rect = new Rect({
-      left: 100,
-      top: 100,
-      width: 200,
-      height: 200,
-      fill: roomConfig.color + '80',
-      stroke: roomConfig.color,
-      strokeWidth: 2,
-      selectable: true,
-      hasControls: true
-    });
-
-    // Add custom property to identify as room
-    (rect as any).roomType = roomType;
-    (rect as any).roomName = roomName || roomConfig.name;
-
-    // Add text label
-    const text = new Textbox((roomName || roomConfig.name), {
-      left: rect.left! + rect.width! / 2,
-      top: rect.top! + rect.height! / 2,
-      fontSize: 14,
-      fill: '#000000',
-      textAlign: 'center',
-      selectable: false,
-      evented: false,
-      originX: 'center',
-      originY: 'center'
-    } as TextboxProps);
-
-    fabricCanvas.add(rect);
-    fabricCanvas.add(text);
-    fabricCanvas.renderAll();
-
-    // Update text position when room is moved
-    rect.on('moving', () => {
-      text.set({
-        left: (rect.left || 0) + (rect.width! * (rect.scaleX || 1)) / 2,
-        top: (rect.top || 0) + (rect.height! * (rect.scaleY || 1)) / 2
-      });
-      fabricCanvas.renderAll();
-    });
-
-    rect.on('scaling', () => {
-      text.set({
-        left: (rect.left || 0) + (rect.width! * (rect.scaleX || 1)) / 2,
-        top: (rect.top || 0) + (rect.height! * (rect.scaleY || 1)) / 2
-      });
-      fabricCanvas.renderAll();
-    });
-
-    toast.success(`${roomConfig.name} added!`);
-    setRoomName('');
-    calculateTotalArea();
-  };
-
-  const addFurniture = () => {
-    if (!fabricCanvas) return;
-
-    const furnitureConfig = furnitureItems[furnitureType as keyof typeof furnitureItems];
+  const getMousePos = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
     
-    let furnitureObj: any;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    
+    return { 
+      x: Math.round(x / gridSize) * gridSize, 
+      y: Math.round(y / gridSize) * gridSize 
+    };
+  };
 
-    switch (furnitureType) {
-      case 'sofa':
-        // Sofa shape
-        furnitureObj = new Rect({
-          left: 300,
-          top: 300,
-          width: furnitureConfig.width,
-          height: furnitureConfig.height,
-          fill: furnitureConfig.color,
-          stroke: '#654321',
-          strokeWidth: 2
-        });
-        break;
-
-      case 'bed':
-        // Bed shape
-        const bedGroup: any = [];
-        const bedBase = new Rect({
-          left: 300,
-          top: 300,
-          width: furnitureConfig.width,
-          height: furnitureConfig.height,
-          fill: furnitureConfig.color,
-          stroke: '#003366',
-          strokeWidth: 2
-        });
-        bedGroup.push(bedBase);
-
-        const pillow1 = new Rect({
-          left: 310,
-          top: 310,
-          width: 30,
-          height: 20,
-          fill: '#E0E0E0',
-          stroke: '#CCCCCC',
-          strokeWidth: 1
-        });
-        bedGroup.push(pillow1);
-
-        const pillow2 = new Rect({
-          left: 350,
-          top: 310,
-          width: 30,
-          height: 20,
-          fill: '#E0E0E0',
-          stroke: '#CCCCCC',
-          strokeWidth: 1
-        });
-        bedGroup.push(pillow2);
-
-        furnitureObj = bedBase;
-        bedGroup.forEach((obj: any) => fabricCanvas.add(obj));
-        break;
-
-      case 'table':
-        furnitureObj = new Rect({
-          left: 300,
-          top: 300,
-          width: furnitureConfig.width,
-          height: furnitureConfig.height,
-          fill: furnitureConfig.color,
-          stroke: '#A0522D',
-          strokeWidth: 2,
-          rx: 5,
-          ry: 5
-        });
-        break;
-
-      case 'chair':
-        furnitureObj = new Circle({
-          left: 300,
-          top: 300,
-          radius: furnitureConfig.width / 2,
-          fill: furnitureConfig.color,
-          stroke: '#654321',
-          strokeWidth: 2
-        });
-        break;
-
-      case 'door':
-        // Door with arc
-        furnitureObj = new Rect({
-          left: 300,
-          top: 300,
-          width: furnitureConfig.width,
-          height: furnitureConfig.height,
-          fill: furnitureConfig.color,
-          stroke: '#654321',
-          strokeWidth: 2
-        });
-        break;
-
-      case 'window':
-        furnitureObj = new Rect({
-          left: 300,
-          top: 300,
-          width: furnitureConfig.width,
-          height: furnitureConfig.height,
-          fill: furnitureConfig.color + '80',
-          stroke: '#4682B4',
-          strokeWidth: 3
-        });
-        break;
-
-      default:
-        furnitureObj = new Rect({
-          left: 300,
-          top: 300,
-          width: furnitureConfig.width,
-          height: furnitureConfig.height,
-          fill: furnitureConfig.color,
-          stroke: '#000000',
-          strokeWidth: 1
-        });
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const { x, y } = getMousePos(e);
+    
+    // Find clicked element
+    const clickedFurniture = furniture.find(f => 
+      x >= f.x && x <= f.x + f.width && y >= f.y && y <= f.y + f.height
+    );
+    
+    if (clickedFurniture) {
+      setSelectedElement({ type: 'furniture', id: clickedFurniture.id });
+      setIsDragging(true);
+      setDragOffset({ x: x - clickedFurniture.x, y: y - clickedFurniture.y });
+      return;
+    }
+    
+    const clickedRoom = rooms.find(r => 
+      x >= r.x && x <= r.x + r.width && y >= r.y && y <= r.y + r.height
+    );
+    
+    if (clickedRoom) {
+      setSelectedElement({ type: 'room', id: clickedRoom.id });
+      setIsDragging(true);
+      setDragOffset({ x: x - clickedRoom.x, y: y - clickedRoom.y });
+      return;
     }
 
-    (furnitureObj as any).furnitureType = furnitureType;
-    (furnitureObj as any).furnitureName = furnitureConfig.name;
+    // Add new elements
+    if (selectedTool === 'room') {
+      const newRoom: Room = {
+        id: Date.now(),
+        x, y,
+        width: 200,
+        height: 200,
+        type: roomType,
+        name: roomName || roomTypes[roomType as keyof typeof roomTypes].name
+      };
+      setRooms([...rooms, newRoom]);
+      toast.success('Room added');
+    } else if (selectedTool.startsWith('furniture-')) {
+      const type = selectedTool.replace('furniture-', '');
+      const config = furnitureItems.find(f => f.type === type);
+      if (config) {
+        const newFurniture: Furniture = {
+          id: Date.now(),
+          type,
+          x, y,
+          width: config.width,
+          height: config.height
+        };
+        setFurniture([...furniture, newFurniture]);
+        toast.success('Furniture added');
+      }
+    }
+  };
 
-    fabricCanvas.add(furnitureObj);
-
-    // Add label
-    const label = new Textbox(furnitureConfig.name, {
-      left: furnitureObj.left! + furnitureObj.width! / 2,
-      top: furnitureObj.top! + furnitureObj.height! + 10,
-      fontSize: 10,
-      fill: '#000000',
-      textAlign: 'center',
-      selectable: false,
-      evented: false,
-      originX: 'center'
-    } as TextboxProps);
-
-    fabricCanvas.add(label);
-    fabricCanvas.renderAll();
-
-    toast.success(`${furnitureConfig.name} added!`);
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDragging || !selectedElement) return;
+    
+    const { x, y } = getMousePos(e);
+    
+    if (selectedElement.type === 'room') {
+      setRooms(rooms.map(r => 
+        r.id === selectedElement.id 
+          ? { ...r, x: x - dragOffset.x, y: y - dragOffset.y }
+          : r
+      ));
+    } else {
+      setFurniture(furniture.map(f => 
+        f.id === selectedElement.id 
+          ? { ...f, x: x - dragOffset.x, y: y - dragOffset.y }
+          : f
+      ));
+    }
   };
 
   const deleteSelected = () => {
-    if (!fabricCanvas) return;
-
-    const activeObjects = fabricCanvas.getActiveObjects();
-    if (activeObjects.length === 0) {
-      toast.error('Please select an object to delete');
-      return;
+    if (!selectedElement) return;
+    
+    if (selectedElement.type === 'room') {
+      setRooms(rooms.filter(r => r.id !== selectedElement.id));
+    } else {
+      setFurniture(furniture.filter(f => f.id !== selectedElement.id));
     }
-
-    activeObjects.forEach((obj) => {
-      fabricCanvas.remove(obj);
-    });
-    fabricCanvas.discardActiveObject();
-    fabricCanvas.renderAll();
-    calculateTotalArea();
-    toast.success('Object(s) deleted');
+    setSelectedElement(null);
+    toast.success('Deleted');
   };
 
-  const clearAll = () => {
-    if (!fabricCanvas) return;
-    fabricCanvas.clear();
-    fabricCanvas.backgroundColor = '#ffffff';
-    fabricCanvas.renderAll();
-    setTotalArea(0);
-    toast.success('Canvas cleared');
+  const resizeSelected = (widthChange: number, heightChange: number) => {
+    if (!selectedElement) return;
+
+    if (selectedElement.type === 'room') {
+      setRooms(rooms.map(r => 
+        r.id === selectedElement.id 
+          ? { ...r, width: Math.max(100, r.width + widthChange), height: Math.max(100, r.height + heightChange) }
+          : r
+      ));
+    } else {
+      setFurniture(furniture.map(f => 
+        f.id === selectedElement.id 
+          ? { ...f, width: Math.max(20, f.width + widthChange), height: Math.max(20, f.height + heightChange) }
+          : f
+      ));
+    }
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Clear
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Grid
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < canvas.width; x += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+
+    // Draw rooms
+    rooms.forEach(room => {
+      const config = roomTypes[room.type as keyof typeof roomTypes];
+      const isSelected = selectedElement?.type === 'room' && selectedElement.id === room.id;
+      
+      ctx.fillStyle = config.color + '80';
+      ctx.strokeStyle = isSelected ? '#0000FF' : config.color;
+      ctx.lineWidth = isSelected ? 3 : 2;
+      ctx.fillRect(room.x, room.y, room.width, room.height);
+      ctx.strokeRect(room.x, room.y, room.width, room.height);
+      
+      ctx.fillStyle = '#000000';
+      ctx.font = '14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(room.name, room.x + room.width / 2, room.y + room.height / 2);
+    });
+
+    // Draw furniture
+    furniture.forEach(item => {
+      const config = furnitureItems.find(f => f.type === item.type);
+      if (!config) return;
+      
+      const isSelected = selectedElement?.type === 'furniture' && selectedElement.id === item.id;
+      
+      ctx.fillStyle = config.color;
+      ctx.strokeStyle = isSelected ? '#0000FF' : '#000000';
+      ctx.lineWidth = isSelected ? 3 : 2;
+      ctx.fillRect(item.x, item.y, item.width, item.height);
+      ctx.strokeRect(item.x, item.y, item.width, item.height);
+      
+      ctx.fillStyle = '#000000';
+      ctx.font = '10px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(config.name, item.x + item.width / 2, item.y + item.height + 15);
+    });
+  }, [rooms, furniture, selectedElement, gridSize]);
+
+  const calculateTotalArea = () => {
+    return rooms.reduce((total, room) => {
+      const area = (room.width / gridSize) * (room.height / gridSize);
+      return total + area;
+    }, 0);
   };
 
   const exportFloorPlan = () => {
-    if (!fabricCanvas) return;
-
-    const dataURL = fabricCanvas.toDataURL({
-      format: 'png',
-      quality: 1,
-      multiplier: 2
-    });
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
     const link = document.createElement('a');
     link.download = `${projectName.replace(/\s+/g, '-')}-floor-plan.png`;
-    link.href = dataURL;
+    link.href = canvas.toDataURL('image/png');
     link.click();
-
-    toast.success('Floor plan exported!');
-  };
-
-  const shareOnWhatsApp = () => {
-    const message = `🏠 Floor Plan Design\n\n` +
-                   `Project: ${projectName}\n` +
-                   `Total Area: ${totalArea.toFixed(1)} sq.ft\n\n` +
-                   `I've designed this floor plan and would like to discuss construction!`;
-    
-    window.open(`https://wa.me/9779845323733?text=${encodeURIComponent(message)}`, '_blank');
-  };
-
-  const toggleView = () => {
-    if (totalArea < 100) {
-      toast.error('Please add rooms to see 3D view (minimum 100 sq.ft)');
-      return;
-    }
-    setView3D(!view3D);
+    toast.success('Exported');
   };
 
   return (
     <div className="min-h-screen bg-background pt-20 pb-20 px-4">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-6xl font-bold mb-4 text-foreground">
             2D Floor <span className="text-gradient">Planner</span>
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            Design your dream home layout with drag-and-drop tools • View in 3D
-          </p>
+          <p className="text-lg text-muted-foreground">Design your dream home layout</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Left Sidebar - Tools */}
           <div className="lg:col-span-1 space-y-4">
-            {/* Project Info */}
             <Card className="glass">
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Home className="w-4 h-4" />
-                  Project Info
-                </CardTitle>
+                <CardTitle className="text-base">Project</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="space-y-2">
-                  <Label className="text-xs">Project Name</Label>
-                  <Input
-                    placeholder="e.g., My Dream Home"
-                    value={projectName}
-                    onChange={(e) => setProjectName(e.target.value)}
-                    className="text-sm h-9"
-                  />
-                </div>
-                <div className="text-sm p-3 glass rounded-lg border border-border">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Total Area:</span>
-                    <span className="font-bold text-primary text-lg">{totalArea.toFixed(1)} sq.ft</span>
-                  </div>
+                <Input
+                  placeholder="Project Name"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  className="h-9"
+                />
+                <div className="text-sm p-3 glass rounded-lg">
+                  <span className="text-muted-foreground">Area: </span>
+                  <span className="font-bold text-primary">{calculateTotalArea().toFixed(1)} sq.ft</span>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Tools */}
             <Card className="glass">
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Ruler className="w-4 h-4" />
-                  Tools
-                </CardTitle>
+                <CardTitle className="text-base">Tools</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant={selectedTool === 'select' ? 'default' : 'outline'}
                     onClick={() => setSelectedTool('select')}
-                    className="h-10 text-xs"
                     size="sm"
                   >
-                    <Move className="w-3 h-3" />
+                    <Move className="w-4 h-4" />
                   </Button>
                   <Button
                     variant={selectedTool === 'room' ? 'default' : 'outline'}
                     onClick={() => setSelectedTool('room')}
-                    className="h-10 text-xs"
                     size="sm"
                   >
-                    <Square className="w-3 h-3" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowGrid(!showGrid)}
-                    className="h-10 text-xs"
-                    size="sm"
-                  >
-                    <Grid3x3 className="w-3 h-3" />
+                    <Square className="w-4 h-4" />
                   </Button>
                 </div>
 
                 {selectedTool === 'room' && (
-                  <div className="space-y-3 pt-2 border-t border-border">
-                    <div className="space-y-2">
-                      <Label className="text-xs">Room Type</Label>
-                      <Select value={roomType} onValueChange={setRoomType}>
-                        <SelectTrigger className="text-xs h-9">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(roomTypes).map(([key, room]) => (
-                            <SelectItem key={key} value={key} className="text-xs">
-                              {room.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-xs">Room Name (Optional)</Label>
-                      <Input
-                        placeholder="e.g., Master Bedroom"
-                        value={roomName}
-                        onChange={(e) => setRoomName(e.target.value)}
-                        className="text-xs h-9"
-                      />
-                    </div>
-
-                    <Button onClick={addRoom} className="w-full h-9 text-xs" size="sm">
-                      Add Room
-                    </Button>
+                  <div className="space-y-3 pt-2 border-t">
+                    <Select value={roomType} onValueChange={setRoomType}>
+                      <SelectTrigger className="h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(roomTypes).map(([key, room]) => (
+                          <SelectItem key={key} value={key}>{room.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      placeholder="Room Name (Optional)"
+                      value={roomName}
+                      onChange={(e) => setRoomName(e.target.value)}
+                      className="h-9"
+                    />
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Furniture */}
             <Card className="glass">
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Sofa className="w-4 h-4" />
-                  Furniture
-                </CardTitle>
+                <CardTitle className="text-base">Furniture</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-2">
-                  <Label className="text-xs">Furniture Type</Label>
-                  <Select value={furnitureType} onValueChange={setFurnitureType}>
-                    <SelectTrigger className="text-xs h-9">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(furnitureItems).map(([key, item]) => (
-                        <SelectItem key={key} value={key} className="text-xs">
-                          {item.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-2">
+                  {furnitureItems.map((item) => (
+                    <Button
+                      key={item.type}
+                      variant={selectedTool === `furniture-${item.type}` ? 'default' : 'outline'}
+                      onClick={() => setSelectedTool(`furniture-${item.type}`)}
+                      size="sm"
+                      className="h-16"
+                    >
+                      <Sofa className="w-4 h-4 mb-1" />
+                      <div className="text-xs">{item.name}</div>
+                    </Button>
+                  ))}
                 </div>
-                <Button onClick={addFurniture} className="w-full h-9 text-xs" size="sm">
-                  Add Furniture
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card className="glass">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Maximize2 className="w-4 h-4" />
-                  Actions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button onClick={deleteSelected} variant="outline" size="sm" className="w-full h-9 text-xs">
-                  <Trash2 className="w-3 h-3 mr-2" />
-                  Delete Selected
-                </Button>
-                <Button onClick={clearAll} variant="outline" size="sm" className="w-full h-9 text-xs">
-                  <RotateCcw className="w-3 h-3 mr-2" />
-                  Clear All
-                </Button>
               </CardContent>
             </Card>
           </div>
 
-          {/* Main Canvas Area */}
           <div className="lg:col-span-3">
             <Card className="glass">
               <CardHeader className="pb-3">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                  <CardTitle className="text-base">Design Canvas</CardTitle>
-                  <div className="flex gap-2">
-                    {totalArea >= 100 && (
-                      <Button
-                        variant={view3D ? 'default' : 'outline'}
-                        onClick={toggleView}
-                        size="sm"
-                        className="h-9 text-xs"
-                      >
-                        <Eye className="w-3 h-3 mr-2" />
-                        {view3D ? '2D View' : '3D View'}
-                      </Button>
-                    )}
-                  </div>
-                </div>
+                <CardTitle className="text-base">Canvas</CardTitle>
               </CardHeader>
               <CardContent>
-                {!view3D ? (
-                  <div className="relative">
-                    <div className="border-2 border-border rounded-lg overflow-hidden bg-white">
-                      <canvas
-                        ref={canvasRef}
-                        className="w-full h-auto"
-                      />
-                    </div>
+                <div className="border-2 border-border rounded-lg bg-white">
+                  <canvas
+                    ref={canvasRef}
+                    width={800}
+                    height={600}
+                    className="w-full h-auto cursor-crosshair"
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={() => setIsDragging(false)}
+                    onMouseLeave={() => setIsDragging(false)}
+                  />
+                </div>
 
-                    {/* Instructions */}
-                    <div className="mt-4 p-4 glass rounded-lg border border-border">
-                      <h3 className="font-semibold text-sm mb-2 text-foreground">Quick Guide:</h3>
-                      <ul className="text-xs text-muted-foreground space-y-1">
-                        <li>• Use <strong>Select tool</strong> to move and resize objects</li>
-                        <li>• Add rooms first, then place furniture inside</li>
-                        <li>• Drag corners to resize, drag objects to move</li>
-                        <li>• Furniture scales proportionally - rooms are larger</li>
-                        <li>• Add at least 100 sq.ft to unlock 3D view</li>
-                      </ul>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <House3D 
-                      area={totalArea} 
-                      floors={1} 
-                      materialType="standard"
-                    />
-                    <div className="p-4 glass rounded-lg border border-border text-center">
-                      <p className="text-sm text-muted-foreground">
-                        3D View is for visualization only. Switch back to 2D to edit your design.
-                      </p>
+                {selectedElement && (
+                  <div className="mt-4 p-4 glass rounded-lg">
+                    <div className="flex gap-2">
+                      <Button onClick={() => resizeSelected(20, 20)} variant="outline" size="sm">
+                        <Plus className="w-3 h-3 mr-1" />Bigger
+                      </Button>
+                      <Button onClick={() => resizeSelected(-20, -20)} variant="outline" size="sm">
+                        <Minus className="w-3 h-3 mr-1" />Smaller
+                      </Button>
+                      <Button onClick={deleteSelected} variant="outline" size="sm">
+                        <Trash2 className="w-3 h-3 mr-1" />Delete
+                      </Button>
                     </div>
                   </div>
                 )}
 
-                {/* Export Actions */}
-                <div className="flex flex-wrap gap-2 mt-4">
-                  <Button onClick={exportFloorPlan} variant="outline" size="sm" className="text-xs h-9">
-                    <Download className="w-3 h-3 mr-2" />
-                    Export PNG
+                <div className="flex gap-2 mt-4">
+                  <Button onClick={exportFloorPlan} variant="outline" size="sm">
+                    <Download className="w-3 h-3 mr-2" />Export
                   </Button>
                   <Button 
-                    onClick={shareOnWhatsApp} 
-                    className="bg-[#25D366] hover:bg-[#20BA5A] text-white text-xs h-9"
+                    onClick={() => window.open(`https://wa.me/9779845323733?text=${encodeURIComponent(`Floor Plan: ${projectName}\nArea: ${calculateTotalArea().toFixed(1)} sq.ft`)}`, '_blank')}
+                    className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
                     size="sm"
                   >
-                    <MessageCircle className="w-3 h-3 mr-2" />
-                    Share on WhatsApp
+                    <MessageCircle className="w-3 h-3 mr-2" />WhatsApp
+                  </Button>
+                  <Button onClick={() => { setRooms([]); setFurniture([]); }} variant="outline" size="sm">
+                    <RotateCcw className="w-3 h-3 mr-2" />Clear
                   </Button>
                 </div>
               </CardContent>
