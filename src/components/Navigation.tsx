@@ -28,6 +28,8 @@ const Navigation = () => {
     { name: "Home", path: "/", icon: Home },
     { name: "About", path: "/about", icon: Info },
     { name: "Projects", path: "/projects", icon: Briefcase },
+    { name: "Partnerships", path: "/partnerships", icon: Briefcase },
+    { name: "Testimonials", path: "/testimonials", icon: Info },
     { name: "Blog", path: "/blog", icon: BookOpen },
     { name: "Estimate", path: "/estimate", icon: Calculator },
     { name: "Contact", path: "/contact", icon: Mail },
@@ -37,7 +39,10 @@ const Navigation = () => {
     { name: "Permit Assistant", path: "/tools/permits", description: "Nepal building permits & legal help" },
     { name: "Financial Calculators", path: "/tools/calculators", description: "EMI, ROI & rental yield tools" },
     { name: "Vastu Guide", path: "/tools/vastu", description: "Complete Vastu Shastra guidance" },
-    { name: "Floor Plan", path: "/floor-planner", description: "" },
+    { name: "Buy or Build?", path: "/tools/buy-or-build", description: "Decision helper tool" },
+    { name: "Construction Timeline", path: "/tools/timeline", description: "Visualize project stages" },
+    { name: "Green Build Calculator", path: "/tools/green-calculator", description: "Calculate eco savings" },
+    { name: "Floor Plan", path: "/floor-planner", description: "2D floor planning tool" },
   ];
 
   const isActive = (path: string) => location.pathname === path;

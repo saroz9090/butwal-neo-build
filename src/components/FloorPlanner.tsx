@@ -39,18 +39,38 @@ interface Furniture {
   height: number;
 }
 
+interface Wall {
+  id: number;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
+interface Stair {
+  id: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  direction: 'horizontal' | 'vertical';
+}
+
 const FloorPlanner = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [furniture, setFurniture] = useState<Furniture[]>([]);
+  const [walls, setWalls] = useState<Wall[]>([]);
+  const [stairs, setStairs] = useState<Stair[]>([]);
   const [selectedTool, setSelectedTool] = useState('select');
   const [gridSize] = useState(20);
   const [roomName, setRoomName] = useState('');
   const [roomType, setRoomType] = useState('living');
   const [projectName, setProjectName] = useState('My Home Design');
-  const [selectedElement, setSelectedElement] = useState<{ type: 'room' | 'furniture', id: number } | null>(null);
+  const [selectedElement, setSelectedElement] = useState<{ type: 'room' | 'furniture' | 'wall' | 'stair', id: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [wallStart, setWallStart] = useState<{ x: number, y: number } | null>(null);
 
   const roomTypes = {
     living: { name: 'Living Room', color: '#FFB6C1' },
@@ -61,10 +81,12 @@ const FloorPlanner = () => {
   };
 
   const furnitureItems = [
-    { type: 'sofa', name: 'Sofa', width: 120, height: 60, color: '#8B4513' },
-    { type: 'bed', name: 'Bed', width: 100, height: 140, color: '#4682B4' },
-    { type: 'table', name: 'Table', width: 80, height: 80, color: '#D2691E' },
-    { type: 'chair', name: 'Chair', width: 40, height: 40, color: '#8B4513' }
+    { type: 'sofa', name: 'Sofa', width: 80, height: 40, color: '#8B4513' },
+    { type: 'bed', name: 'Bed', width: 80, height: 100, color: '#4682B4' },
+    { type: 'table', name: 'Table', width: 60, height: 60, color: '#D2691E' },
+    { type: 'chair', name: 'Chair', width: 30, height: 30, color: '#CD853F' },
+    { type: 'desk', name: 'Desk', width: 100, height: 50, color: '#8B4513' },
+    { type: 'wardrobe', name: 'Wardrobe', width: 60, height: 120, color: '#654321' }
   ];
 
   const getMousePos = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -86,6 +108,26 @@ const FloorPlanner = () => {
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const { x, y } = getMousePos(e);
     
+    // Wall tool
+    if (selectedTool === 'wall') {
+      if (!wallStart) {
+        setWallStart({ x, y });
+        toast.info('Click again to complete wall');
+      } else {
+        const newWall: Wall = {
+          id: Date.now(),
+          x1: wallStart.x,
+          y1: wallStart.y,
+          x2: x,
+          y2: y
+        };
+        setWalls([...walls, newWall]);
+        setWallStart(null);
+        toast.success('Wall added');
+      }
+      return;
+    }
+    
     // Find clicked element
     const clickedFurniture = furniture.find(f => 
       x >= f.x && x <= f.x + f.width && y >= f.y && y <= f.y + f.height
@@ -95,6 +137,17 @@ const FloorPlanner = () => {
       setSelectedElement({ type: 'furniture', id: clickedFurniture.id });
       setIsDragging(true);
       setDragOffset({ x: x - clickedFurniture.x, y: y - clickedFurniture.y });
+      return;
+    }
+
+    const clickedStair = stairs.find(s => 
+      x >= s.x && x <= s.x + s.width && y >= s.y && y <= s.y + s.height
+    );
+    
+    if (clickedStair) {
+      setSelectedElement({ type: 'stair', id: clickedStair.id });
+      setIsDragging(true);
+      setDragOffset({ x: x - clickedStair.x, y: y - clickedStair.y });
       return;
     }
     
@@ -114,13 +167,23 @@ const FloorPlanner = () => {
       const newRoom: Room = {
         id: Date.now(),
         x, y,
-        width: 200,
-        height: 200,
+        width: 240,
+        height: 240,
         type: roomType,
         name: roomName || roomTypes[roomType as keyof typeof roomTypes].name
       };
       setRooms([...rooms, newRoom]);
       toast.success('Room added');
+    } else if (selectedTool === 'stair') {
+      const newStair: Stair = {
+        id: Date.now(),
+        x, y,
+        width: 80,
+        height: 120,
+        direction: 'vertical'
+      };
+      setStairs([...stairs, newStair]);
+      toast.success('Stairs added');
     } else if (selectedTool.startsWith('furniture-')) {
       const type = selectedTool.replace('furniture-', '');
       const config = furnitureItems.find(f => f.type === type);
@@ -149,6 +212,12 @@ const FloorPlanner = () => {
           ? { ...r, x: x - dragOffset.x, y: y - dragOffset.y }
           : r
       ));
+    } else if (selectedElement.type === 'stair') {
+      setStairs(stairs.map(s => 
+        s.id === selectedElement.id 
+          ? { ...s, x: x - dragOffset.x, y: y - dragOffset.y }
+          : s
+      ));
     } else {
       setFurniture(furniture.map(f => 
         f.id === selectedElement.id 
@@ -163,6 +232,10 @@ const FloorPlanner = () => {
     
     if (selectedElement.type === 'room') {
       setRooms(rooms.filter(r => r.id !== selectedElement.id));
+    } else if (selectedElement.type === 'wall') {
+      setWalls(walls.filter(w => w.id !== selectedElement.id));
+    } else if (selectedElement.type === 'stair') {
+      setStairs(stairs.filter(s => s.id !== selectedElement.id));
     } else {
       setFurniture(furniture.filter(f => f.id !== selectedElement.id));
     }
@@ -170,19 +243,49 @@ const FloorPlanner = () => {
     toast.success('Deleted');
   };
 
-  const resizeSelected = (widthChange: number, heightChange: number) => {
+  const resizeWidth = (change: number) => {
     if (!selectedElement) return;
 
     if (selectedElement.type === 'room') {
       setRooms(rooms.map(r => 
         r.id === selectedElement.id 
-          ? { ...r, width: Math.max(100, r.width + widthChange), height: Math.max(100, r.height + heightChange) }
+          ? { ...r, width: Math.max(100, r.width + change) }
           : r
+      ));
+    } else if (selectedElement.type === 'stair') {
+      setStairs(stairs.map(s => 
+        s.id === selectedElement.id 
+          ? { ...s, width: Math.max(40, s.width + change) }
+          : s
       ));
     } else {
       setFurniture(furniture.map(f => 
         f.id === selectedElement.id 
-          ? { ...f, width: Math.max(20, f.width + widthChange), height: Math.max(20, f.height + heightChange) }
+          ? { ...f, width: Math.max(20, f.width + change) }
+          : f
+      ));
+    }
+  };
+
+  const resizeHeight = (change: number) => {
+    if (!selectedElement) return;
+
+    if (selectedElement.type === 'room') {
+      setRooms(rooms.map(r => 
+        r.id === selectedElement.id 
+          ? { ...r, height: Math.max(100, r.height + change) }
+          : r
+      ));
+    } else if (selectedElement.type === 'stair') {
+      setStairs(stairs.map(s => 
+        s.id === selectedElement.id 
+          ? { ...s, height: Math.max(40, s.height + change) }
+          : s
+      ));
+    } else {
+      setFurniture(furniture.map(f => 
+        f.id === selectedElement.id 
+          ? { ...f, height: Math.max(20, f.height + change) }
           : f
       ));
     }
@@ -233,6 +336,16 @@ const FloorPlanner = () => {
       ctx.fillText(room.name, room.x + room.width / 2, room.y + room.height / 2);
     });
 
+    // Draw walls
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 4;
+    walls.forEach(wall => {
+      ctx.beginPath();
+      ctx.moveTo(wall.x1, wall.y1);
+      ctx.lineTo(wall.x2, wall.y2);
+      ctx.stroke();
+    });
+
     // Draw furniture
     furniture.forEach(item => {
       const config = furnitureItems.find(f => f.type === item.type);
@@ -241,17 +354,70 @@ const FloorPlanner = () => {
       const isSelected = selectedElement?.type === 'furniture' && selectedElement.id === item.id;
       
       ctx.fillStyle = config.color;
-      ctx.strokeStyle = isSelected ? '#0000FF' : '#000000';
-      ctx.lineWidth = isSelected ? 3 : 2;
+      ctx.strokeStyle = isSelected ? '#0000FF' : '#333333';
+      ctx.lineWidth = isSelected ? 3 : 1;
       ctx.fillRect(item.x, item.y, item.width, item.height);
       ctx.strokeRect(item.x, item.y, item.width, item.height);
+      
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 9px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(config.name, item.x + item.width / 2, item.y + item.height / 2 + 3);
+    });
+
+    // Draw stairs
+    stairs.forEach(stair => {
+      const isSelected = selectedElement?.type === 'stair' && selectedElement.id === stair.id;
+      
+      ctx.fillStyle = '#C0C0C0';
+      ctx.strokeStyle = isSelected ? '#0000FF' : '#000000';
+      ctx.lineWidth = isSelected ? 3 : 2;
+      ctx.fillRect(stair.x, stair.y, stair.width, stair.height);
+      ctx.strokeRect(stair.x, stair.y, stair.width, stair.height);
+      
+      // Draw stair steps
+      ctx.strokeStyle = '#808080';
+      ctx.lineWidth = 1;
+      const stepCount = stair.direction === 'vertical' ? 8 : 6;
+      const stepSize = stair.direction === 'vertical' ? stair.height / stepCount : stair.width / stepCount;
+      
+      for (let i = 1; i < stepCount; i++) {
+        if (stair.direction === 'vertical') {
+          const y = stair.y + i * stepSize;
+          ctx.beginPath();
+          ctx.moveTo(stair.x, y);
+          ctx.lineTo(stair.x + stair.width, y);
+          ctx.stroke();
+        } else {
+          const x = stair.x + i * stepSize;
+          ctx.beginPath();
+          ctx.moveTo(x, stair.y);
+          ctx.lineTo(x, stair.y + stair.height);
+          ctx.stroke();
+        }
+      }
       
       ctx.fillStyle = '#000000';
       ctx.font = '10px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText(config.name, item.x + item.width / 2, item.y + item.height + 15);
+      ctx.fillText('STAIRS', stair.x + stair.width / 2, stair.y + stair.height / 2);
     });
-  }, [rooms, furniture, selectedElement, gridSize]);
+
+    // Draw wall preview
+    if (wallStart && selectedTool === 'wall') {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        ctx.strokeStyle = '#FF0000';
+        ctx.lineWidth = 4;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(wallStart.x, wallStart.y);
+        ctx.lineTo(wallStart.x + 100, wallStart.y); // Preview line
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+  }, [rooms, furniture, walls, stairs, selectedElement, gridSize, wallStart, selectedTool]);
 
   const calculateTotalArea = () => {
     return rooms.reduce((total, room) => {
@@ -269,6 +435,41 @@ const FloorPlanner = () => {
     link.href = canvas.toDataURL('image/png');
     link.click();
     toast.success('Exported');
+  };
+
+  const shareOnWhatsApp = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Convert canvas to blob
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      
+      // Create file from blob
+      const file = new File([blob], `${projectName.replace(/\s+/g, '-')}-floor-plan.png`, { type: 'image/png' });
+      
+      // Check if Web Share API with files is supported
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({
+          files: [file],
+          title: projectName,
+          text: `Floor Plan: ${projectName}\nArea: ${calculateTotalArea().toFixed(1)} sq.ft`
+        }).catch(err => {
+          console.error('Error sharing:', err);
+          // Fallback to text-only WhatsApp
+          fallbackWhatsAppShare();
+        });
+      } else {
+        // Fallback for devices that don't support file sharing
+        fallbackWhatsAppShare();
+      }
+    }, 'image/png');
+  };
+
+  const fallbackWhatsAppShare = () => {
+    const message = `Floor Plan: ${projectName}\nArea: ${calculateTotalArea().toFixed(1)} sq.ft\n\nPlease check your floor plan design.`;
+    window.open(`https://wa.me/9779845323733?text=${encodeURIComponent(message)}`, '_blank');
+    toast.info('Export the image separately to share it');
   };
 
   return (
@@ -309,17 +510,39 @@ const FloorPlanner = () => {
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant={selectedTool === 'select' ? 'default' : 'outline'}
-                    onClick={() => setSelectedTool('select')}
+                    onClick={() => { setSelectedTool('select'); setWallStart(null); }}
                     size="sm"
+                    className="flex items-center justify-center"
                   >
-                    <Move className="w-4 h-4" />
+                    <Move className="w-4 h-4 mr-1" />
+                    <span className="text-xs">Move</span>
                   </Button>
                   <Button
                     variant={selectedTool === 'room' ? 'default' : 'outline'}
-                    onClick={() => setSelectedTool('room')}
+                    onClick={() => { setSelectedTool('room'); setWallStart(null); }}
                     size="sm"
+                    className="flex items-center justify-center"
                   >
-                    <Square className="w-4 h-4" />
+                    <Square className="w-4 h-4 mr-1" />
+                    <span className="text-xs">Room</span>
+                  </Button>
+                  <Button
+                    variant={selectedTool === 'wall' ? 'default' : 'outline'}
+                    onClick={() => { setSelectedTool('wall'); setSelectedElement(null); }}
+                    size="sm"
+                    className="flex items-center justify-center"
+                  >
+                    <Ruler className="w-4 h-4 mr-1" />
+                    <span className="text-xs">Wall</span>
+                  </Button>
+                  <Button
+                    variant={selectedTool === 'stair' ? 'default' : 'outline'}
+                    onClick={() => { setSelectedTool('stair'); setWallStart(null); }}
+                    size="sm"
+                    className="flex items-center justify-center"
+                  >
+                    <Home className="w-4 h-4 mr-1" />
+                    <span className="text-xs">Stairs</span>
                   </Button>
                 </div>
 
@@ -388,34 +611,44 @@ const FloorPlanner = () => {
                   />
                 </div>
 
-                {selectedElement && (
-                  <div className="mt-4 p-4 glass rounded-lg">
+                {selectedElement && selectedElement.type !== 'wall' && (
+                  <div className="mt-4 p-4 glass rounded-lg space-y-3">
+                    <div className="text-sm font-semibold text-foreground">Resize Width</div>
                     <div className="flex gap-2">
-                      <Button onClick={() => resizeSelected(20, 20)} variant="outline" size="sm">
-                        <Plus className="w-3 h-3 mr-1" />Bigger
+                      <Button onClick={() => resizeWidth(20)} variant="outline" size="sm">
+                        <Plus className="w-3 h-3 mr-1" />Width
                       </Button>
-                      <Button onClick={() => resizeSelected(-20, -20)} variant="outline" size="sm">
-                        <Minus className="w-3 h-3 mr-1" />Smaller
-                      </Button>
-                      <Button onClick={deleteSelected} variant="outline" size="sm">
-                        <Trash2 className="w-3 h-3 mr-1" />Delete
+                      <Button onClick={() => resizeWidth(-20)} variant="outline" size="sm">
+                        <Minus className="w-3 h-3 mr-1" />Width
                       </Button>
                     </div>
+                    <div className="text-sm font-semibold text-foreground">Resize Height</div>
+                    <div className="flex gap-2">
+                      <Button onClick={() => resizeHeight(20)} variant="outline" size="sm">
+                        <Plus className="w-3 h-3 mr-1" />Height
+                      </Button>
+                      <Button onClick={() => resizeHeight(-20)} variant="outline" size="sm">
+                        <Minus className="w-3 h-3 mr-1" />Height
+                      </Button>
+                    </div>
+                    <Button onClick={deleteSelected} variant="destructive" size="sm" className="w-full">
+                      <Trash2 className="w-3 h-3 mr-1" />Delete
+                    </Button>
                   </div>
                 )}
 
-                <div className="flex gap-2 mt-4">
+                <div className="flex flex-wrap gap-2 mt-4">
                   <Button onClick={exportFloorPlan} variant="outline" size="sm">
                     <Download className="w-3 h-3 mr-2" />Export
                   </Button>
                   <Button 
-                    onClick={() => window.open(`https://wa.me/9779845323733?text=${encodeURIComponent(`Floor Plan: ${projectName}\nArea: ${calculateTotalArea().toFixed(1)} sq.ft`)}`, '_blank')}
+                    onClick={shareOnWhatsApp}
                     className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
                     size="sm"
                   >
-                    <MessageCircle className="w-3 h-3 mr-2" />WhatsApp
+                    <MessageCircle className="w-3 h-3 mr-2" />Share
                   </Button>
-                  <Button onClick={() => { setRooms([]); setFurniture([]); }} variant="outline" size="sm">
+                  <Button onClick={() => { setRooms([]); setFurniture([]); setWalls([]); setStairs([]); setSelectedElement(null); setWallStart(null); }} variant="outline" size="sm">
                     <RotateCcw className="w-3 h-3 mr-2" />Clear
                   </Button>
                 </div>

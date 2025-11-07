@@ -14,6 +14,11 @@ import Contact from "./pages/Contact";
 import PermitAssistant from "./pages/tools/PermitAssistant";
 import Calculators from "./pages/tools/Calculators";
 import VastuGuide from "./pages/tools/VastuGuide";
+import BuyOrBuild from "./pages/tools/BuyOrBuild";
+import ConstructionTimeline from "./pages/tools/ConstructionTimeline";
+import GreenBuildCalculator from "./pages/tools/GreenBuildCalculator";
+import Partnerships from "./pages/Partnerships";
+import Testimonials from "./pages/Testimonials";
 import NotFound from "./pages/NotFound";
 import { Chatbot } from "./components/Chatbot";
 import FloorPlannerPage from './pages/FloorPlannerPage';
@@ -35,6 +40,11 @@ const App = () => (
           <Route path="/tools/permits" element={<PermitAssistant />} />
           <Route path="/tools/calculators" element={<Calculators />} />
           <Route path="/tools/vastu" element={<VastuGuide />} />
+          <Route path="/tools/buy-or-build" element={<BuyOrBuild />} />
+          <Route path="/tools/timeline" element={<ConstructionTimeline />} />
+          <Route path="/tools/green-calculator" element={<GreenBuildCalculator />} />
+          <Route path="/partnerships" element={<Partnerships />} />
+          <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/estimate" element={<Estimate />} />
           <Route path="/contact" element={<Contact />} />
