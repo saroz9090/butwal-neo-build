@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MessageCircle, Play, Pause } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import ConstructionAnimation3D from '@/components/ConstructionAnimation3D';
 
 interface Stage {
   name: string;
@@ -16,6 +17,7 @@ const ConstructionTimeline = () => {
   const [buildingType, setBuildingType] = useState<'residential' | 'commercial'>('residential');
   const [currentStage, setCurrentStage] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const residentialStages: Stage[] = [
     { name: 'Planning & Design', duration: 2, color: 'hsl(349 96% 30%)', description: 'Architectural plans, structural design, approvals' },
@@ -49,22 +51,33 @@ const ConstructionTimeline = () => {
   const totalDuration = stages.reduce((sum, stage) => sum + stage.duration, 0);
   const progress = ((currentStage + 1) / stages.length) * 100;
 
-  const handlePlayPause = () => {
+  useEffect(() => {
     if (isPlaying) {
-      setIsPlaying(false);
+      intervalRef.current = setInterval(() => {
+        setCurrentStage((prev) => {
+          if (prev >= stages.length - 1) {
+            setIsPlaying(false);
+            return stages.length - 1;
+          }
+          return prev + 1;
+        });
+      }, 1800);
     } else {
-      setIsPlaying(true);
-      let current = currentStage;
-      const interval = setInterval(() => {
-        current += 1;
-        if (current >= stages.length) {
-          setIsPlaying(false);
-          clearInterval(interval);
-          current = stages.length - 1;
-        }
-        setCurrentStage(current);
-      }, 1500);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isPlaying, stages.length]);
+
+  const handlePlayPause = () => {
+    setIsPlaying(!isPlaying);
   };
 
   return (
@@ -84,9 +97,14 @@ const ConstructionTimeline = () => {
           </Button>
         </div>
 
+        {/* 3D Construction Animation */}
+        <div className="mb-8">
+          <ConstructionAnimation3D stage={currentStage} buildingType={buildingType} />
+        </div>
+
         <Card className="glass mb-8">
           <CardHeader>
-            <CardTitle>Project Type</CardTitle>
+            <CardTitle>Construction Controls</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <Select value={buildingType} onValueChange={(v) => { setBuildingType(v as any); setCurrentStage(0); setIsPlaying(false); }}>
