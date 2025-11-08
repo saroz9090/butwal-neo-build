@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Building2, Shield, Users, Award, ArrowRight, MessageCircle } from "lucide-react";
+import { Building2, Shield, Users, Award, ArrowRight, MessageCircle, Handshake, BookOpen, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-construction.jpg";
 import project1 from "@/assets/project-1.jpg";
@@ -148,6 +148,57 @@ const Home = () => {
               View All Projects
               <ArrowRight className="ml-2" size={20} />
             </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Quick Links Section */}
+      <section className="py-20 container mx-auto px-4">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            Explore <span className="text-primary">More</span>
+          </h2>
+          <p className="text-muted-foreground text-lg">Discover our partnerships, success stories, and insights</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link to="/partnerships">
+            <Card className="glass p-8 hover-lift hover:border-primary/50 transition-all duration-300 h-full">
+              <Handshake className="text-primary mb-4" size={48} />
+              <h3 className="text-2xl font-bold mb-3 text-foreground">Partnerships</h3>
+              <p className="text-muted-foreground mb-4">
+                Explore our trusted collaborations with banks, hardware stores, and professional consultants
+              </p>
+              <Button variant="ghost" className="text-primary hover:text-primary/80">
+                Learn More <ArrowRight className="ml-2" size={16} />
+              </Button>
+            </Card>
+          </Link>
+
+          <Link to="/testimonials">
+            <Card className="glass p-8 hover-lift hover:border-primary/50 transition-all duration-300 h-full">
+              <Star className="text-primary mb-4" size={48} />
+              <h3 className="text-2xl font-bold mb-3 text-foreground">Testimonials</h3>
+              <p className="text-muted-foreground mb-4">
+                Read what our satisfied clients have to say about their construction experience
+              </p>
+              <Button variant="ghost" className="text-primary hover:text-primary/80">
+                View Reviews <ArrowRight className="ml-2" size={16} />
+              </Button>
+            </Card>
+          </Link>
+
+          <Link to="/blog">
+            <Card className="glass p-8 hover-lift hover:border-primary/50 transition-all duration-300 h-full">
+              <BookOpen className="text-primary mb-4" size={48} />
+              <h3 className="text-2xl font-bold mb-3 text-foreground">Blog</h3>
+              <p className="text-muted-foreground mb-4">
+                Get insights, tips, and updates on construction trends and building regulations in Nepal
+              </p>
+              <Button variant="ghost" className="text-primary hover:text-primary/80">
+                Read Articles <ArrowRight className="ml-2" size={16} />
+              </Button>
+            </Card>
           </Link>
         </div>
       </section>
