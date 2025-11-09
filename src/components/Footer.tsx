@@ -8,13 +8,13 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <Building2 className="text-primary" size={24} />
-              <div>
-                <h3 className="font-bold text-foreground">Butwal Construction</h3>
-                <p className="text-xs text-muted-foreground">& Builders</p>
-              </div>
-            </div>
+            <div className="mb-4">
+  <img 
+    src="/butwalconstructionandbuilderslogo.png" 
+    alt="Butwal Construction & Builders" 
+    className="h-12 w-auto object-contain"
+  />
+</div>
             <p className="text-sm text-muted-foreground mb-4">
               A sister company of Satyawati Devi Hardware, delivering excellence in construction.
             </p>
