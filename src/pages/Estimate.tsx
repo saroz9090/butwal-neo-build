@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calculator, TrendingUp, Building2, MessageCircle } from "lucide-react";
 import House3D from "@/components/House3D";
+import { useTools } from "@/contexts/ToolsContext";
+import { ToolSuggestions } from "@/components/ToolSuggestions";
 
 const Estimate = () => {
+  const { setEstimateData } = useTools();
   const [area, setArea] = useState<string>("");
   const [floors, setFloors] = useState<string>("1");
   const [materialType, setMaterialType] = useState<string>("");
@@ -96,6 +99,15 @@ const Estimate = () => {
 
     setShowResults(true);
     animateValue(setAnimatedCost, 0, totalCost, 1500);
+    
+    // Save to tools context
+    setEstimateData({
+      area: areaPerFloor,
+      floors: numFloors,
+      materialType,
+      totalCost,
+      timestamp: Date.now()
+    });
     
     // Animate all results
     Object.keys(calculatedResults).forEach((key) => {
@@ -428,6 +440,9 @@ const Estimate = () => {
             </div>
           </div>
         )}
+
+        {/* Tool Suggestions */}
+        {showResults && <ToolSuggestions />}
 
         {/* Disclaimer */}
         <Card className="glass p-6 mt-8">

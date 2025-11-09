@@ -13,34 +13,38 @@ const PermitAssistant = () => {
   ];
 
   const permitWorkflow = [
-    {
-      step: 1,
-      title: "Site Verification",
-      description: "Get your land ownership verified and site inspection done",
-      duration: "2-3 days",
-      documents: ["Land ownership certificate", "Site photos", "Survey map"]
-    },
-    {
-      step: 2,
-      title: "Design Approval",
-      description: "Submit architectural and structural designs to municipality",
-      duration: "7-15 days",
-      documents: ["Architectural drawings", "Structural drawings", "Plumbing & electrical plans"]
-    },
-    {
-      step: 3,
-      title: "NOC Collection",
-      description: "Obtain No Objection Certificates from relevant departments",
-      duration: "5-10 days",
-      documents: ["Fire department NOC", "Environment department NOC", "Road department NOC"]
-    },
-    {
-      step: 4,
-      title: "Permit Issuance",
-      description: "Final approval and building permit issuance",
-      duration: "3-5 days",
-      documents: ["Payment receipts", "All approved drawings", "All NOCs"]
-    }
+  {
+    step: 1,
+    title: "Site Verification",
+    description: "The municipality verifies your land ownership and conducts an on-site inspection to confirm the location and boundaries of the property.",
+    duration: "2-3 days",
+    documents: ["Land ownership certificate", "Site photos", "Survey map"]
+  },
+  {
+    step: 2,
+    title: "Design Approval",
+    description: "Submit architectural and structural designs, along with cadastral extracts and required certifications, to the municipality for approval.",
+    duration: "7-15 days",
+    documents: ["Architectural drawings", "Structural drawings", "Plumbing & electrical plans"]
+  },
+  {
+    step: 3,
+    title: "15-Day Public Notice",
+    description: "The Ward Office sends a public notice to the site’s neighbors to inform them about the proposed house construction. This notice period lasts 15 days, allowing neighbors to give feedback or objections before approval proceeds. The local inquiry starts after the notice period to finalize consent.",
+    duration: "15 days",
+    documents: [
+      "Public Notice Form",
+      "Proof of Land Ownership / Title Certificate",
+      "Neighbor Acknowledgment / Consent Form/ Commitment letter"
+    ]
+  },
+  {
+    step: 4,
+    title: "Permit Issuance",
+    description: "After the notice period and local inquiry, the municipality issues the temporary or permanent building permit, allowing construction to proceed upto the plinth level. At least one neighbor must consent, or a commitment letter can be submitted by the builder to handle potential disputes.",
+    duration: "3-5 days",
+    documents: ["Payment receipts", "All approved drawings", "Commitment Letter / Neighbor Consent"]
+  }
   ];
 
   const documentChecklist = [
@@ -48,7 +52,6 @@ const PermitAssistant = () => {
       category: "Land Documents",
       items: [
         "Land ownership certificate (Lalpurja)",
-        "Land valuation certificate",
         "Tax clearance certificate",
         "Survey map (Naksha Pass)"
       ]
@@ -56,7 +59,7 @@ const PermitAssistant = () => {
     {
       category: "Design Documents",
       items: [
-        "Site plan (1:100 or 1:200 scale)",
+        "Site plan",
         "Floor plans for all levels",
         "Elevation drawings (all sides)",
         "Structural design with calculations",
@@ -68,7 +71,6 @@ const PermitAssistant = () => {
       category: "Legal Documents",
       items: [
         "Citizenship certificate of owner",
-        "Character certificate",
         "Tax clearance certificate",
         "Building permit application form"
       ]
@@ -76,7 +78,6 @@ const PermitAssistant = () => {
     {
       category: "Technical Documents",
       items: [
-        "Soil test report",
         "Structural engineer certificate",
         "Architect registration certificate",
         "Construction schedule"
@@ -99,8 +100,8 @@ const PermitAssistant = () => {
       checks: [
         "Seismic zone V compliance required",
         "Use of reinforced concrete frame structure",
-        "Proper foundation depth (minimum 1.2m)",
-        "Column size: minimum 9\"x9\" for residential"
+        "Proper foundation depth (minimum 2.5m)",
+        "Column size: minimum 14\"x14\" for residential"
       ]
     },
     {

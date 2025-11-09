@@ -5,8 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MessageCircle, Home, Hammer, TrendingUp, Clock } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTools } from "@/contexts/ToolsContext";
+import { ToolSuggestions } from "@/components/ToolSuggestions";
 
 const BuyOrBuild = () => {
+  const { setBuyOrBuildData } = useTools();
   const [buyPrice, setBuyPrice] = useState('');
   const [landPrice, setLandPrice] = useState('');
   const [buildingCost, setBuildingCost] = useState('');
@@ -50,6 +53,15 @@ const BuyOrBuild = () => {
       buildTotal,
       savings,
       recommendation
+    });
+
+    // Save to context
+    setBuyOrBuildData({
+      buyTotal,
+      buildTotal,
+      savings,
+      recommendation,
+      timestamp: Date.now()
     });
 
     toast.success('Analysis complete');
@@ -201,6 +213,9 @@ const BuyOrBuild = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Tool Suggestions */}
+        {result && <ToolSuggestions />}
       </div>
     </div>
   );

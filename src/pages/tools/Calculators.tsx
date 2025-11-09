@@ -5,8 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calculator, TrendingUp, Home, DollarSign, MessageCircle } from "lucide-react";
+import { useTools } from "@/contexts/ToolsContext";
+import { ToolSuggestions } from "@/components/ToolSuggestions";
 
 const Calculators = () => {
+  const { setEMIData, setROIData, setRentalYieldData } = useTools();
+  
   // EMI Calculator State
   const [loanAmount, setLoanAmount] = useState("");
   const [interestRate, setInterestRate] = useState("");
@@ -33,6 +37,15 @@ const Calculators = () => {
     if (P && r && n) {
       const emiValue = (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
       setEmi(Math.round(emiValue));
+      
+      // Save to context
+      setEMIData({
+        loanAmount: P,
+        interestRate: parseFloat(interestRate),
+        tenure: parseFloat(loanTenure),
+        emi: Math.round(emiValue),
+        timestamp: Date.now()
+      });
     }
   };
 
@@ -45,6 +58,15 @@ const Calculators = () => {
     if (P && r && t) {
       const future = P * Math.pow(1 + r, t);
       setFutureValue(Math.round(future));
+      
+      // Save to context
+      setROIData({
+        propertyValue: P,
+        appreciationRate: parseFloat(appreciationRate),
+        years: t,
+        futureValue: Math.round(future),
+        timestamp: Date.now()
+      });
     }
   };
 
@@ -57,6 +79,14 @@ const Calculators = () => {
       const annualRent = rent * 12;
       const yield_value = (annualRent / price) * 100;
       setRentalYield(Math.round(yield_value * 100) / 100);
+      
+      // Save to context
+      setRentalYieldData({
+        purchasePrice: price,
+        monthlyRent: rent,
+        rentalYield: Math.round(yield_value * 100) / 100,
+        timestamp: Date.now()
+      });
     }
   };
 
@@ -308,6 +338,9 @@ const Calculators = () => {
             * Interest rates are approximate and subject to change. Please contact banks directly for current rates.
           </p>
         </div>
+
+        {/* Tool Suggestions */}
+        <ToolSuggestions />
       </div>
     </div>
   );
