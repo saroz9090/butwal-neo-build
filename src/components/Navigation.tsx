@@ -29,6 +29,7 @@ const Navigation = () => {
     { name: "About", path: "/about", icon: Info },
     { name: "Projects", path: "/projects", icon: Briefcase },
     { name: "Estimate", path: "/estimate", icon: Calculator },
+    { name: "Designs", path: "/designs", icon: Wrench },
     { name: "Contact", path: "/contact", icon: Mail },
   ];
 
@@ -37,7 +38,6 @@ const Navigation = () => {
     { name: "Financial Calculators", path: "/tools/calculators", description: "EMI, ROI & rental yield tools" },
     { name: "Vastu Guide", path: "/tools/vastu", description: "Complete Vastu Shastra guidance" },
     { name: "Buy or Build?", path: "/tools/buy-or-build", description: "Decision helper tool" },
-    { name: "Construction Timeline", path: "/tools/timeline", description: "Visualize project stages" },
     { name: "Green Build Calculator", path: "/tools/green-calculator", description: "Calculate eco savings" },
     { name: "Floor Plan", path: "/floor-planner", description: "2D floor planning tool" },
   ];
