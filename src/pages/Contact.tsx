@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, MapPin, Send, MessageCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Send, MessageCircle, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Contact = () => {
@@ -50,7 +50,7 @@ const Contact = () => {
           <div className="space-y-6">
             <Card className="glass p-6 hover-lift bg-[#25D366]/10 border-[#25D366]/30">
               <a 
-                href="https://wa.me/9779845323733" 
+                href="https://wa.me/9779763653181" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-start space-x-4 group"
@@ -61,7 +61,7 @@ const Contact = () => {
                 <div>
                   <h3 className="font-semibold text-foreground mb-2">WhatsApp (Primary)</h3>
                   <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-                    +977 984-5323733<br />
+                    +977 976-3653181<br />
                     <span className="text-[#25D366]">Click to chat instantly →</span>
                   </p>
                 </div>
@@ -71,10 +71,24 @@ const Contact = () => {
             <Card className="glass p-6 hover-lift">
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <MapPin className="text-primary" size={24} />
+                  <Phone className="text-primary" size={24} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-2">Office Address</h3>
+                  <h3 className="font-semibold text-foreground mb-2">Phone Numbers</h3>
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <p>Main: +977 986-9472803</p>
+                    <p>Office: +977 984-5323733</p>                  </div>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="glass p-6 hover-lift">
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Building2 className="text-primary" size={24} />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground mb-2">Corporate Office</h3>
                   <p className="text-sm text-muted-foreground">
                     Butwal, Rupandehi<br />
                     Lumbini Province, Nepal
@@ -86,12 +100,13 @@ const Contact = () => {
             <Card className="glass p-6 hover-lift">
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Phone className="text-primary" size={24} />
+                  <Building2 className="text-primary" size={24} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-2">Phone</h3>
+                  <h3 className="font-semibold text-foreground mb-2">Branch Office</h3>
                   <p className="text-sm text-muted-foreground">
-                    +977 984-5323733
+                    Tilottama, Rupandehi<br />
+                    Lumbini Province, Nepal
                   </p>
                 </div>
               </div>
@@ -180,6 +195,55 @@ const Contact = () => {
                 </Button>
               </form>
             </Card>
+
+            {/* Maps Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+              {/* Corporate Office Map */}
+              <Card className="glass p-6">
+                <h3 className="font-semibold text-foreground mb-4 flex items-center">
+                  <Building2 className="text-primary mr-2" size={20} />
+                  Corporate Office
+                </h3>
+                <div className="rounded-lg overflow-hidden">
+                  <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4227.960981535822!2d83.45782297602071!3d27.678082426780524!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3996876f7cb0d98d%3A0x3d0680af047da6ea!2sButwal%20Construction%20and%20Builders!5e1!3m2!1sen!2snp!4v1763057870654!5m2!1sen!2snp" 
+                    width="100%" 
+                    height="200" 
+                    style={{ border: 0 }}
+                    allowFullScreen 
+                    loading="lazy" 
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="rounded-md"
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground mt-3">
+                  Butwal, Rupandehi • Lumbini Province, Nepal
+                </p>
+              </Card>
+
+              {/* Branch Office Map */}
+              <Card className="glass p-6">
+                <h3 className="font-semibold text-foreground mb-4 flex items-center">
+                  <Building2 className="text-primary mr-2" size={20} />
+                  Branch Office - Tilottama
+                </h3>
+                <div className="rounded-lg overflow-hidden">
+                  <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1440.0011504050315!2d83.47247002740629!3d27.61918719670161!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x399685796f0e443d%3A0xa678f71a16d2cf2d!2sButwal%20Construction%20and%20Builders%20-%20Tilottama!5e1!3m2!1sen!2snp!4v1763058014296!5m2!1sen!2snp" 
+                    width="100%" 
+                    height="200" 
+                    style={{ border: 0 }}
+                    allowFullScreen 
+                    loading="lazy" 
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="rounded-md"
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground mt-3">
+                  Tilottama, Rupandehi • Lumbini Province, Nepal
+                </p>
+              </Card>
+            </div>
           </div>
         </div>
 

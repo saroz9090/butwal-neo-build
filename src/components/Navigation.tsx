@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Home, Info, Briefcase, Wrench, BookOpen, Calculator, Mail, ChevronDown } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, Home, Info, Briefcase, Wrench, BookOpen, Calculator, Mail, ChevronDown, Facebook, Instagram, MessageCircle, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -14,7 +14,10 @@ import {
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +26,14 @@ const Navigation = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Check login status on component mount and when location changes
+  useEffect(() => {
+    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+    const name = localStorage.getItem("userName") || "";
+    setIsLoggedIn(loggedIn);
+    setUserName(name);
+  }, [location]);
 
   const mainNavItems = [
     { name: "Home", path: "/", icon: Home },
@@ -42,7 +53,51 @@ const Navigation = () => {
     { name: "Floor Plan", path: "/floor-planner", description: "2D floor planning tool" },
   ];
 
+  const socialLinks = [
+    { 
+      icon: Facebook, 
+      href: "https://www.facebook.com/butwalconstructionandbuilders", 
+      label: "Facebook",
+      color: "hover:text-blue-600"
+    },
+    { 
+      icon: Instagram, 
+      href: "https://instagram.com/yourprofile", 
+      label: "Instagram",
+      color: "hover:text-pink-600"
+    },
+    { 
+      icon: MessageCircle, 
+      href: "https://wa.me/yournumber", 
+      label: "WhatsApp",
+      color: "hover:text-green-600"
+    },
+  ];
+
   const isActive = (path: string) => location.pathname === path;
+
+  const handleLogin = () => {
+    navigate("/login");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userRole");
+    setIsLoggedIn(false);
+    setUserName("");
+    navigate("/");
+  };
+
+  const handleDashboard = () => {
+    const userRole = localStorage.getItem("userRole");
+    if (userRole === "admin") {
+      navigate("/admin/dashboard");
+    } else {
+      navigate("/customer/dashboard");
+    }
+  };
 
   return (
     <>
@@ -54,13 +109,13 @@ const Navigation = () => {
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-20">
-           <Link to="/" className="flex items-center">
-  <img 
-    src="/butwalconstructionandbuilderslogo.png" 
-    alt="Butwal Construction & Builders" 
-    className="h-10 w-auto object-contain"
-  />
-</Link>
+            <Link to="/" className="flex items-center">
+              <img 
+                src="/butwalconstructionandbuilderslogo.png" 
+                alt="Butwal Construction & Builders" 
+                className="h-10 w-auto object-contain"
+              />
+            </Link>
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-1">
@@ -104,6 +159,52 @@ const Navigation = () => {
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
+
+              {/* Social Media Links */}
+              <div className="flex items-center space-x-2 ml-4 border-l border-border pl-4">
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`p-2 text-muted-foreground ${social.color} transition-colors duration-300 rounded-full hover:bg-accent`}
+                    aria-label={social.label}
+                  >
+                    <social.icon size={20} />
+                  </a>
+                ))}
+              </div>
+
+              {/* Login/User Menu */}
+              {isLoggedIn ? (
+                <div className="flex items-center space-x-2 ml-4 border-l border-border pl-4">
+                  <Button 
+                    onClick={handleDashboard}
+                    variant="ghost" 
+                    className="text-muted-foreground hover:text-foreground transition-all duration-300"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    {userName || "Dashboard"}
+                  </Button>
+                  <Button 
+                    onClick={handleLogout}
+                    variant="outline" 
+                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                  >
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  onClick={handleLogin}
+                  variant="outline" 
+                  className="ml-4 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Login
+                </Button>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -164,6 +265,61 @@ const Navigation = () => {
                   </Link>
                 ))}
               </div>
+
+              {/* Social Media Links for Mobile */}
+              <div className="flex items-center justify-center space-x-4 pt-4 border-t border-border mt-4">
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`p-2 text-muted-foreground ${social.color} transition-colors duration-300 rounded-full hover:bg-accent`}
+                    aria-label={social.label}
+                  >
+                    <social.icon size={24} />
+                  </a>
+                ))}
+              </div>
+
+              {/* Login/Logout Button for Mobile */}
+              {isLoggedIn ? (
+                <div className="space-y-2 border-t border-border pt-4">
+                  <Button 
+                    onClick={() => {
+                      handleDashboard();
+                      setIsOpen(false);
+                    }}
+                    variant="ghost" 
+                    className="w-full justify-start text-muted-foreground"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    {userName || "Dashboard"}
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      handleLogout();
+                      setIsOpen(false);
+                    }}
+                    variant="outline" 
+                    className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                  >
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  onClick={() => {
+                    handleLogin();
+                    setIsOpen(false);
+                  }}
+                  variant="outline" 
+                  className="w-full mt-4 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Login
+                </Button>
+              )}
             </div>
           </div>
         )}
@@ -186,6 +342,25 @@ const Navigation = () => {
               </div>
             </Link>
           ))}
+          
+          {/* Login/User in Mobile Bottom Nav */}
+          {isLoggedIn ? (
+            <button 
+              onClick={handleDashboard}
+              className="flex-1 flex flex-col items-center space-y-1 text-primary transition-colors duration-300"
+            >
+              <User size={20} />
+              <span className="text-xs">Account</span>
+            </button>
+          ) : (
+            <button 
+              onClick={handleLogin}
+              className="flex-1 flex flex-col items-center space-y-1 text-muted-foreground hover:text-primary transition-colors duration-300"
+            >
+              <User size={20} />
+              <span className="text-xs">Login</span>
+            </button>
+          )}
         </div>
       </div>
     </>

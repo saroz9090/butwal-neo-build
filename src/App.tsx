@@ -24,7 +24,10 @@ import NotFound from "./pages/NotFound";
 import { Chatbot } from "./components/Chatbot";
 import FloorPlannerPage from './pages/FloorPlannerPage';
 import UnderConstructionPage from './pages/UnderConstructionPage';
-import HouseDesignsGallery from "./pages/HouseDesignsGallery"; // Add this import
+import HouseDesignsGallery from "./pages/HouseDesignsGallery";
+import LoginPage from "./pages/LoginPage";
+import CustomerDashboard from "./pages/dashboards/CustomerDashboard";
+import StaffDashboard from "./pages/dashboards/StaffDashboard";
 
 const queryClient = new QueryClient();
 
@@ -35,30 +38,34 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-        <Navigation />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<AboutServices />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/tools/permits" element={<PermitAssistant />} />
-          <Route path="/tools/calculators" element={<Calculators />} />
-          <Route path="/tools/vastu" element={<VastuGuide />} />
-          <Route path="/tools/buy-or-build" element={<BuyOrBuild />} />
-          <Route path="/tools/timeline" element={<ConstructionTimeline />} />
-          <Route path="/tools/green-calculator" element={<GreenBuildCalculator />} />
-          <Route path="/partnerships" element={<Partnerships />} />
-          <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/estimate" element={<Estimate />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/floor-planner" element={<FloorPlannerPage />} />
-          <Route path="/under-construction" element={<UnderConstructionPage />} /> {/* Add this line */}
-          <Route path="*" element={<NotFound />} />
-          <Route path="/designs" element={<HouseDesignsGallery />} />
-        </Routes>
-        <Footer />
-        <Chatbot />
-      </BrowserRouter>
+          <Navigation />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<AboutServices />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/tools/permits" element={<PermitAssistant />} />
+            <Route path="/tools/calculators" element={<Calculators />} />
+            <Route path="/tools/vastu" element={<VastuGuide />} />
+            <Route path="/tools/buy-or-build" element={<BuyOrBuild />} />
+            <Route path="/tools/timeline" element={<ConstructionTimeline />} />
+            <Route path="/tools/green-calculator" element={<GreenBuildCalculator />} />
+            <Route path="/partnerships" element={<Partnerships />} />
+            <Route path="/testimonials" element={<Testimonials />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/estimate" element={<Estimate />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/floor-planner" element={<FloorPlannerPage />} />
+            <Route path="/under-construction" element={<UnderConstructionPage />} />
+            <Route path="/designs" element={<HouseDesignsGallery />} />
+            <Route path="/login" element={<LoginPage />} />
+            {/* Add these dashboard routes */}
+            <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+            <Route path="/staff/dashboard" element={<StaffDashboard />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Footer />
+          <Chatbot />
+        </BrowserRouter>
       </ToolsProvider>
     </TooltipProvider>
   </QueryClientProvider>
