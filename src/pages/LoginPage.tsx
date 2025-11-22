@@ -21,15 +21,15 @@ const LoginPage = () => {
     customer: [
       { 
         email: "customer1@butwalconstruction.com", 
-        password: "customer123", 
-        name: "John Smith", 
+        password: "customer111", 
+        name: "Shyam Sharma", 
         role: "customer",
         project: "Residence-2024-001"
       },
       { 
         email: "customer2@butwalconstruction.com", 
-        password: "customer123", 
-        name: "Sarah Johnson", 
+        password: "customer222", 
+        name: "Riya Sharma", 
         role: "customer",
         project: "Villa-2024-002"
       },
@@ -118,8 +118,8 @@ const LoginPage = () => {
 
   const demoAccounts = {
     customer: [
-      { email: "customer1@butwalconstruction.com", password: "customer123", role: "Customer" },
-      { email: "customer2@butwalconstruction.com", password: "customer123", role: "Customer" },
+      { email: "customer1@butwalconstruction.com", password: "customer111", role: "Customer" },
+      { email: "customer2@butwalconstruction.com", password: "customer222", role: "Customer" },
     ],
     staff: [
       { email: "admin@butwalconstruction.com", password: "admin123", role: "Administrator" },
@@ -240,7 +240,7 @@ const LoginPage = () => {
                   </p>
                 </div>
 
-                {/* Demo Accounts Info */}
+                {/* Demo Accounts Info 
                 <div className="bg-muted/50 rounded-lg p-4">
                   <h4 className="text-sm font-semibold mb-2 text-center">Demo Staff Accounts</h4>
                   <div className="space-y-2">
@@ -261,7 +261,7 @@ const LoginPage = () => {
                       </div>
                     ))}
                   </div>
-                </div>
+                </div> */}
 
                 <LoginForm
                   email={email}
