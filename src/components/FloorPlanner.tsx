@@ -468,7 +468,7 @@ const FloorPlanner = () => {
 
   const fallbackWhatsAppShare = () => {
     const message = `Floor Plan: ${projectName}\nArea: ${calculateTotalArea().toFixed(1)} sq.ft\n\nPlease check your floor plan design.`;
-    window.open(`https://wa.me/9779845323733?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(`https://wa.me/9779763653181?text=${encodeURIComponent(message)}`, '_blank');
     toast.info('Export the image separately to share it');
   };
 

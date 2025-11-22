@@ -62,13 +62,13 @@ const Navigation = () => {
     },
     { 
       icon: Instagram, 
-      href: "https://instagram.com/yourprofile", 
+      href: "https://instagram.com/butwalconstructionandbuilders", 
       label: "Instagram",
       color: "hover:text-pink-600"
     },
     { 
       icon: MessageCircle, 
-      href: "https://wa.me/yournumber", 
+      href: "https://wa.me/+9779763653181", 
       label: "WhatsApp",
       color: "hover:text-green-600"
     },

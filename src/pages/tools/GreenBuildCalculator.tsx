@@ -118,7 +118,7 @@ const GreenBuildCalculator = () => {
           </h1>
           <p className="text-lg text-muted-foreground">Calculate savings with eco-friendly features</p>
           <Button 
-            onClick={() => window.open('https://wa.me/9779845323733?text=I want to build an eco-friendly home', '_blank')}
+            onClick={() => window.open('https://wa.me/9779763653181?text=I want to build an eco-friendly home', '_blank')}
             className="mt-4 bg-[#25D366] hover:bg-[#20BA5A] text-white"
           >
             <MessageCircle className="w-4 h-4 mr-2" />

@@ -215,7 +215,7 @@ const AboutServices = () => {
               <Button 
                 size="lg" 
                 className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
-                onClick={() => window.open('https://wa.me/9779845323733?text=Hello! I need a custom construction solution.', '_blank')}
+                onClick={() => window.open('https://wa.me/9779763653181?text=Hello! I need a custom construction solution.', '_blank')}
               >
                 <MessageCircle className="mr-2" size={20} />
                 Discuss on WhatsApp

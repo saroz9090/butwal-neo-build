@@ -76,7 +76,7 @@ const ConstructionTimeline = () => {
           </h1>
           <p className="text-lg text-muted-foreground">Visualize your construction journey step-by-step</p>
           <Button 
-            onClick={() => window.open('https://wa.me/9779845323733?text=I need help planning my construction timeline', '_blank')}
+            onClick={() => window.open('https://wa.me/9779763653181?text=I need help planning my construction timeline', '_blank')}
             className="mt-4 bg-[#25D366] hover:bg-[#20BA5A] text-white"
           >
             <MessageCircle className="w-4 h-4 mr-2" />

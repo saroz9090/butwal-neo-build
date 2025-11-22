@@ -11,25 +11,25 @@ const Footer = () => {
     },
     { 
       icon: Instagram, 
-      href: "https://instagram.com/yourprofile", 
+      href: "https://instagram.com/butwalconstructionandbuilders", 
       label: "Instagram",
       color: "hover:text-pink-600"
     },
     { 
       icon: Linkedin, 
-      href: "https://linkedin.com/company/yourcompany", 
+      href: "https://linkedin.com/company/butwal-construction-and-builders", 
       label: "LinkedIn",
       color: "hover:text-blue-500"
     },
     { 
       icon: Youtube, 
-      href: "https://youtube.com/@yourchannel", 
+      href: "https://www.youtube.com/@ButwalConstructionandbuilders", 
       label: "YouTube",
       color: "hover:text-red-600"
     },
     { 
       icon: MessageCircle, 
-      href: "https://wa.me/9779845323733", 
+      href: "https://wa.me/9779763653181", 
       label: "WhatsApp",
       color: "hover:text-green-600"
     },
@@ -111,23 +111,51 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold text-foreground mb-4">Contact Us</h4>
             <div className="space-y-3">
-              <div className="flex items-start space-x-2">
-                <MapPin size={16} className="text-primary mt-1 flex-shrink-0" />
-                <p className="text-sm text-muted-foreground">Butwal, Nepal</p>
-              </div>
+<div className="flex items-start space-x-2">
+  <MapPin size={16} className="text-primary mt-1 flex-shrink-0" />
+  <p className="text-sm text-muted-foreground">
+    <a 
+      href="https://www.google.com/maps/place/Butwal+Construction+and+Builders/@27.678078,83.460398,3884m/data=!3m1!1e3!4m6!3m5!1s0x3996876f7cb0d98d:0x3d0680af047da6ea!8m2!3d27.6780777!4d83.4603979!16s%2Fg%2F11mlw2yj59!5m1!1e1?hl=en&entry=ttu&g_ep=EgoyMDI1MTExNy4wIKXMDSoASAFQAw%3D%3D" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="hover:text-primary transition-colors"
+    >
+      Butwal- Kalikanagar
+    </a>, 
+    <a 
+      href="https://www.google.com/maps/place/Butwal+Construction+and+Builders+-+Tilottama/@27.619188,83.474091,1943m/data=!3m1!1e3!4m6!3m5!1s0x399685796f0e443d:0xa678f71a16d2cf2d!8m2!3d27.6191877!4d83.4740908!16s%2Fg%2F11ynybd3tv!5m1!1e1?hl=en&entry=ttu&g_ep=EgoyMDI1MTExNy4wIKXMDSoASAFQAw%3D%3D" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="hover:text-primary transition-colors"
+    >
+      Tilottama- Shankharpur
+    </a>
+  </p>
+</div>
+
               <a 
-                href="https://wa.me/9779845323733" 
+                href="https://wa.me/9779763653181" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 hover:text-primary transition-colors group"
               >
                 <MessageCircle size={16} className="text-primary flex-shrink-0 group-hover:scale-110 transition-transform" />
-                <p className="text-sm text-muted-foreground group-hover:text-primary">+977 984-5323733</p>
+                <p className="text-sm text-muted-foreground group-hover:text-primary">+977 9763653181</p>
               </a>
-              <div className="flex items-center space-x-2">
-                <Phone size={16} className="text-primary flex-shrink-0" />
-                <p className="text-sm text-muted-foreground">+977 984-5323733</p>
-              </div>
+<a 
+  href="tel:+9779869472803"
+  className="flex items-center space-x-2 hover:text-primary transition-colors group"
+>
+  <Phone 
+    size={16} 
+    className="text-primary flex-shrink-0 group-hover:scale-110 transition-transform" 
+  />
+  <p className="text-sm text-muted-foreground group-hover:text-primary">
+    +977 9869472803
+  </p>
+</a>
+
+
               <a 
                 href="mailto:info@butwalconstruction.com.np"
                 className="flex items-center space-x-2 hover:text-primary transition-colors group"

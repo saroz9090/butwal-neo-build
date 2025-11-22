@@ -362,7 +362,7 @@ const UnderConstruction = () => {
                     Have questions? Get in touch via WhatsApp and we'll help you out!
                   </p>
                   <Button 
-                    onClick={() => window.open('https://wa.me/9779845323733?text=Hi! I would like to know more about your services.', '_blank')}
+                    onClick={() => window.open('https://wa.me/9779763653181?text=Hi! I would like to know more about your services.', '_blank')}
                     className="w-full bg-[#25D366] hover:bg-[#20BA5A] text-white"
                   >
                     <MessageCircle className="w-4 h-4 mr-2" />

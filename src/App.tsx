@@ -28,6 +28,9 @@ import HouseDesignsGallery from "./pages/HouseDesignsGallery";
 import LoginPage from "./pages/LoginPage";
 import CustomerDashboard from "./pages/dashboards/CustomerDashboard";
 import StaffDashboard from "./pages/dashboards/StaffDashboard";
+import Privacy from "./pages/Privacy";
+import TermsAndConditions from "./pages/Terms";
+import Sitemap from "./pages/Sitemap";
 
 const queryClient = new QueryClient();
 
@@ -58,10 +61,14 @@ const App = () => (
             <Route path="/under-construction" element={<UnderConstructionPage />} />
             <Route path="/designs" element={<HouseDesignsGallery />} />
             <Route path="/login" element={<LoginPage />} />
-            {/* Add these dashboard routes */}
+            <Route path="/terms" element={<TermsAndConditions />} />
+            {/* Add the Privacy Policy route */}
+            <Route path="/privacy" element={<Privacy />} />
+            {/* Dashboard routes */}
             <Route path="/customer/dashboard" element={<CustomerDashboard />} />
             <Route path="/staff/dashboard" element={<StaffDashboard />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/sitemap" element={<Sitemap />} />
           </Routes>
           <Footer />
           <Chatbot />

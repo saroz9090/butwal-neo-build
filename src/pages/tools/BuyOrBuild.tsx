@@ -76,7 +76,7 @@ const BuyOrBuild = () => {
           </h1>
           <p className="text-lg text-muted-foreground">Make an informed decision about your next home</p>
           <Button 
-            onClick={() => window.open('https://wa.me/9779845323733?text=I need help deciding whether to buy or build', '_blank')}
+            onClick={() => window.open('https://wa.me/9779763653181?text=I need help deciding whether to buy or build', '_blank')}
             className="mt-4 bg-[#25D366] hover:bg-[#20BA5A] text-white"
           >
             <MessageCircle className="w-4 h-4 mr-2" />

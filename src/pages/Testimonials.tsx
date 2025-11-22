@@ -65,7 +65,7 @@ const Testimonials = () => {
             Hear what our satisfied clients have to say about their experience
           </p>
           <Button 
-            onClick={() => window.open('https://wa.me/9779845323733?text=I want to share my experience', '_blank')}
+            onClick={() => window.open('https://wa.me/9779763653181?text=I want to share my experience', '_blank')}
             className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
             size="lg"
           >
@@ -121,7 +121,7 @@ const Testimonials = () => {
               Join hundreds of satisfied homeowners who trusted us with their construction needs
             </p>
             <Button 
-              onClick={() => window.open('https://wa.me/9779845323733?text=I want to start my construction project', '_blank')}
+              onClick={() => window.open('https://wa.me/9779763653181?text=I want to start my construction project', '_blank')}
               className="bg-primary hover:bg-primary/90"
               size="lg"
             >

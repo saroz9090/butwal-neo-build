@@ -34,40 +34,40 @@ const Estimate = () => {
 
   const materialRates = {
     standard: { 
-      rate: 8000, 
-      ppcCement: 0.25, // bags per sq ft
-      opcCement: 0.15,
-      rods: { "8mm": 2.0, "10mm": 1.5, "12mm": 1.0, "16mm": 0.5, "20mm": 0.3 }, // kg per sq ft
-      pvcPipes: 0.8, // ft per sq ft
-      cpvcPipes: 0.4,
-      giPipes: 0.2,
-      bricks: 8, // per sq ft
-      sand: 0.045, // cubic ft
-      aggregate: 0.09 // cubic ft
+      rate: 3300, // Updated from 8000 to 3300 NPR per sq ft
+      ppcCement: 0.18, // bags per sq ft (adjusted proportionally)
+      opcCement: 0.12,
+      rods: { "8mm": 1.2, "10mm": 0.9, "12mm": 0.7, "16mm": 0.4, "20mm": 0.2 }, // kg per sq ft (adjusted)
+      pvcPipes: 0.5, // ft per sq ft (adjusted)
+      cpvcPipes: 0.3,
+      giPipes: 0.15,
+      bricks: 6, // per sq ft (adjusted)
+      sand: 0.03, // cubic ft (adjusted)
+      aggregate: 0.06 // cubic ft (adjusted)
     },
     premium: { 
-      rate: 12000, 
-      ppcCement: 0.28,
-      opcCement: 0.17,
-      rods: { "8mm": 2.2, "10mm": 1.7, "12mm": 1.2, "16mm": 0.6, "20mm": 0.35 },
-      pvcPipes: 0.9,
-      cpvcPipes: 0.5,
-      giPipes: 0.25,
-      bricks: 9,
-      sand: 0.05,
-      aggregate: 0.1
+      rate: 4500, // Updated from 12000 to 4500 NPR per sq ft
+      ppcCement: 0.22,
+      opcCement: 0.15,
+      rods: { "8mm": 1.5, "10mm": 1.1, "12mm": 0.9, "16mm": 0.5, "20mm": 0.25 },
+      pvcPipes: 0.6,
+      cpvcPipes: 0.4,
+      giPipes: 0.2,
+      bricks: 7,
+      sand: 0.035,
+      aggregate: 0.07
     },
     luxury: { 
-      rate: 16000, 
-      ppcCement: 0.30,
-      opcCement: 0.20,
-      rods: { "8mm": 2.5, "10mm": 2.0, "12mm": 1.5, "16mm": 0.7, "20mm": 0.4 },
-      pvcPipes: 1.0,
-      cpvcPipes: 0.6,
-      giPipes: 0.3,
-      bricks: 10,
-      sand: 0.055,
-      aggregate: 0.11
+      rate: 6000, // Updated from 16000 to 6000 NPR per sq ft
+      ppcCement: 0.25,
+      opcCement: 0.18,
+      rods: { "8mm": 1.8, "10mm": 1.3, "12mm": 1.0, "16mm": 0.6, "20mm": 0.3 },
+      pvcPipes: 0.7,
+      cpvcPipes: 0.5,
+      giPipes: 0.25,
+      bricks: 8,
+      sand: 0.04,
+      aggregate: 0.08
     }
   };
 
@@ -241,9 +241,9 @@ const Estimate = () => {
                     <SelectValue placeholder="Select material type" />
                   </SelectTrigger>
                   <SelectContent className="glass">
-                    <SelectItem value="standard">Standard (NPR 8,000/sq ft)</SelectItem>
-                    <SelectItem value="premium">Premium (NPR 12,000/sq ft)</SelectItem>
-                    <SelectItem value="luxury">Luxury (NPR 16,000/sq ft)</SelectItem>
+                    <SelectItem value="standard">Standard (NPR 3,300/sq ft)</SelectItem>
+                    <SelectItem value="premium">Premium (NPR 4,500/sq ft)</SelectItem>
+                    <SelectItem value="luxury">Luxury (NPR 6,000/sq ft)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -264,7 +264,7 @@ const Estimate = () => {
                   const message = area && floors 
                     ? `Hello! I need an estimation for ${area} sq ft per floor with ${floors} floor(s).`
                     : "Hello! I'm interested in getting a construction estimate.";
-                  window.open(`https://wa.me/9779845323733?text=${encodeURIComponent(message)}`, '_blank');
+                  window.open(`https://wa.me/9779763653181?text=${encodeURIComponent(message)}`, '_blank');
                 }}
                 className="w-full bg-[#25D366] hover:bg-[#20BA5A] text-white text-lg h-14"
               >
@@ -290,7 +290,7 @@ const Estimate = () => {
               <Button
                 onClick={() => {
                   const message = `Hello! I've calculated an estimate:\n\nArea: ${area} sq ft per floor\nFloors: ${floors}\nTotal Area: ${(parseFloat(area) * parseInt(floors)).toLocaleString('en-IN')} sq ft\nMaterial Type: ${materialType}\nEstimated Cost: NPR ${animatedCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}\n\nI'd like to discuss this project further.`;
-                  window.open(`https://wa.me/9779845323733?text=${encodeURIComponent(message)}`, '_blank');
+                  window.open(`https://wa.me/9779763653181?text=${encodeURIComponent(message)}`, '_blank');
                 }}
                 className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
                 size="lg"

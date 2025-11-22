@@ -59,7 +59,7 @@ const Partnerships = () => {
             Collaborating with industry leaders to provide you with the best services
           </p>
           <Button 
-            onClick={() => window.open('https://wa.me/9779845323733?text=I want to know more about your partnerships', '_blank')}
+            onClick={() => window.open('https://wa.me/9779763653181?text=I want to know more about your partnerships', '_blank')}
             className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
             size="lg"
           >
