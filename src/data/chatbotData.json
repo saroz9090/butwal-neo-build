@@ -1,46 +1,183 @@
 {
   "greetings": [
-    "Hello! I'm your construction assistant. How can I help you today?",
-    "Hi there! Need help with estimates or construction info?",
-    "Welcome to Butwal Construction! What would you like to know?"
+    "Namaste! 👷 I'm your construction assistant from Butwal Construction. How can I help you build your dream today?",
+    "Hello! I'm here to help with all your construction needs - from estimates to design advice. What's on your mind?",
+    "Welcome to Butwal Construction! I'm your virtual construction expert. How can I assist you today?",
+    "Hi there! Ready to plan your construction project? I'm here to help with costs, materials, timelines, and more!",
+    "Namaskar! I'm your construction companion. Whether it's a small renovation or a new building, I'm here to guide you!"
   ],
   "responses": [
     {
-      "keywords": ["estimate", "cost", "price", "calculate"],
-      "answer": "I can help you calculate construction estimates! Visit our Estimate page to enter your area in square feet and material type for an instant quote."
+      "keywords": ["estimate", "cost", "price", "calculate", "budget", "how much", "expense"],
+      "answer": "I can help you calculate construction costs! Our current rates are:\n\n🏠 Standard Quality: NPR 3,300 per sq ft\n⭐ Premium Quality: NPR 4,500 per sq ft\n💎 Luxury Quality: NPR 6,000 per sq ft\n\nVisit our Estimate page to enter your area and get a detailed breakdown including materials like cement, steel rods, bricks, and more!"
     },
     {
-      "keywords": ["material", "rod", "cement", "steel"],
-      "answer": "We use premium quality materials:\n- Standard: NPR 8,000/sq ft\n- Premium: NPR 12,000/sq ft\n- Luxury: NPR 16,000/sq ft\n\nEach includes appropriate rod and cement quantities."
+      "keywords": ["material", "rod", "cement", "steel", "brick", "sand", "aggregate", "pipes"],
+      "answer": "We use high-quality construction materials:\n\n🔩 Steel Rods: 8mm, 10mm, 12mm, 16mm, 20mm TMT bars\n🏗️ Cement: PPC for plastering, OPC for structural work\n🧱 Bricks: First-class chimney bricks\n🚰 Pipes: PVC, CPVC, and GI pipes for plumbing\n\nFor a 1000 sq ft standard house, you'd typically need:\n- 180 bags PPC cement\n- 120 bags OPC cement\n- 1200 kg steel rods\n- 6000 bricks\n- 30 cubic ft sand\n- 60 cubic ft aggregate"
     },
     {
-      "keywords": ["contact", "call", "phone", "reach"],
-      "answer": "You can reach us at:\n📞 Phone: +977-71-XXXXXX\n📧 Email: info@butwalconstruction.com.np\n📍 Location: Butwal, Nepal"
+      "keywords": ["contact", "call", "phone", "reach", "email", "office", "location"],
+      "answer": "You can reach us through:\n\n📞 Phone: +977 9845323733 / 9869472803\n📧 Email: info@butwalconstruction.com\n📍 Main Office: Butwal-11, Kalikanagar\n📍 Branch: Tilottama, Shankharpur\n💬 WhatsApp: https://wa.me/9779845323733\n\nWe're available 7 days a week from 7 AM to 7 PM!"
     },
     {
-      "keywords": ["project", "portfolio", "work", "completed"],
-      "answer": "We've completed numerous projects including residential complexes, commercial hubs, and luxury villas. Check out our Projects page to see our work!"
+      "keywords": ["project", "portfolio", "work", "completed", "example", "show me"],
+      "answer": "We've successfully completed numerous projects across Butwal and surrounding areas:\n\n🏡 Residential Projects:\n- 2-story modern house in Butwal-11\n- 3-story family home in Tilottama\n- Luxury villa in Devinagar\n\n🏢 Commercial Projects:\n- Shopping complex in Main Road\n- Office building in Milan Chowk\n- Restaurant interior in Traffic Chowk\n\nCheck our Projects page for photos and detailed case studies!"
     },
     {
-      "keywords": ["service", "what do you do", "offer"],
-      "answer": "We offer:\n✓ Residential Construction\n✓ Commercial Buildings\n✓ Interior Design\n✓ Renovation & Remodeling\n✓ Consultation Services"
+      "keywords": ["service", "what do you do", "offer", "provide", "construction type"],
+      "answer": "We offer comprehensive construction services:\n\n🏗️ New Construction:\n- Residential buildings\n- Commercial complexes\n- Industrial structures\n\n🎨 Renovation & Remodeling:\n- Kitchen & bathroom upgrades\n- Room additions\n- Structural modifications\n\n📐 Design & Planning:\n- Architectural design\n- 3D visualization\n- Vastu-compliant planning\n\n🔧 Additional Services:\n- Interior design\n- Electrical & plumbing\n- Landscaping\n- Permit assistance"
     },
     {
-      "keywords": ["time", "duration", "how long"],
-      "answer": "Project duration varies based on size and complexity. Typical timelines:\n- Small residential: 3-6 months\n- Large residential: 6-12 months\n- Commercial: 8-18 months"
+      "keywords": ["time", "duration", "how long", "schedule", "timeline", "completion"],
+      "answer": "Construction timelines vary by project size:\n\n📅 Standard Timelines:\n• 1-2 story house: 4-8 months\n• 3-4 story building: 8-12 months\n• Commercial project: 6-18 months\n• Renovation: 1-3 months\n\n⏱️ Phase Breakdown:\n• Foundation: 2-4 weeks\n• Structure: 4-8 weeks\n• Finishing: 6-10 weeks\n• Final touches: 2-4 weeks\n\nWe provide detailed project schedules and regular progress updates!"
     },
     {
-      "keywords": ["quality", "warranty", "guarantee"],
-      "answer": "We provide quality assurance with:\n✓ Rigorous quality control\n✓ Premium materials\n✓ Expert supervision\n✓ Post-completion support"
+      "keywords": ["quality", "warranty", "guarantee", "standard", "assurance"],
+      "answer": "Quality is our top priority! We ensure:\n\n✅ Quality Assurance:\n• Premium materials from trusted suppliers\n• Skilled labor with proper training\n• Regular quality inspections\n• Compliance with building codes\n\n🛡️ Warranty & Support:\n• 5-year structural warranty\n• 1-year workmanship guarantee\n• 24/7 emergency support\n• Regular maintenance checks\n\nWe're official distributors of Brij Cement, Laxmi Rod, and Kinshn Plumbing!"
     },
     {
-      "keywords": ["location", "where", "butwal"],
-      "answer": "We're based in Butwal, Nepal, serving the entire region. We're a sister company of Satyawati Devi Hardware."
+      "keywords": ["location", "where", "butwal", "nepal", "area", "serve"],
+      "answer": "We're proudly based in Butwal and serve:\n\n📍 Primary Service Areas:\n• Butwal and surrounding regions\n• Tilottama Municipality\n• Siddharthanagar\n• Lumbini area\n• Devdaha\n\n🏢 Our Presence:\n• Main office: Butwal-11, Kalikanagar\n• Branch office: Tilottama, Shankharpur\n• Hardware store: Satyawati Devi Hardware\n\nWe've been serving the community since 2075 BS with quality construction services!"
+    },
+    {
+      "keywords": ["experience", "years", "established", "background", "history"],
+      "answer": "With decades of experience:\n\n📅 Our Journey:\n• Established: 2075 BS\n• Projects completed: 150+\n• Team size: 50+ professionals\n• Specialized departments: 6\n\n🌟 Our Expertise:\n• Residential construction expert\n• Commercial project specialists\n• Renovation and remodeling\n• Sustainable building practices\n\nWe combine traditional craftsmanship with modern technology for the best results!"
+    },
+    {
+      "keywords": ["team", "staff", "engineer", "architect", "workers"],
+      "answer": "Our expert team includes:\n\n👷 Professional Team:\n• Civil Engineers (5+ years experience)\n• Architects & Designers\n• Skilled Masons & Carpenters\n• Electricians & Plumbers\n• Project Managers\n\n🎓 Qualifications:\n• Licensed engineers\n• Certified technicians\n• Trained supervisors\n• Quality control experts\n\nWe maintain a dedicated team for each project to ensure consistency and quality!"
+    },
+    {
+      "keywords": ["process", "how it works", "steps", "procedure", "workflow"],
+      "answer": "Our construction process:\n\n1. 📋 Consultation & Planning\n   - Site visit and assessment\n   - Design discussion\n   - Budget planning\n\n2. 🏗️ Design & Approval\n   - Architectural drawings\n   - 3D visualization\n   - Permit assistance\n\n3. 🔨 Construction Phases\n   - Foundation work\n   - Structural development\n   - Finishing touches\n\n4. ✅ Handover & Support\n   - Final inspection\n   - Documentation\n   - After-service support\n\nWe keep you informed at every step with regular updates!"
+    },
+    {
+      "keywords": ["payment", "finance", "cost", "installment", "advance"],
+      "answer": "Our transparent payment structure:\n\n💰 Payment Schedule:\n• 10% - Agreement signing\n• 20% - Foundation completion\n• 25% - Structure completion\n• 25% - Finishing work\n• 15% - Final handover\n• 5% - After 1 month\n\n💳 Payment Options:\n• Cash and bank transfer\n• Installment plans available\n• No hidden charges\n• Detailed billing\n\nWe provide complete cost breakdowns and regular financial updates!"
+    },
+    {
+      "keywords": ["design", "plan", "architecture", "layout", "floor plan"],
+      "answer": "We offer comprehensive design services:\n\n🏠 Design Options:\n• Traditional Nepali style\n• Modern contemporary\n• Mixed architecture\n• Vastu-compliant designs\n\n📐 Planning Tools:\n• 3D visualization\n• Floor plan optimization\n• Space utilization\n• Material selection\n\n🎨 Customization:\n• Personalized layouts\n• Color schemes\n• Fixture selection\n• Landscape design\n\nVisit our Designs gallery for inspiration or use our Floor Planner tool!"
+    },
+    {
+      "keywords": ["permit", "license", "approval", "legal", "document"],
+      "answer": "We handle all permit requirements:\n\n📄 Permits We Manage:\n• Building construction permit\n• House design approval\n• Environmental clearance\n• Road access permission\n• Utility connections\n\n⏱️ Timeline:\n• Residential: 2-4 weeks\n• Commercial: 4-6 weeks\n• Complex projects: 6-8 weeks\n\n✅ Our Assistance:\n• Document preparation\n• Government liaison\n• Follow-up and tracking\n• Compliance assurance\n\nUse our Permit Assistant tool for guidance!"
+    },
+    {
+      "keywords": ["renovation", "remodel", "repair", "upgrade", "fix"],
+      "answer": "We specialize in renovation services:\n\n🛠️ Renovation Types:\n• Kitchen modernization\n• Bathroom upgrades\n• Room additions\n• Structural repairs\n• Exterior facelifts\n\n💡 Popular Upgrades:\n• False ceiling installation\n• Tiling and flooring\n• Electrical rewiring\n• Plumbing upgrades\n• Paint and polish\n\n📊 Process:\n• Assessment of existing structure\n• Design and planning\n• Minimal disruption work\n• Quality finishing\n\nWe transform your space while maintaining structural integrity!"
+    },
+    {
+      "keywords": ["green", "sustainable", "eco", "environment", "energy"],
+      "answer": "We promote sustainable construction:\n\n🌿 Green Features:\n• Energy-efficient design\n• Water conservation systems\n• Natural lighting optimization\n• Eco-friendly materials\n• Waste management\n\n💡 Sustainable Options:\n• Solar panel installation\n• Rainwater harvesting\n• Green roofing\n• Natural ventilation\n• Recycled materials\n\n📈 Benefits:\n• Lower utility bills\n• Healthier living space\n• Environmental protection\n• Higher property value\n\nTry our Green Build Calculator to assess sustainability!"
+    },
+    {
+      "keywords": ["vastu", "feng shui", "traditional", "auspicious", "direction"],
+      "answer": "We incorporate Vastu principles:\n\n🏠 Vastu Considerations:\n• Proper building orientation\n• Room placement optimization\n• Entrance direction planning\n• Energy flow enhancement\n• Color and material selection\n\n📐 Our Approach:\n• Modern + traditional balance\n• Scientific Vastu application\n• Customized solutions\n• Client preference respect\n\n🔮 Benefits:\n• Positive energy flow\n• Enhanced well-being\n• Harmonious living\n• Cultural relevance\n\nCheck our Vastu Guide for detailed information!"
+    },
+    {
+      "keywords": ["emergency", "urgent", "immediate", "quick", "rush"],
+      "answer": "For urgent construction needs:\n\n🚨 Emergency Services:\n• Structural damage assessment\n• Immediate repairs\n• Safety measures\n• Temporary solutions\n\n⏱️ Response Time:\n• Site visit: Within 24 hours\n• Emergency repair: Immediate\n• Assessment report: 48 hours\n• Solution implementation: Quick turnaround\n\n📞 Emergency Contact:\n• Phone: +977 9845323733\n• Available 24/7 for emergencies\n• Quick response team\n\nWe prioritize safety and immediate attention for urgent matters!"
+    },
+    {
+      "keywords": ["partnership", "collaborate", "supplier", "vendor", "associate"],
+      "answer": "Our trusted partnerships:\n\n🤝 Key Partners:\n• Satyawati Devi Hardware\n• Navdurga Furniture\n• Brij Cement (Official distributor)\n• Laxmi Rod\n• Kinshn Plumbing\n\n🏆 Why Partner With Us:\n• Reliable payment terms\n• Long-term relationships\n• Quality standards\n• Mutual growth focus\n\n💼 Partnership Benefits:\n• Priority material supply\n• Competitive pricing\n• Quality assurance\n• Technical support\n\nVisit our Partnerships page for more details!"
+    },
+    {
+      "keywords": ["testimonial", "review", "feedback", "client", "satisfaction"],
+      "answer": "Our clients love our work:\n\n⭐ Client Feedback:\n• \"Professional team and quality work\" - R. Sharma, Butwal\n• \"Completed our house before deadline\" - S. Gurung, Tilottama\n• \"Excellent communication throughout\" - P. Karki, Devinagar\n\n📊 Satisfaction Metrics:\n• 98% client satisfaction rate\n• 150+ successful projects\n• 4.9/5 average rating\n• 80% referral business\n\n📸 See real projects and read detailed testimonials on our Testimonials page!"
+    },
+    {
+      "keywords": ["technology", "modern", "innovation", "equipment", "tools"],
+      "answer": "We use modern construction technology:\n\n🛠️ Advanced Equipment:\n• Concrete mixers and vibrators\n• Modern scaffolding systems\n• Laser leveling tools\n• Power tools and equipment\n\n💻 Digital Tools:\n• 3D modeling software\n• Project management apps\n• Real-time progress tracking\n• Digital communication platforms\n\n🏗️ Construction Methods:\n• RCC frame structure\n• Quality control systems\n• Safety protocols\n• Efficient workflow management\n\nWe blend traditional skills with modern technology for superior results!"
+    },
+    {
+      "keywords": ["maintenance", "service", "after", "support", "care"],
+      "answer": "Comprehensive after-service support:\n\n🔧 Maintenance Services:\n• Regular check-ups\n• Preventive maintenance\n• Repair services\n• Upgrade consultations\n\n⏰ Service Plans:\n• Annual maintenance contracts\n• Emergency repair services\n• Seasonal maintenance\n• Customized care plans\n\n🛠️ Support Features:\n• Dedicated support team\n• Quick response times\n• Affordable maintenance packages\n• Expert technical assistance"
+    },
+    {
+      "keywords": ["compare", "difference", "vs", "versus", "better"],
+      "answer": "Why choose Butwal Construction:\n\n✅ Our Advantages:\n• 150+ completed projects\n• 5-year structural warranty\n• Transparent pricing\n• Quality materials\n• Experienced team\n• Local presence\n• After-service support\n\n🏆 Unique Features:\n• Sister company of hardware store\n• Official distributor of premium brands\n• Comprehensive service package\n• Modern + traditional expertise\n• Client-centric approach\n\nWe believe in building relationships, not just buildings!"
+    },
+    {
+      "keywords": ["start", "begin", "commence", "initiate", "first step"],
+      "answer": "Starting your project is easy:\n\n🚀 First Steps:\n1. Initial consultation (free)\n2. Site visit and assessment\n3. Design discussion\n4. Budget planning\n5. Agreement signing\n\n📅 Quick Start Options:\n• Call us: +977 9845323733\n• WhatsApp: https://wa.me/9779845323733\n• Visit office: Butwal-11, Kalikanagar\n• Online estimate: Use our calculator\n\nWe'll guide you through every step from concept to completion!"
+    },
+    {
+      "keywords": ["holiday", "festival", "season", "weather", "monsoon"],
+      "answer": "We plan around seasons and festivals:\n\n🌧️ Seasonal Planning:\n• Monsoon: Foundation and planning\n• Winter: Structural work\n• Summer: Finishing work\n• Spring: Ideal for all phases\n\n🎆 Festival Considerations:\n• Major holidays: Limited work\n• Local festivals: Respect cultural schedules\n• Weather delays: Built-in buffer time\n• Client preferences: Always accommodated\n\nWe ensure minimal disruption while maintaining quality standards!"
+    },
+    {
+      "keywords": ["insurance", "risk", "safety", "protection", "coverage"],
+      "answer": "We prioritize safety and protection:\n\n🛡️ Insurance Coverage:\n• Worker's accident insurance\n• Third-party liability coverage\n• Equipment insurance\n• Project delay insurance\n\n🚧 Safety Measures:\n• Regular safety training\n• Protective gear requirement\n• Site safety protocols\n• Emergency response plans\n\n✅ Risk Management:\n• Risk assessment for each project\n• Contingency planning\n• Regular safety audits\n• Compliance with safety standards"
+    },
+    {
+      "keywords": ["material quality", "brand", "cement type", "steel grade"],
+      "answer": "We use premium quality materials:\n\n🏆 Material Brands:\n• Cement: Brij Cement (official distributor)\n• Steel: Laxmi Rod TMT bars\n• Pipes: Kinshn Plumbing\n• Bricks: First-class chimney bricks\n• Electrical: Havells, Anchor\n\n📊 Quality Standards:\n• ISI marked materials\n• Regular quality testing\n• Supplier quality audits\n• Material certification\n\n🔍 Quality Control:\n• Incoming material inspection\n• On-site quality checks\n• Laboratory testing\n• Documentation maintenance"
+    },
+    {
+      "keywords": ["supervision", "monitor", "oversee", "manage", "coordinate"],
+      "answer": "Professional project supervision:\n\n👨‍💼 Supervision Team:\n• Project managers\n• Site supervisors\n• Quality inspectors\n• Safety officers\n\n📋 Supervision Process:\n• Daily site monitoring\n• Weekly progress reviews\n• Quality control checks\n• Client update meetings\n\n📱 Communication:\n• Regular progress photos\n• Weekly status reports\n• Instant issue resolution\n• Client feedback incorporation"
+    },
+    {
+      "keywords": ["custom", "personalized", "unique", "special", "tailored"],
+      "answer": "We specialize in custom solutions:\n\n🎨 Customization Options:\n• Unique architectural designs\n• Personalized layouts\n• Custom material selection\n• Special feature integration\n\n💡 Personalization:\n• Client preference incorporation\n• Lifestyle-based design\n• Budget-specific solutions\n• Future expansion planning\n\n🏆 Custom Projects:\n• Heritage-style homes\n• Modern smart homes\n• Eco-friendly designs\n• Luxury custom features"
+    },
+    {
+      "keywords": ["deadline", "on time", "punctual", "schedule", "delay"],
+      "answer": "We value timely completion:\n\n⏰ Deadline Management:\n• Realistic timeline setting\n• Milestone tracking\n• Progress monitoring\n• Delay prevention\n\n📅 Schedule Adherence:\n• 95% on-time completion rate\n• Transparent schedule updates\n• Proactive delay management\n• Client schedule consideration\n\n🔄 Delay Management:\n• Early issue identification\n• Alternative plan preparation\n• Client communication\n• Minimal impact solutions"
+    },
+    {
+      "keywords": ["consultation", "advice", "suggestion", "recommend", "opinion"],
+      "answer": "Free expert consultation available:\n\n💼 Consultation Services:\n• Project feasibility assessment\n• Budget planning advice\n• Design recommendations\n• Material selection guidance\n\n📞 Consultation Options:\n• In-person meetings\n• Phone consultations\n• Site visits\n• Virtual meetings\n\n🎯 Expert Advice:\n• Construction best practices\n• Cost-saving suggestions\n• Modern trends\n• Local regulation guidance"
+    },
+    {
+      "keywords": ["visit", "meet", "appointment", "schedule", "site inspection"],
+      "answer": "We offer convenient meeting options:\n\n📅 Appointment Scheduling:\n• Office meetings\n• Site inspections\n• Virtual consultations\n• Weekend appointments\n\n📍 Meeting Locations:\n• Our office: Butwal-11, Kalikanagar\n• Your location\n• Project site\n• Virtual platform\n\n⏱️ Availability:\n• Weekdays: 7 AM - 7 PM\n• Saturdays: 8 AM - 5 PM\n• Emergency: 24/7 available"
+    },
+    {
+      "keywords": ["documentation", "paperwork", "contract", "agreement", "legal"],
+      "answer": "Complete documentation support:\n\n📄 Documentation Services:\n• Contract preparation\n• Permit documentation\n• Progress documentation\n• Final handover documents\n\n✅ Document Types:\n• Construction agreement\n• Payment schedules\n• Quality certificates\n• Warranty documents\n\n🔒 Legal Compliance:\n• Transparent contracts\n• Regulatory compliance\n• Client rights protection\n• Dispute resolution mechanisms"
+    },
+    {
+      "keywords": ["problem", "issue", "concern", "complaint", "difficulty"],
+      "answer": "We address concerns promptly:\n\n🛠️ Problem Resolution:\n• Immediate issue identification\n• Quick solution implementation\n• Client communication\n• Preventive measures\n\n📞 Complaint Handling:\n• Dedicated support channel\n• 24-hour response guarantee\n• Fair resolution process\n• Client satisfaction focus\n\n✅ Quality Assurance:\n• Regular quality audits\n• Client feedback incorporation\n• Continuous improvement\n• Service excellence commitment"
+    },
+    {
+      "keywords": ["success", "achievement", "milestone", "accomplishment", "landmark"],
+      "answer": "Our success stories:\n\n🏆 Key Achievements:\n• 150+ satisfied clients\n• 50+ luxury projects\n• 30+ commercial complexes\n• 10+ award nominations\n\n📈 Growth Milestones:\n• Established: 2075 BS\n• Branch expansion: 2080 BS\n• Technology adoption: 2082 BS\n• Team growth: 50+ professionals\n\n🎯 Future Goals:\n• Sustainable construction focus\n• Technology integration\n• Regional expansion\n• Service diversification"
+    },
+    {
+      "keywords": ["community", "social", "local", "contribution", "support"],
+      "answer": "We're committed to our community:\n\n🤝 Community Engagement:\n• Local employment generation\n• Skill development programs\n• Community infrastructure support\n• Environmental initiatives\n\n🌱 Social Responsibility:\n• Eco-friendly practices\n• Waste management\n• Water conservation\n• Green building promotion\n\n🏘️ Local Support:\n• Local material preference\n• Community project discounts\n• Educational initiatives\n• Cultural preservation"
+    },
+    {
+      "keywords": ["future", "plan", "expansion", "growth", "development"],
+      "answer": "Our vision for the future:\n\n🚀 Growth Plans:\n• Regional expansion\n• Service diversification\n• Technology integration\n• Team development\n\n🌿 Future Focus:\n• Sustainable construction\n• Smart home technology\n• Green building materials\n• Digital transformation\n\n🎯 Long-term Vision:\n• Industry leadership\n• Client satisfaction excellence\n• Innovation center\n• Training academy"
+    },
+    {
+      "keywords": ["thank", "thanks", "appreciate", "grateful", "helpful"],
+      "answer": "You're welcome! 😊 I'm glad I could help. If you have more questions about construction, estimates, or our services, just ask. Remember, you can always contact our team directly for personalized assistance. Happy building! 🏗️"
+    },
+    {
+      "keywords": ["hello", "hi", "hey", "namaste", "good morning", "good afternoon"],
+      "answer": "Namaste! 👷 Welcome to Butwal Construction. I'm here to help with:\n• Cost estimates and budgeting\n• Material information\n• Project planning\n• Design consultation\n• Permit guidance\n\nWhat would you like to know today?"
+    },
+    {
+      "keywords": ["bye", "goodbye", "see you", "later", "exit"],
+      "answer": "Thank you for chatting! 🙏 Remember, you can always reach us at:\n📞 +977 9845323733\n💬 WhatsApp: https://wa.me/9779845323733\n🏢 Butwal-11, Kalikanagar\n\nWe're here to help build your dreams! Wishing you a great day! 🏗️✨"
     }
   ],
   "fallback": [
-    "I'm not sure about that. Would you like to speak with our team? Visit our Contact page!",
-    "That's a great question! For detailed information, please contact our office or visit the relevant page.",
-    "I'd love to help! Could you rephrase that or ask about estimates, projects, or services?"
+    "That's an interesting question! For specific technical details, I'd recommend speaking with our engineering team. Would you like me to connect you?",
+    "I'm still learning about all aspects of construction. For detailed information on this topic, our expert team would be happy to assist you!",
+    "Great question! This would be best answered by our specialists. You can visit our office or call us at +977 9845323733 for personalized guidance.",
+    "I want to make sure you get accurate information. For complex queries like this, our experienced team can provide the detailed answers you need.",
+    "That's a specialized question! Our construction experts have extensive knowledge in this area. Would you like me to help you schedule a consultation?",
+    "I'm here to help with general construction information. For specific technical advice, our professional team is available to assist you directly.",
+    "That's beyond my current knowledge base, but our construction specialists would be delighted to help! Contact us for expert guidance.",
+    "I'm focused on providing general construction assistance. For detailed technical queries, our engineering team has the expertise you need.",
+    "Interesting question! Our team has extensive experience with similar queries. I recommend reaching out to them for comprehensive answers.",
+    "I'm designed to help with common construction questions. For specialized advice, our expert team is just a phone call away!"
   ]
 }
