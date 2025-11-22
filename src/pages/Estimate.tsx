@@ -241,9 +241,9 @@ const Estimate = () => {
                     <SelectValue placeholder="Select material type" />
                   </SelectTrigger>
                   <SelectContent className="glass">
-                    <SelectItem value="standard">Standard (NPR 3,300/sq ft)</SelectItem>
-                    <SelectItem value="premium">Premium (NPR 4,500/sq ft)</SelectItem>
-                    <SelectItem value="luxury">Luxury (NPR 6,000/sq ft)</SelectItem>
+                    <SelectItem value="standard">Standard</SelectItem>
+                    <SelectItem value="premium">Premium</SelectItem>
+                    <SelectItem value="luxury">Luxury</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
