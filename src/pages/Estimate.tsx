@@ -34,7 +34,7 @@ const Estimate = () => {
 
   const materialRates = {
     standard: { 
-      rate: 3300, // Updated from 8000 to 3300 NPR per sq ft
+      rate: 3900, // Updated from 8000 to 4000 NPR per sq ft
       ppcCement: 0.18, // bags per sq ft (adjusted proportionally)
       opcCement: 0.12,
       rods: { "8mm": 1.2, "10mm": 0.9, "12mm": 0.7, "16mm": 0.4, "20mm": 0.2 }, // kg per sq ft (adjusted)
@@ -46,7 +46,7 @@ const Estimate = () => {
       aggregate: 0.06 // cubic ft (adjusted)
     },
     premium: { 
-      rate: 4500, // Updated from 12000 to 4500 NPR per sq ft
+      rate: 4200, // Updated from 12000 to 4500 NPR per sq ft
       ppcCement: 0.22,
       opcCement: 0.15,
       rods: { "8mm": 1.5, "10mm": 1.1, "12mm": 0.9, "16mm": 0.5, "20mm": 0.25 },
@@ -58,7 +58,7 @@ const Estimate = () => {
       aggregate: 0.07
     },
     luxury: { 
-      rate: 6000, // Updated from 16000 to 6000 NPR per sq ft
+      rate: 4500, // Updated from 16000 to 6000 NPR per sq ft
       ppcCement: 0.25,
       opcCement: 0.18,
       rods: { "8mm": 1.8, "10mm": 1.3, "12mm": 1.0, "16mm": 0.6, "20mm": 0.3 },
