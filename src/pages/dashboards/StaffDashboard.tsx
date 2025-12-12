@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { 
   Users, 
   Settings, 
@@ -15,7 +15,8 @@ import {
   BarChart3,
   LogOut,
   Eye,
-  EyeOff
+  EyeOff,
+  UserPlus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,13 +24,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 const StaffDashboard = () => {
-  const [userRole, setUserRole] = useState("");
-  const [userName, setUserName] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, profile, role, signOut, loading: authLoading, isAdmin, isManager, isStaff } = useAuth();
 
   // Mock data
   const projects = [
@@ -50,38 +51,37 @@ const StaffDashboard = () => {
   ];
 
   useEffect(() => {
-    const role = localStorage.getItem("userRole");
-    const name = localStorage.getItem("userName");
-    
-    if (!role || !name) {
+    if (!authLoading && !user) {
       navigate("/login");
       return;
     }
     
-    setUserRole(role);
-    setUserName(name);
-  }, [navigate]);
+    // Only allow staff roles
+    if (!authLoading && user && role === 'customer') {
+      navigate("/customer/dashboard");
+    }
+  }, [user, role, authLoading, navigate]);
 
   // Check if user has permission to see a feature
   const canSee = (feature: string) => {
     switch (feature) {
       case "user_management":
-        return userRole === "admin";
+        return isAdmin;
       case "project_management":
-        return userRole === "admin" || userRole === "manager";
+        return isAdmin || isManager;
       case "daily_updates":
-        return userRole === "admin" || userRole === "manager" || userRole === "staff";
+        return isAdmin || isManager || isStaff;
       case "settings":
-        return userRole === "admin";
+        return isAdmin;
       case "financial":
-        return userRole === "admin" || userRole === "manager";
+        return isAdmin || isManager;
       default:
         return false;
     }
   };
 
-  const handleLogout = () => {
-    localStorage.clear();
+  const handleLogout = async () => {
+    await signOut();
     navigate("/login");
   };
 
@@ -92,16 +92,17 @@ const StaffDashboard = () => {
     });
   };
 
-  const getRoleBadge = (role: string) => {
+  const getRoleBadge = (roleType: string) => {
     const variants = {
-      admin: "bg-red-100 text-red-800",
-      manager: "bg-blue-100 text-blue-800",
-      staff: "bg-green-100 text-green-800"
+      admin: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+      manager: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+      site_staff: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+      staff: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
     };
-    return variants[role as keyof typeof variants] || "bg-gray-100 text-gray-800";
+    return variants[roleType as keyof typeof variants] || "bg-gray-100 text-gray-800";
   };
 
-  if (!userRole) {
+  if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-background pt-20 flex items-center justify-center">
         <div className="text-center">
@@ -111,6 +112,8 @@ const StaffDashboard = () => {
       </div>
     );
   }
+
+  const userName = profile?.full_name || user.email || 'Staff';
 
   return (
     <div className="min-h-screen bg-background pt-20">
@@ -123,12 +126,20 @@ const StaffDashboard = () => {
               <p className="text-muted-foreground">
                 Welcome back, {userName}
               </p>
-              <Badge className={getRoleBadge(userRole)}>
-                {userRole.toUpperCase()}
+              <Badge className={getRoleBadge(role || '')}>
+                {(role || '').replace('_', ' ').toUpperCase()}
               </Badge>
             </div>
           </div>
           <div className="flex items-center gap-4">
+            {isAdmin && (
+              <Button asChild variant="outline">
+                <Link to="/admin/users">
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Manage Users
+                </Link>
+              </Button>
+            )}
             {canSee("daily_updates") && (
               <Button onClick={handleAddUpdate}>
                 <Plus className="h-4 w-4 mr-2" />
@@ -226,7 +237,7 @@ const StaffDashboard = () => {
                 <CardHeader>
                   <CardTitle>Quick Actions</CardTitle>
                   <CardDescription>
-                    Based on your role: {userRole}
+                    Based on your role: {(role || '').replace('_', ' ')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -250,9 +261,11 @@ const StaffDashboard = () => {
                       </Button>
                     )}
                     {canSee("user_management") && (
-                      <Button className="w-full justify-start" variant="outline">
-                        <UserCheck className="h-4 w-4 mr-2" />
-                        Add Team Member
+                      <Button asChild className="w-full justify-start" variant="outline">
+                        <Link to="/admin/users">
+                          <UserCheck className="h-4 w-4 mr-2" />
+                          Manage Users
+                        </Link>
                       </Button>
                     )}
                   </div>
@@ -325,7 +338,7 @@ const StaffDashboard = () => {
                         Manage construction projects and assignments
                       </CardDescription>
                     </div>
-                    {userRole === "admin" && (
+                    {isAdmin && (
                       <Button>
                         <Plus className="h-4 w-4 mr-2" />
                         Add Project
@@ -362,7 +375,7 @@ const StaffDashboard = () => {
                           <Button variant="outline" size="sm">
                             <Edit className="h-4 w-4" />
                           </Button>
-                          {userRole === "admin" && (
+                          {isAdmin && (
                             <Button variant="outline" size="sm">
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -388,9 +401,11 @@ const StaffDashboard = () => {
                         Manage staff roles and permissions
                       </CardDescription>
                     </div>
-                    <Button>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Staff
+                    <Button asChild>
+                      <Link to="/admin/users">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Staff
+                      </Link>
                     </Button>
                   </div>
                 </CardHeader>

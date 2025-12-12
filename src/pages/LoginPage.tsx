@@ -1,166 +1,77 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, User, Lock, ArrowLeft, Building2, Users } from "lucide-react";
+import { Eye, EyeOff, User, Lock, ArrowLeft, Building2, Users, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/hooks/useAuth";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("customer");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signIn, user, role, loading: authLoading } = useAuth();
 
-  // Define account types for type safety
-  interface CustomerAccount {
-    email: string;
-    password: string;
-    name: string;
-    role: "customer";
-    project: string;
-  }
-
-  interface StaffAccount {
-    email: string;
-    password: string;
-    name: string;
-    role: "admin" | "manager" | "staff";
-    permissions?: string[];
-    assignedProjects?: string[];
-  }
-
-  // Predefined accounts with roles and permissions
-  const accounts: { customer: CustomerAccount[]; staff: StaffAccount[] } = {
-    customer: [
-      { 
-        email: "customer1@butwalconstruction.com", 
-        password: "customer111", 
-        name: "Shyam Sharma", 
-        role: "customer",
-        project: "Residence-2024-001"
-      },
-      { 
-        email: "customer2@butwalconstruction.com", 
-        password: "customer222", 
-        name: "Riya Sharma", 
-        role: "customer",
-        project: "Villa-2024-002"
-      },
-    ],
-    staff: [
-      { 
-        email: "admin@butwalconstruction.com", 
-        password: "admin123", 
-        name: "Main Administrator", 
-        role: "admin",
-        permissions: ["all"],
-        assignedProjects: []
-      },
-      { 
-        email: "manager@butwalconstruction.com", 
-        password: "manager123", 
-        name: "Project Manager", 
-        role: "manager",
-        permissions: ["view_projects", "manage_timeline", "view_reports"],
-        assignedProjects: ["Residence-2024-001", "Villa-2024-002"]
-      },
-      { 
-        email: "staff@butwalconstruction.com", 
-        password: "staff123", 
-        name: "Site Staff", 
-        role: "staff",
-        permissions: ["view_assigned", "update_progress"],
-        assignedProjects: ["Residence-2024-001"]
-      },
-    ]
-  };
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && user && role) {
+      if (role === 'customer') {
+        navigate("/customer/dashboard");
+      } else {
+        navigate("/staff/dashboard");
+      }
+    }
+  }, [user, role, authLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Basic validation
+    if (!email.trim() || !password.trim()) {
+      setError("Please enter both email and password");
+      setIsLoading(false);
+      return;
+    }
 
-    // Check if credentials match based on active tab
-    const userAccounts = accounts[activeTab as keyof typeof accounts];
-    const user = userAccounts.find(
-      account => account.email === email && account.password === password
-    );
+    const { error: signInError } = await signIn(email, password);
 
-    if (user) {
-      toast({
-        title: "Login Successful",
-        description: `Welcome back, ${user.name}!`,
-        variant: "default",
-      });
-      
-      // Store login state with user data
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userName", user.name);
-      localStorage.setItem("userEmail", user.email);
-      localStorage.setItem("userRole", user.role);
-      
-      // Store additional user data based on role
-      if (activeTab === "customer") {
-        const customerUser = user as CustomerAccount;
-        localStorage.setItem("userProject", customerUser.project);
-      } else {
-        const staffUser = user as StaffAccount;
-        if (staffUser.assignedProjects) {
-          localStorage.setItem("assignedProjects", JSON.stringify(staffUser.assignedProjects));
-        }
-        if (staffUser.permissions) {
-          localStorage.setItem("userPermissions", JSON.stringify(staffUser.permissions));
-        }
-      }
-      
-      // Redirect based on role
-      if (user.role === "customer") {
-        navigate("/customer/dashboard");
-      } else {
-        navigate("/staff/dashboard"); // All staff go to same dashboard
-      }
-    } else {
+    if (signInError) {
+      console.error("Login error:", signInError);
+      setError(signInError.message || "Invalid email or password");
       toast({
         title: "Login Failed",
-        description: "Invalid email or password. Please try again.",
+        description: signInError.message || "Invalid email or password",
         variant: "destructive",
       });
+    } else {
+      toast({
+        title: "Login Successful",
+        description: "Welcome back!",
+      });
+      // Navigation will happen via useEffect when user/role updates
     }
     
     setIsLoading(false);
   };
 
-  const demoAccounts = {
-    customer: [
-      { email: "customer1@butwalconstruction.com", password: "customer111", role: "Customer" },
-      { email: "customer2@butwalconstruction.com", password: "customer222", role: "Customer" },
-    ],
-    staff: [
-      { email: "admin@butwalconstruction.com", password: "admin123", role: "Administrator" },
-      { email: "manager@butwalconstruction.com", password: "manager123", role: "Project Manager" },
-      { email: "staff@butwalconstruction.com", password: "staff123", role: "Site Staff" },
-    ]
-  };
-
-  const fillDemoAccount = (demo: { email: string; password: string }) => {
-    setEmail(demo.email);
-    setPassword(demo.password);
-  };
-
   const clearForm = () => {
     setEmail("");
     setPassword("");
+    setError("");
   };
 
-  const getRoleDescription = (role: string) => {
-    switch (role) {
+  const getRoleDescription = (roleType: string) => {
+    switch (roleType) {
       case "customer":
         return "Access your project dashboard with live updates, camera views, and payment tracking";
       case "staff":
@@ -169,6 +80,14 @@ const LoginPage = () => {
         return "";
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-20">
@@ -196,6 +115,14 @@ const LoginPage = () => {
           </CardHeader>
           
           <CardContent className="space-y-6">
+            {/* Error Alert */}
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
             {/* Login Type Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
@@ -217,27 +144,11 @@ const LoginPage = () => {
                   </p>
                 </div>
 
-                {/* Demo Accounts Info */}
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <h4 className="text-sm font-semibold mb-2 text-center">Demo Client Accounts</h4>
-                  <div className="space-y-2">
-                    {demoAccounts.customer.map((account, index) => (
-                      <div key={index} className="flex items-center justify-between text-xs">
-                        <div>
-                          <span className="font-medium">{account.role}:</span>
-                          <span className="text-muted-foreground ml-2">{account.email}</span>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 text-xs"
-                          onClick={() => fillDemoAccount(account)}
-                        >
-                          Use
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
+                {/* Info Box */}
+                <div className="bg-muted/50 rounded-lg p-4 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Client accounts are created by administrators. Contact us if you need access.
+                  </p>
                 </div>
 
                 <LoginForm
@@ -261,28 +172,12 @@ const LoginPage = () => {
                   </p>
                 </div>
 
-                {/* Demo Accounts Info 
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <h4 className="text-sm font-semibold mb-2 text-center">Demo Staff Accounts</h4>
-                  <div className="space-y-2">
-                    {demoAccounts.staff.map((account, index) => (
-                      <div key={index} className="flex items-center justify-between text-xs">
-                        <div>
-                          <span className="font-medium">{account.role}:</span>
-                          <span className="text-muted-foreground ml-2">{account.email}</span>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 text-xs"
-                          onClick={() => fillDemoAccount(account)}
-                        >
-                          Use
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div> */}
+                {/* Info Box */}
+                <div className="bg-muted/50 rounded-lg p-4 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Staff accounts are managed by administrators only.
+                  </p>
+                </div>
 
                 <LoginForm
                   email={email}
