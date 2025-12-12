@@ -16,8 +16,26 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Define account types for type safety
+  interface CustomerAccount {
+    email: string;
+    password: string;
+    name: string;
+    role: "customer";
+    project: string;
+  }
+
+  interface StaffAccount {
+    email: string;
+    password: string;
+    name: string;
+    role: "admin" | "manager" | "staff";
+    permissions?: string[];
+    assignedProjects?: string[];
+  }
+
   // Predefined accounts with roles and permissions
-  const accounts = {
+  const accounts: { customer: CustomerAccount[]; staff: StaffAccount[] } = {
     customer: [
       { 
         email: "customer1@butwalconstruction.com", 
@@ -40,13 +58,15 @@ const LoginPage = () => {
         password: "admin123", 
         name: "Main Administrator", 
         role: "admin",
-        permissions: ["all"]
+        permissions: ["all"],
+        assignedProjects: []
       },
       { 
         email: "manager@butwalconstruction.com", 
         password: "manager123", 
         name: "Project Manager", 
         role: "manager",
+        permissions: ["view_projects", "manage_timeline", "view_reports"],
         assignedProjects: ["Residence-2024-001", "Villa-2024-002"]
       },
       { 
@@ -54,6 +74,7 @@ const LoginPage = () => {
         password: "staff123", 
         name: "Site Staff", 
         role: "staff",
+        permissions: ["view_assigned", "update_progress"],
         assignedProjects: ["Residence-2024-001"]
       },
     ]
@@ -86,17 +107,17 @@ const LoginPage = () => {
       localStorage.setItem("userRole", user.role);
       
       // Store additional user data based on role
-      if (user.role === "customer" && user.project) {
-        localStorage.setItem("userProject", user.project);
-      }
-      if (user.role === "manager" && user.assignedProjects) {
-        localStorage.setItem("assignedProjects", JSON.stringify(user.assignedProjects));
-      }
-      if (user.role === "admin" && user.permissions) {
-        localStorage.setItem("userPermissions", JSON.stringify(user.permissions));
-      }
-      if (user.role === "staff" && user.assignedProjects) {
-        localStorage.setItem("assignedProjects", JSON.stringify(user.assignedProjects));
+      if (activeTab === "customer") {
+        const customerUser = user as CustomerAccount;
+        localStorage.setItem("userProject", customerUser.project);
+      } else {
+        const staffUser = user as StaffAccount;
+        if (staffUser.assignedProjects) {
+          localStorage.setItem("assignedProjects", JSON.stringify(staffUser.assignedProjects));
+        }
+        if (staffUser.permissions) {
+          localStorage.setItem("userPermissions", JSON.stringify(staffUser.permissions));
+        }
       }
       
       // Redirect based on role

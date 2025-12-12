@@ -15,6 +15,7 @@ interface HouseDesign {
   features: string[];
   baseViews: number;
   growthRate: number;
+  currentViews?: number;
 }
 
 const HouseDesignsGallery = () => {
