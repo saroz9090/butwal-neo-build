@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToolsProvider } from "@/contexts/ToolsContext";
+import { AuthProvider } from "@/hooks/useAuth";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -28,6 +29,7 @@ import HouseDesignsGallery from "./pages/HouseDesignsGallery";
 import LoginPage from "./pages/LoginPage";
 import CustomerDashboard from "./pages/dashboards/CustomerDashboard";
 import StaffDashboard from "./pages/dashboards/StaffDashboard";
+import AdminUserManagement from "./pages/AdminUserManagement";
 import Privacy from "./pages/Privacy";
 import TermsAndConditions from "./pages/Terms";
 import Sitemap from "./pages/Sitemap";
@@ -37,43 +39,45 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <ToolsProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Navigation />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<AboutServices />} />
-            <Route path="/projects" element={<Projects />} />
-            <Route path="/tools/permits" element={<PermitAssistant />} />
-            <Route path="/tools/calculators" element={<Calculators />} />
-            <Route path="/tools/vastu" element={<VastuGuide />} />
-            <Route path="/tools/buy-or-build" element={<BuyOrBuild />} />
-            <Route path="/tools/timeline" element={<ConstructionTimeline />} />
-            <Route path="/tools/green-calculator" element={<GreenBuildCalculator />} />
-            <Route path="/partnerships" element={<Partnerships />} />
-            <Route path="/testimonials" element={<Testimonials />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/estimate" element={<Estimate />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/floor-planner" element={<FloorPlannerPage />} />
-            <Route path="/under-construction" element={<UnderConstructionPage />} />
-            <Route path="/designs" element={<HouseDesignsGallery />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/terms" element={<TermsAndConditions />} />
-            {/* Add the Privacy Policy route */}
-            <Route path="/privacy" element={<Privacy />} />
-            {/* Dashboard routes */}
-            <Route path="/customer/dashboard" element={<CustomerDashboard />} />
-            <Route path="/staff/dashboard" element={<StaffDashboard />} />
-            <Route path="*" element={<NotFound />} />
-            <Route path="/sitemap" element={<Sitemap />} />
-          </Routes>
-          <Footer />
-          <Chatbot />
-        </BrowserRouter>
-      </ToolsProvider>
+      <AuthProvider>
+        <ToolsProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Navigation />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<AboutServices />} />
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/tools/permits" element={<PermitAssistant />} />
+              <Route path="/tools/calculators" element={<Calculators />} />
+              <Route path="/tools/vastu" element={<VastuGuide />} />
+              <Route path="/tools/buy-or-build" element={<BuyOrBuild />} />
+              <Route path="/tools/timeline" element={<ConstructionTimeline />} />
+              <Route path="/tools/green-calculator" element={<GreenBuildCalculator />} />
+              <Route path="/partnerships" element={<Partnerships />} />
+              <Route path="/testimonials" element={<Testimonials />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/estimate" element={<Estimate />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/floor-planner" element={<FloorPlannerPage />} />
+              <Route path="/under-construction" element={<UnderConstructionPage />} />
+              <Route path="/designs" element={<HouseDesignsGallery />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/terms" element={<TermsAndConditions />} />
+              <Route path="/privacy" element={<Privacy />} />
+              {/* Dashboard routes */}
+              <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+              <Route path="/staff/dashboard" element={<StaffDashboard />} />
+              <Route path="/admin/users" element={<AdminUserManagement />} />
+              <Route path="/sitemap" element={<Sitemap />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Footer />
+            <Chatbot />
+          </BrowserRouter>
+        </ToolsProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
