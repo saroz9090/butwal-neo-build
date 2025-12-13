@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { X, Plus, Image, Send } from "lucide-react";
+import { Plus, Image, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useCreateDailyUpdate, useProjects } from "@/hooks/useProjectData";
 
 interface AddDailyUpdateProps {
   isOpen: boolean;
@@ -16,81 +16,41 @@ interface AddDailyUpdateProps {
   projects?: { id: string; name: string }[];
 }
 
-const AddDailyUpdate = ({ isOpen, onClose, onSuccess, projects = [] }: AddDailyUpdateProps) => {
+const AddDailyUpdate = ({ isOpen, onClose, onSuccess }: AddDailyUpdateProps) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [projectId, setProjectId] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
-
-  // Default projects if none provided
-  const defaultProjects = [
-    { id: "RES-2024-001", name: "Modern Residence - Butwal" },
-    { id: "VILLA-2024-002", name: "Luxury Villa" },
-    { id: "COMM-2024-001", name: "Commercial Complex" },
-  ];
-
-  const availableProjects = projects.length > 0 ? projects : defaultProjects;
+  const { data: projects = [] } = useProjects();
+  const createUpdate = useCreateDailyUpdate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to add updates",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "You must be logged in", variant: "destructive" });
       return;
     }
 
     if (!projectId || !title || !description) {
-      toast({
-        title: "Missing Fields",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
+      toast({ title: "Missing Fields", description: "Please fill all fields", variant: "destructive" });
       return;
     }
 
-    setIsSubmitting(true);
+    await createUpdate.mutateAsync({
+      project_id: projectId,
+      title,
+      description,
+      created_by: user.id,
+      images: [],
+    });
 
-    try {
-      const { error } = await supabase
-        .from('daily_updates')
-        .insert({
-          project_id: projectId,
-          title,
-          description,
-          created_by: user.id,
-          images: [],
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Update Added",
-        description: "Daily update has been posted successfully",
-      });
-
-      // Reset form
-      setTitle("");
-      setDescription("");
-      setProjectId("");
-      
-      onSuccess?.();
-      onClose();
-    } catch (error: any) {
-      console.error('Error adding update:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to add daily update",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    setTitle("");
+    setDescription("");
+    setProjectId("");
+    onSuccess?.();
+    onClose();
   };
 
   return (
@@ -114,10 +74,11 @@ const AddDailyUpdate = ({ isOpen, onClose, onSuccess, projects = [] }: AddDailyU
                 <SelectValue placeholder="Select project" />
               </SelectTrigger>
               <SelectContent>
-                {availableProjects.map((project) => (
+                {projects.map((project) => (
                   <SelectItem key={project.id} value={project.id}>
-                    {project.name} ({project.id})
+                    {project.name} ({project.code})
                   </SelectItem>
+                ))}
                 ))}
               </SelectContent>
             </Select>
@@ -153,30 +114,11 @@ const AddDailyUpdate = ({ isOpen, onClose, onSuccess, projects = [] }: AddDailyU
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="flex-1"
-            >
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="flex-1 gradient-primary"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                  Posting...
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  Post Update
-                </>
-              )}
+            <Button type="submit" className="flex-1 gradient-primary" disabled={createUpdate.isPending}>
+              {createUpdate.isPending ? "Posting..." : "Post Update"}
             </Button>
           </div>
         </form>
