@@ -25,9 +25,11 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import AddDailyUpdate from "@/components/AddDailyUpdate";
 
 const StaffDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [isAddUpdateOpen, setIsAddUpdateOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, profile, role, signOut, loading: authLoading, isAdmin, isManager, isStaff } = useAuth();
@@ -86,9 +88,13 @@ const StaffDashboard = () => {
   };
 
   const handleAddUpdate = () => {
+    setIsAddUpdateOpen(true);
+  };
+
+  const handleUpdateSuccess = () => {
     toast({
-      title: "Daily Update",
-      description: "Ready to add today's progress update",
+      title: "Success",
+      description: "Daily update posted successfully!",
     });
   };
 
@@ -549,6 +555,13 @@ const StaffDashboard = () => {
           )}
         </Tabs>
       </div>
+
+      {/* Add Daily Update Dialog */}
+      <AddDailyUpdate
+        isOpen={isAddUpdateOpen}
+        onClose={() => setIsAddUpdateOpen(false)}
+        onSuccess={handleUpdateSuccess}
+      />
     </div>
   );
 };

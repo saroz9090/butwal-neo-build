@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_updates: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string
+          id: string
+          images: string[] | null
+          project_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description: string
+          id?: string
+          images?: string[] | null
+          project_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: string
+          images?: string[] | null
+          project_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
