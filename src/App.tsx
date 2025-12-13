@@ -30,6 +30,7 @@ import LoginPage from "./pages/LoginPage";
 import CustomerDashboard from "./pages/dashboards/CustomerDashboard";
 import StaffDashboard from "./pages/dashboards/StaffDashboard";
 import AdminUserManagement from "./pages/AdminUserManagement";
+import AdminSetup from "./pages/AdminSetup";
 import Privacy from "./pages/Privacy";
 import TermsAndConditions from "./pages/Terms";
 import Sitemap from "./pages/Sitemap";
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="/customer/dashboard" element={<CustomerDashboard />} />
               <Route path="/staff/dashboard" element={<StaffDashboard />} />
               <Route path="/admin/users" element={<AdminUserManagement />} />
+              <Route path="/admin/setup" element={<AdminSetup />} />
               <Route path="/sitemap" element={<Sitemap />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

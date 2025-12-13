@@ -18,12 +18,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/hooks/useAuth";
 
 const CustomerDashboard = () => {
-  const [userName, setUserName] = useState("");
-  const [userProject, setUserProject] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
   const navigate = useNavigate();
+  const { user, profile, signOut, loading: authLoading, isCustomer, role } = useAuth();
 
   // Mock data - in real app, this would come from API
   const projectData = {
@@ -79,22 +79,31 @@ const CustomerDashboard = () => {
   ];
 
   useEffect(() => {
-    const name = localStorage.getItem("userName");
-    const project = localStorage.getItem("userProject");
-    
-    if (!name) {
+    if (!authLoading && !user) {
       navigate("/login");
       return;
     }
     
-    setUserName(name);
-    setUserProject(project || "Not Assigned");
-  }, [navigate]);
+    // Redirect non-customers to staff dashboard
+    if (!authLoading && user && role && role !== 'customer') {
+      navigate("/staff/dashboard");
+    }
+  }, [user, role, authLoading, navigate]);
 
-  const handleLogout = () => {
-    localStorage.clear();
+  const handleLogout = async () => {
+    await signOut();
     navigate("/login");
   };
+
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-screen bg-background pt-20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  const userName = profile?.full_name || user.email || 'Customer';
 
   const totalPaid = instalments.filter(i => i.status === "paid").reduce((sum, i) => sum + i.amount, 0);
   const totalPending = instalments.filter(i => i.status === "pending").reduce((sum, i) => sum + i.amount, 0);
