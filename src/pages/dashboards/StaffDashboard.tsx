@@ -16,7 +16,8 @@ import {
   LogOut,
   Eye,
   EyeOff,
-  UserPlus
+  UserPlus,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,32 +26,66 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useProjects, useInstalments, useTasks, useDailyUpdates, useDeleteProject, useUpdateProject } from "@/hooks/useProjectData";
 import AddDailyUpdate from "@/components/AddDailyUpdate";
+import AddProjectDialog from "@/components/AddProjectDialog";
+import AddInstalmentDialog from "@/components/AddInstalmentDialog";
+import AddTaskDialog from "@/components/AddTaskDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const StaffDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [isAddUpdateOpen, setIsAddUpdateOpen] = useState(false);
+  const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
+  const [isAddInstalmentOpen, setIsAddInstalmentOpen] = useState(false);
+  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, profile, role, signOut, loading: authLoading, isAdmin, isManager, isStaff } = useAuth();
 
-  // Mock data
-  const projects = [
-    { id: 1, name: "Modern Residence", code: "RES-2024-001", client: "John Smith", progress: 65, status: "active" },
-    { id: 2, name: "Luxury Villa", code: "VILLA-2024-002", client: "Sarah Johnson", progress: 35, status: "active" },
-    { id: 3, name: "Commercial Complex", code: "COMM-2024-001", client: "Mike Davis", progress: 15, status: "planning" },
-  ];
+  // Real data from database
+  const { data: projects = [], isLoading: projectsLoading } = useProjects();
+  const { data: instalments = [], isLoading: instalmentsLoading } = useInstalments();
+  const { data: tasks = [], isLoading: tasksLoading } = useTasks();
+  const { data: dailyUpdates = [], isLoading: updatesLoading } = useDailyUpdates();
+  const deleteProject = useDeleteProject();
+  const updateProject = useUpdateProject();
 
-  const staffMembers = [
-    { id: 1, name: "Rajesh Kumar", email: "rajesh@butwalconstruction.com", role: "manager", projects: ["RES-2024-001", "VILLA-2024-002"] },
-    { id: 2, name: "Anita Sharma", email: "anita@butwalconstruction.com", role: "staff", projects: ["RES-2024-001"] },
-    { id: 3, name: "Suresh Patel", email: "suresh@butwalconstruction.com", role: "staff", projects: ["VILLA-2024-002"] },
-  ];
-
-  const pendingUpdates = [
-    { project: "RES-2024-001", client: "John Smith", lastUpdate: "2024-03-19", overdue: false },
-    { project: "VILLA-2024-002", client: "Sarah Johnson", lastUpdate: "2024-03-18", overdue: true },
-  ];
+  // Fetch staff members
+  const { data: staffMembers = [] } = useQuery({
+    queryKey: ['staff_members'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          user_id,
+          full_name,
+          phone
+        `)
+        .order('full_name');
+      if (error) throw error;
+      
+      // Get roles for each user
+      const userIds = data.map(p => p.user_id);
+      const { data: roles } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .in('user_id', userIds);
+      
+      const rolesMap = new Map(roles?.map(r => [r.user_id, r.role]) || []);
+      
+      return data.map(p => ({
+        id: p.id,
+        user_id: p.user_id,
+        full_name: p.full_name,
+        phone: p.phone,
+        role: rolesMap.get(p.user_id) || 'customer'
+      })).filter(p => p.role !== 'customer');
+    },
+  });
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -63,6 +98,19 @@ const StaffDashboard = () => {
       navigate("/customer/dashboard");
     }
   }, [user, role, authLoading, navigate]);
+
+  // Calculate stats from real data
+  const activeProjects = projects.filter(p => p.status === 'active' || p.status === 'in_progress');
+  const pendingTasks = tasks.filter(t => t.status === 'pending' || t.status === 'in_progress');
+  const todayUpdates = dailyUpdates.filter(u => {
+    const today = new Date().toDateString();
+    return new Date(u.created_at).toDateString() === today;
+  });
+  
+  // Calculate financial stats
+  const totalReceived = instalments.filter(i => i.status === 'paid').reduce((sum, i) => sum + i.amount, 0);
+  const pendingPayments = instalments.filter(i => i.status === 'pending' || i.status === 'overdue').reduce((sum, i) => sum + i.amount, 0);
+  const totalProjectValue = projects.reduce((sum, p) => sum + (p.total_cost || 0), 0);
 
   // Check if user has permission to see a feature
   const canSee = (feature: string) => {
@@ -98,14 +146,38 @@ const StaffDashboard = () => {
     });
   };
 
+  const handleDeleteProject = async (projectId: string) => {
+    if (confirm("Are you sure you want to delete this project?")) {
+      await deleteProject.mutateAsync(projectId);
+    }
+  };
+
+  const handleAddInstalment = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    setIsAddInstalmentOpen(true);
+  };
+
+  const handleAddTask = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    setIsAddTaskOpen(true);
+  };
+
   const getRoleBadge = (roleType: string) => {
     const variants = {
       admin: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
       manager: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
       site_staff: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+      office_staff: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
       staff: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
     };
     return variants[roleType as keyof typeof variants] || "bg-gray-100 text-gray-800";
+  };
+
+  const formatCurrency = (amount: number) => {
+    if (amount >= 100000) {
+      return `₹${(amount / 100000).toFixed(1)}L`;
+    }
+    return `₹${amount.toLocaleString('en-IN')}`;
   };
 
   if (authLoading || !user) {
@@ -137,13 +209,19 @@ const StaffDashboard = () => {
               </Badge>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             {isAdmin && (
               <Button asChild variant="outline">
                 <Link to="/admin/users">
                   <UserPlus className="h-4 w-4 mr-2" />
                   Manage Users
                 </Link>
+              </Button>
+            )}
+            {canSee("project_management") && (
+              <Button variant="outline" onClick={() => setIsAddProjectOpen(true)}>
+                <Building2 className="h-4 w-4 mr-2" />
+                Add Project
               </Button>
             )}
             {canSee("daily_updates") && (
@@ -187,23 +265,27 @@ const StaffDashboard = () => {
                   <Building2 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{projects.filter(p => p.status === 'active').length}</div>
+                  <div className="text-2xl font-bold">
+                    {projectsLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : activeProjects.length}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    In construction phase
+                    {projects.length} total projects
                   </p>
                 </CardContent>
               </Card>
 
-              {/* Daily Updates */}
+              {/* Pending Tasks */}
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Pending Updates</CardTitle>
+                  <CardTitle className="text-sm font-medium">Pending Tasks</CardTitle>
                   <ClipboardList className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{pendingUpdates.length}</div>
+                  <div className="text-2xl font-bold">
+                    {tasksLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : pendingTasks.length}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    Due today
+                    {tasks.length} total tasks
                   </p>
                 </CardContent>
               </Card>
@@ -222,22 +304,24 @@ const StaffDashboard = () => {
                 </CardContent>
               </Card>
 
-              {/* Client Messages */}
+              {/* Today's Updates */}
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Messages</CardTitle>
+                  <CardTitle className="text-sm font-medium">Today's Updates</CardTitle>
                   <MessageCircle className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">12</div>
+                  <div className="text-2xl font-bold">
+                    {updatesLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : todayUpdates.length}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    Unread client messages
+                    {dailyUpdates.length} total updates
                   </p>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Quick Actions & Pending Updates */}
+            {/* Quick Actions & Recent Updates */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
@@ -249,21 +333,21 @@ const StaffDashboard = () => {
                 <CardContent>
                   <div className="space-y-3">
                     {canSee("daily_updates") && (
-                      <Button className="w-full justify-start" variant="outline">
+                      <Button className="w-full justify-start" variant="outline" onClick={handleAddUpdate}>
                         <ClipboardList className="h-4 w-4 mr-2" />
                         Submit Daily Progress
                       </Button>
                     )}
                     {canSee("project_management") && (
-                      <Button className="w-full justify-start" variant="outline">
+                      <Button className="w-full justify-start" variant="outline" onClick={() => setIsAddProjectOpen(true)}>
                         <Building2 className="h-4 w-4 mr-2" />
-                        Manage Project Timeline
+                        Create New Project
                       </Button>
                     )}
                     {canSee("financial") && (
-                      <Button className="w-full justify-start" variant="outline">
+                      <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab("financial")}>
                         <CreditCard className="h-4 w-4 mr-2" />
-                        Update Payment Status
+                        View Payment Status
                       </Button>
                     )}
                     {canSee("user_management") && (
@@ -280,24 +364,37 @@ const StaffDashboard = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Pending Updates</CardTitle>
+                  <CardTitle>Recent Updates</CardTitle>
                   <CardDescription>
-                    Projects needing daily updates
+                    Latest project updates
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {pendingUpdates.map((update, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <div className="font-medium">{update.project}</div>
-                          <div className="text-sm text-muted-foreground">{update.client}</div>
-                        </div>
-                        <Badge variant={update.overdue ? "destructive" : "outline"}>
-                          {update.overdue ? "Overdue" : "Due Today"}
-                        </Badge>
+                    {updatesLoading ? (
+                      <div className="flex justify-center py-4">
+                        <Loader2 className="h-6 w-6 animate-spin" />
                       </div>
-                    ))}
+                    ) : dailyUpdates.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">No updates yet</p>
+                    ) : (
+                      dailyUpdates.slice(0, 5).map((update) => {
+                        const project = projects.find(p => p.id === update.project_id);
+                        return (
+                          <div key={update.id} className="flex items-center justify-between p-3 border rounded-lg">
+                            <div>
+                              <div className="font-medium text-sm">{update.title}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {project?.name || 'Unknown Project'} • {new Date(update.created_at).toLocaleDateString()}
+                              </div>
+                            </div>
+                            <Badge variant="outline">
+                              {new Date(update.created_at).toDateString() === new Date().toDateString() ? 'Today' : 'Past'}
+                            </Badge>
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -306,28 +403,44 @@ const StaffDashboard = () => {
             {/* Recent Activity */}
             <Card>
               <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
+                <CardTitle>Project Progress</CardTitle>
                 <CardDescription>
-                  Latest updates across all projects
+                  Overview of all projects
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {projects.slice(0, 2).map((project) => (
-                    <div key={project.id} className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        <div>
-                          <div className="font-medium">{project.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            Progress: {project.progress}% • {project.client}
+                {projectsLoading ? (
+                  <div className="flex justify-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </div>
+                ) : projects.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">No projects yet. Create your first project!</p>
+                ) : (
+                  <div className="space-y-4">
+                    {projects.slice(0, 5).map((project) => (
+                      <div key={project.id} className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-2 h-2 rounded-full ${project.status === 'active' || project.status === 'in_progress' ? 'bg-green-500' : project.status === 'completed' ? 'bg-blue-500' : 'bg-yellow-500'}`}></div>
+                          <div>
+                            <div className="font-medium">{project.name}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {project.code} • Progress: {project.progress}%
+                            </div>
                           </div>
                         </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-primary rounded-full" 
+                              style={{ width: `${project.progress}%` }}
+                            ></div>
+                          </div>
+                          <Badge variant="outline">{project.status}</Badge>
+                        </div>
                       </div>
-                      <Badge variant="outline">{project.status}</Badge>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -344,52 +457,69 @@ const StaffDashboard = () => {
                         Manage construction projects and assignments
                       </CardDescription>
                     </div>
-                    {isAdmin && (
-                      <Button>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Project
-                      </Button>
-                    )}
+                    <Button onClick={() => setIsAddProjectOpen(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Project
+                    </Button>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {projects.map((project) => (
-                      <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center gap-4">
-                          <Building2 className="h-8 w-8 text-muted-foreground" />
-                          <div>
-                            <div className="font-semibold">{project.name}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {project.code} • {project.client}
-                            </div>
-                            <div className="flex items-center gap-2 mt-1">
-                              <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
-                                <div 
-                                  className="h-full bg-primary rounded-full" 
-                                  style={{ width: `${project.progress}%` }}
-                                ></div>
+                  {projectsLoading ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="h-8 w-8 animate-spin" />
+                    </div>
+                  ) : projects.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground">No projects yet. Create your first project!</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {projects.map((project) => (
+                        <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex items-center gap-4">
+                            <Building2 className="h-8 w-8 text-muted-foreground" />
+                            <div>
+                              <div className="font-semibold">{project.name}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {project.code} • {formatCurrency(project.total_cost || 0)}
                               </div>
-                              <span className="text-xs text-muted-foreground">{project.progress}%</span>
+                              <div className="flex items-center gap-2 mt-1">
+                                <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-primary rounded-full" 
+                                    style={{ width: `${project.progress}%` }}
+                                  ></div>
+                                </div>
+                                <span className="text-xs text-muted-foreground">{project.progress}%</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={project.status === 'active' ? 'default' : 'outline'}>
-                            {project.status}
-                          </Badge>
-                          <Button variant="outline" size="sm">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          {isAdmin && (
-                            <Button variant="outline" size="sm">
-                              <Trash2 className="h-4 w-4" />
+                          <div className="flex items-center gap-2">
+                            <Badge variant={project.status === 'active' || project.status === 'in_progress' ? 'default' : 'outline'}>
+                              {project.status}
+                            </Badge>
+                            <Button variant="outline" size="sm" onClick={() => handleAddInstalment(project.id)}>
+                              <CreditCard className="h-4 w-4" />
                             </Button>
-                          )}
+                            <Button variant="outline" size="sm" onClick={() => handleAddTask(project.id)}>
+                              <ClipboardList className="h-4 w-4" />
+                            </Button>
+                            {isAdmin && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleDeleteProject(project.id)}
+                                disabled={deleteProject.isPending}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -416,35 +546,33 @@ const StaffDashboard = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {staffMembers.map((staff) => (
-                      <div key={staff.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                            <UserCheck className="h-5 w-5 text-muted-foreground" />
-                          </div>
-                          <div>
-                            <div className="font-semibold">{staff.name}</div>
-                            <div className="text-sm text-muted-foreground">{staff.email}</div>
-                            <div className="text-xs text-muted-foreground">
-                              Projects: {staff.projects.join(', ')}
+                  {staffMembers.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground">No staff members yet. Add users from Admin panel.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {staffMembers.map((staff) => (
+                        <div key={staff.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                              <UserCheck className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                            <div>
+                              <div className="font-semibold">{staff.full_name || 'Unnamed'}</div>
+                              <div className="text-sm text-muted-foreground">{staff.phone || 'No phone'}</div>
                             </div>
                           </div>
+                          <div className="flex items-center gap-2">
+                            <Badge className={getRoleBadge(staff.role)}>
+                              {staff.role.replace('_', ' ')}
+                            </Badge>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge className={getRoleBadge(staff.role)}>
-                            {staff.role}
-                          </Badge>
-                          <Button variant="outline" size="sm">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -465,38 +593,55 @@ const StaffDashboard = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <Card>
                         <CardContent className="p-4">
-                          <div className="text-2xl font-bold text-green-600">₹25.4L</div>
+                          <div className="text-2xl font-bold text-green-600">{formatCurrency(totalReceived)}</div>
                           <div className="text-sm text-muted-foreground">Total Received</div>
                         </CardContent>
                       </Card>
                       <Card>
                         <CardContent className="p-4">
-                          <div className="text-2xl font-bold text-orange-600">₹18.6L</div>
+                          <div className="text-2xl font-bold text-orange-600">{formatCurrency(pendingPayments)}</div>
                           <div className="text-sm text-muted-foreground">Pending Payments</div>
                         </CardContent>
                       </Card>
                       <Card>
                         <CardContent className="p-4">
-                          <div className="text-2xl font-bold">₹44L</div>
+                          <div className="text-2xl font-bold">{formatCurrency(totalProjectValue)}</div>
                           <div className="text-sm text-muted-foreground">Total Project Value</div>
                         </CardContent>
                       </Card>
                     </div>
                     
                     <div className="space-y-3">
-                      <h3 className="font-semibold">Recent Payments</h3>
-                      {[1, 2, 3].map((item) => (
-                        <div key={item} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div>
-                            <div className="font-medium">RES-2024-001 - Instalment {item}</div>
-                            <div className="text-sm text-muted-foreground">John Smith • 2024-03-{20 + item}</div>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-semibold">₹{(5 + item).toFixed(1)}L</div>
-                            <Badge variant="default">Paid</Badge>
-                          </div>
+                      <div className="flex justify-between items-center">
+                        <h3 className="font-semibold">Recent Instalments</h3>
+                      </div>
+                      {instalmentsLoading ? (
+                        <div className="flex justify-center py-4">
+                          <Loader2 className="h-6 w-6 animate-spin" />
                         </div>
-                      ))}
+                      ) : instalments.length === 0 ? (
+                        <p className="text-sm text-muted-foreground text-center py-4">No instalments yet</p>
+                      ) : (
+                        instalments.slice(0, 10).map((instalment) => {
+                          const project = projects.find(p => p.id === instalment.project_id);
+                          return (
+                            <div key={instalment.id} className="flex items-center justify-between p-3 border rounded-lg">
+                              <div>
+                                <div className="font-medium">{project?.code || 'Unknown'} - Instalment {instalment.instalment_number}</div>
+                                <div className="text-sm text-muted-foreground">
+                                  Due: {new Date(instalment.due_date).toLocaleDateString()}
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-semibold">{formatCurrency(instalment.amount)}</div>
+                                <Badge variant={instalment.status === 'paid' ? 'default' : instalment.status === 'overdue' ? 'destructive' : 'outline'}>
+                                  {instalment.status}
+                                </Badge>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -522,30 +667,36 @@ const StaffDashboard = () => {
                         <div className="flex items-center justify-between p-4 border rounded-lg">
                           <div>
                             <div className="font-medium">Manager Role</div>
-                            <div className="text-sm text-muted-foreground">Can manage projects and daily updates</div>
+                            <div className="text-sm text-muted-foreground">Can manage projects, tasks and daily updates</div>
                           </div>
-                          <Button variant="outline" size="sm">Edit Permissions</Button>
+                          <Badge>Active</Badge>
                         </div>
                         <div className="flex items-center justify-between p-4 border rounded-lg">
                           <div>
-                            <div className="font-medium">Staff Role</div>
-                            <div className="text-sm text-muted-foreground">Can submit daily updates only</div>
+                            <div className="font-medium">Site Staff Role</div>
+                            <div className="text-sm text-muted-foreground">Can submit daily updates for assigned projects</div>
                           </div>
-                          <Button variant="outline" size="sm">Edit Permissions</Button>
+                          <Badge>Active</Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <div className="font-medium">Office Staff Role</div>
+                            <div className="text-sm text-muted-foreground">Can view projects and manage documents</div>
+                          </div>
+                          <Badge>Active</Badge>
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-semibold mb-4">System Configuration</h3>
+                      <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
                       <div className="space-y-4">
-                        <div>
-                          <label className="text-sm font-medium">Site Camera Access</label>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Button variant="outline" size="sm">Configure Cameras</Button>
-                            <Button variant="outline" size="sm">Test Feeds</Button>
-                          </div>
-                        </div>
+                        <Button asChild variant="outline" className="w-full justify-start">
+                          <Link to="/admin/users">
+                            <Users className="h-4 w-4 mr-2" />
+                            User Management
+                          </Link>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -556,11 +707,36 @@ const StaffDashboard = () => {
         </Tabs>
       </div>
 
-      {/* Add Daily Update Dialog */}
+      {/* Dialogs */}
       <AddDailyUpdate
         isOpen={isAddUpdateOpen}
         onClose={() => setIsAddUpdateOpen(false)}
         onSuccess={handleUpdateSuccess}
+      />
+      
+      <AddProjectDialog
+        isOpen={isAddProjectOpen}
+        onClose={() => setIsAddProjectOpen(false)}
+      />
+      
+      <AddInstalmentDialog
+        isOpen={isAddInstalmentOpen}
+        onClose={() => {
+          setIsAddInstalmentOpen(false);
+          setSelectedProjectId(null);
+        }}
+        projects={projects}
+        defaultProjectId={selectedProjectId || undefined}
+      />
+      
+      <AddTaskDialog
+        isOpen={isAddTaskOpen}
+        onClose={() => {
+          setIsAddTaskOpen(false);
+          setSelectedProjectId(null);
+        }}
+        projects={projects}
+        defaultProjectId={selectedProjectId || undefined}
       />
     </div>
   );
