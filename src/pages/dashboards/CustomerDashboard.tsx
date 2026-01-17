@@ -11,7 +11,9 @@ import {
   Download,
   Eye,
   Building2,
-  LogOut
+  LogOut,
+  Loader2,
+  AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,64 +21,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
+import { useCustomerProject, useInstalments, useTasks, useDailyUpdates } from "@/hooks/useProjectData";
 
 const CustomerDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const navigate = useNavigate();
-  const { user, profile, signOut, loading: authLoading, isCustomer, role } = useAuth();
+  const { user, profile, signOut, loading: authLoading, role } = useAuth();
 
-  // Mock data - in real app, this would come from API
-  const projectData = {
-    projectName: "Modern Residence - Butwal",
-    projectCode: "RES-2024-001",
-    startDate: "2024-01-15",
-    estimatedCompletion: "2024-08-30",
-    progress: 65,
-    manager: "Rajesh Kumar",
-    managerContact: "rajesh@butwalconstruction.com"
-  };
+  // Fetch customer's assigned project
+  const { data: project, isLoading: projectLoading } = useCustomerProject();
+  
+  // Fetch project-related data
+  const { data: allInstalments = [], isLoading: instalmentsLoading } = useInstalments(project?.id);
+  const { data: allTasks = [], isLoading: tasksLoading } = useTasks(project?.id);
+  const { data: allDailyUpdates = [], isLoading: updatesLoading } = useDailyUpdates(project?.id);
 
-  const instalments = [
-    { id: 1, dueDate: "2024-01-20", amount: 500000, status: "paid", paidDate: "2024-01-18" },
-    { id: 2, dueDate: "2024-02-20", amount: 750000, status: "paid", paidDate: "2024-02-15" },
-    { id: 3, dueDate: "2024-03-20", amount: 1000000, status: "paid", paidDate: "2024-03-18" },
-    { id: 4, dueDate: "2024-04-20", amount: 1250000, status: "pending" },
-    { id: 5, dueDate: "2024-05-20", amount: 1500000, status: "pending" },
-    { id: 6, dueDate: "2024-06-20", amount: 1750000, status: "pending" },
-  ];
-
-  const dailyUpdates = [
-    {
-      id: 1,
-      date: "2024-03-20",
-      title: "Foundation Work Completed",
-      description: "Concrete pouring for foundation completed successfully. All quality checks passed.",
-      images: ["/placeholder.svg", "/placeholder.svg"],
-      manager: "Rajesh Kumar"
-    },
-    {
-      id: 2,
-      date: "2024-03-19",
-      title: "Electrical Wiring Started",
-      description: "Initial electrical wiring and conduit placement in progress.",
-      images: ["/placeholder.svg"],
-      manager: "Rajesh Kumar"
-    },
-    {
-      id: 3,
-      date: "2024-03-18",
-      title: "Plumbing Work",
-      description: "Underground plumbing installation completed for ground floor.",
-      images: ["/placeholder.svg", "/placeholder.svg", "/placeholder.svg"],
-      manager: "Rajesh Kumar"
-    }
-  ];
-
-  const tasks = [
-    { id: 1, title: "Material Approval - Tiles", status: "pending", assignedTo: "Client", dueDate: "2024-03-25" },
-    { id: 2, title: "Electrical Fixture Selection", status: "completed", assignedTo: "Client", completedDate: "2024-03-18" },
-    { id: 3, title: "Sanitary Ware Finalization", status: "pending", assignedTo: "Client", dueDate: "2024-04-01" },
-  ];
+  // Filter tasks assigned to client
+  const clientTasks = allTasks.filter(t => t.assigned_type === 'client');
+  const pendingTasks = clientTasks.filter(t => t.status === 'pending');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -95,18 +57,76 @@ const CustomerDashboard = () => {
     navigate("/login");
   };
 
+  const formatCurrency = (amount: number) => {
+    if (amount >= 100000) {
+      return `₹${(amount / 100000).toFixed(1)}L`;
+    }
+    return `₹${amount.toLocaleString('en-IN')}`;
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Not set';
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-background pt-20 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground mt-4">Loading dashboard...</p>
+        </div>
       </div>
     );
   }
 
   const userName = profile?.full_name || user.email || 'Customer';
 
-  const totalPaid = instalments.filter(i => i.status === "paid").reduce((sum, i) => sum + i.amount, 0);
-  const totalPending = instalments.filter(i => i.status === "pending").reduce((sum, i) => sum + i.amount, 0);
+  // Calculate payment stats
+  const totalPaid = allInstalments.filter(i => i.status === "paid").reduce((sum, i) => sum + i.amount, 0);
+  const totalPending = allInstalments.filter(i => i.status === "pending" || i.status === "overdue").reduce((sum, i) => sum + i.amount, 0);
+  const totalCost = project?.total_cost || (totalPaid + totalPending);
+
+  // No project assigned state
+  if (!projectLoading && !project) {
+    return (
+      <div className="min-h-screen bg-background pt-20">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
+            <div>
+              <h1 className="text-3xl font-bold">Project Dashboard</h1>
+              <p className="text-muted-foreground">
+                Welcome, {userName}
+              </p>
+            </div>
+            <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </div>
+
+          <Card className="max-w-2xl mx-auto">
+            <CardContent className="p-12 text-center">
+              <AlertCircle className="h-16 w-16 text-muted-foreground mx-auto mb-6" />
+              <h2 className="text-2xl font-bold mb-4">No Project Assigned</h2>
+              <p className="text-muted-foreground mb-6">
+                You don't have a project assigned to your account yet. 
+                Please contact Butwal Construction & Builders to get started with your construction project.
+              </p>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p><strong>Phone:</strong> +977-71-540123</p>
+                <p><strong>Email:</strong> info@butwalconstruction.com</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pt-20">
@@ -120,9 +140,11 @@ const CustomerDashboard = () => {
             </p>
           </div>
           <div className="flex items-center gap-4">
-            <Badge variant="secondary" className="text-sm">
-              Project: {projectData.projectCode}
-            </Badge>
+            {project && (
+              <Badge variant="secondary" className="text-sm">
+                Project: {project.code}
+              </Badge>
+            )}
             <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
               <LogOut className="h-4 w-4" />
               Logout
@@ -131,34 +153,47 @@ const CustomerDashboard = () => {
         </div>
 
         {/* Project Overview Card */}
-        <Card className="mb-8 gradient-primary text-primary-foreground">
-          <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-              <div>
-                <h2 className="text-2xl font-bold mb-2">{projectData.projectName}</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <span className="opacity-80">Start Date:</span>
-                    <div className="font-semibold">{projectData.startDate}</div>
+        {projectLoading ? (
+          <Card className="mb-8">
+            <CardContent className="p-6 flex justify-center">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </CardContent>
+          </Card>
+        ) : project && (
+          <Card className="mb-8 gradient-primary text-primary-foreground">
+            <CardContent className="p-6">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold mb-2">{project.name}</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <span className="opacity-80">Start Date:</span>
+                      <div className="font-semibold">{formatDate(project.start_date)}</div>
+                    </div>
+                    <div>
+                      <span className="opacity-80">Estimated Completion:</span>
+                      <div className="font-semibold">{formatDate(project.estimated_completion)}</div>
+                    </div>
+                    <div>
+                      <span className="opacity-80">Status:</span>
+                      <div className="font-semibold capitalize">{project.status}</div>
+                    </div>
                   </div>
-                  <div>
-                    <span className="opacity-80">Estimated Completion:</span>
-                    <div className="font-semibold">{projectData.estimatedCompletion}</div>
-                  </div>
-                  <div>
-                    <span className="opacity-80">Project Manager:</span>
-                    <div className="font-semibold">{projectData.manager}</div>
-                  </div>
+                  {project.address && (
+                    <div className="mt-2 text-sm">
+                      <span className="opacity-80">Location:</span> {project.address}
+                    </div>
+                  )}
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold mb-2">{project.progress}%</div>
+                  <Progress value={project.progress} className="w-32 h-2 bg-white/20" />
+                  <div className="text-sm opacity-80 mt-1">Overall Progress</div>
                 </div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold mb-2">{projectData.progress}%</div>
-                <Progress value={projectData.progress} className="w-32 h-2 bg-white/20" />
-                <div className="text-sm opacity-80 mt-1">Overall Progress</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Main Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -178,7 +213,7 @@ const CustomerDashboard = () => {
                   <CreditCard className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">₹{((totalPaid + totalPending) / 100000).toFixed(1)}L</div>
+                  <div className="text-2xl font-bold">{formatCurrency(totalCost)}</div>
                   <p className="text-xs text-muted-foreground">
                     Total project cost
                   </p>
@@ -191,9 +226,9 @@ const CustomerDashboard = () => {
                   <CheckCircle className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">₹{(totalPaid / 100000).toFixed(1)}L</div>
+                  <div className="text-2xl font-bold">{formatCurrency(totalPaid)}</div>
                   <p className="text-xs text-muted-foreground">
-                    {((totalPaid / (totalPaid + totalPending)) * 100).toFixed(0)}% of total
+                    {totalCost > 0 ? ((totalPaid / totalCost) * 100).toFixed(0) : 0}% of total
                   </p>
                 </CardContent>
               </Card>
@@ -204,7 +239,9 @@ const CustomerDashboard = () => {
                   <ClipboardList className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{tasks.filter(t => t.status === "pending").length}</div>
+                  <div className="text-2xl font-bold">
+                    {tasksLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : pendingTasks.length}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     Your attention required
                   </p>
@@ -217,9 +254,11 @@ const CustomerDashboard = () => {
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{dailyUpdates.length}</div>
+                  <div className="text-2xl font-bold">
+                    {updatesLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : allDailyUpdates.length}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    This month
+                    Total updates
                   </p>
                 </CardContent>
               </Card>
@@ -234,22 +273,80 @@ const CustomerDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {tasks.filter(task => task.status === "pending").map((task) => (
-                    <div key={task.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                        <div>
-                          <div className="font-medium">{task.title}</div>
-                          <div className="text-sm text-muted-foreground">
-                            Due: {task.dueDate} • Assigned to: {task.assignedTo}
+                {tasksLoading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                ) : pendingTasks.length === 0 ? (
+                  <div className="text-center py-8">
+                    <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                    <p className="text-muted-foreground">No pending tasks! You're all caught up.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {pendingTasks.map((task) => (
+                      <div key={task.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-3 h-3 rounded-full ${task.priority === 'high' ? 'bg-red-500' : task.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
+                          <div>
+                            <div className="font-medium">{task.title}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {task.due_date ? `Due: ${formatDate(task.due_date)}` : 'No due date'} • Priority: {task.priority}
+                            </div>
+                            {task.description && (
+                              <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
+                            )}
                           </div>
                         </div>
+                        <Badge variant={task.priority === 'high' ? 'destructive' : 'outline'}>
+                          {task.priority}
+                        </Badge>
                       </div>
-                      <Button size="sm">Take Action</Button>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Recent Updates Preview */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Updates</CardTitle>
+                <CardDescription>
+                  Latest updates from your construction site
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {updatesLoading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                ) : allDailyUpdates.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">No updates yet. Check back soon!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {allDailyUpdates.slice(0, 3).map((update) => (
+                      <div key={update.id} className="flex items-start gap-4 p-4 border rounded-lg">
+                        <div className="w-2 h-2 rounded-full bg-primary mt-2"></div>
+                        <div className="flex-1">
+                          <div className="font-medium">{update.title}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {formatDate(update.created_at)}
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{update.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                    {allDailyUpdates.length > 3 && (
+                      <Button variant="outline" className="w-full" onClick={() => setActiveTab("updates")}>
+                        View All Updates
+                      </Button>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -264,46 +361,58 @@ const CustomerDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
-                  {dailyUpdates.map((update) => (
-                    <div key={update.id} className="border rounded-lg p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="text-lg font-semibold">{update.title}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {update.date} • By {update.manager}
-                          </p>
-                        </div>
-                        <Badge variant="outline">{update.date}</Badge>
-                      </div>
-                      
-                      <p className="text-muted-foreground mb-4">{update.description}</p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
-                        {update.images.map((image, index) => (
-                          <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden">
-                            <img 
-                              src={image} 
-                              alt={`Update ${update.id} - Image ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
+                {updatesLoading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                ) : allDailyUpdates.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Calendar className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No Updates Yet</h3>
+                    <p className="text-muted-foreground">
+                      Your construction team will post updates here as work progresses.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {allDailyUpdates.map((update) => (
+                      <div key={update.id} className="border rounded-lg p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="text-lg font-semibold">{update.title}</h3>
+                            <p className="text-sm text-muted-foreground">
+                              {formatDate(update.created_at)}
+                            </p>
                           </div>
-                        ))}
+                          <Badge variant="outline">{formatDate(update.created_at)}</Badge>
+                        </div>
+                        
+                        <p className="text-muted-foreground mb-4">{update.description}</p>
+                        
+                        {update.images && update.images.length > 0 && (
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
+                            {update.images.map((image, index) => (
+                              <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden">
+                                <img 
+                                  src={image} 
+                                  alt={`Update ${update.id} - Image ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm">
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            Ask Question
+                          </Button>
+                        </div>
                       </div>
-                      
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          <Download className="h-4 w-4 mr-2" />
-                          Download Images
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <MessageCircle className="h-4 w-4 mr-2" />
-                          Ask Question
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -322,47 +431,70 @@ const CustomerDashboard = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <Card>
                       <CardContent className="p-4">
-                        <div className="text-2xl font-bold text-green-600">₹{(totalPaid / 100000).toFixed(1)}L</div>
+                        <div className="text-2xl font-bold text-green-600">{formatCurrency(totalPaid)}</div>
                         <div className="text-sm text-muted-foreground">Total Paid</div>
                       </CardContent>
                     </Card>
                     <Card>
                       <CardContent className="p-4">
-                        <div className="text-2xl font-bold text-orange-600">₹{(totalPending / 100000).toFixed(1)}L</div>
+                        <div className="text-2xl font-bold text-orange-600">{formatCurrency(totalPending)}</div>
                         <div className="text-sm text-muted-foreground">Pending Payment</div>
                       </CardContent>
                     </Card>
                     <Card>
                       <CardContent className="p-4">
-                        <div className="text-2xl font-bold">₹{((totalPaid + totalPending) / 100000).toFixed(1)}L</div>
+                        <div className="text-2xl font-bold">{formatCurrency(totalCost)}</div>
                         <div className="text-sm text-muted-foreground">Total Project Cost</div>
                       </CardContent>
                     </Card>
                   </div>
 
-                  <div className="space-y-3">
-                    {instalments.map((instalment) => (
-                      <div key={instalment.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center gap-4">
-                          {instalment.status === 'paid' ? (
-                            <CheckCircle className="h-5 w-5 text-green-600" />
-                          ) : (
-                            <XCircle className="h-5 w-5 text-orange-600" />
-                          )}
-                          <div>
-                            <div className="font-medium">Instalment #{instalment.id}</div>
-                            <div className="text-sm text-muted-foreground">
-                              Due: {instalment.dueDate} • ₹{(instalment.amount / 100000).toFixed(1)}L
-                              {instalment.paidDate && ` • Paid on: ${instalment.paidDate}`}
+                  {instalmentsLoading ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="h-8 w-8 animate-spin" />
+                    </div>
+                  ) : allInstalments.length === 0 ? (
+                    <div className="text-center py-12">
+                      <CreditCard className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">No Instalments Yet</h3>
+                      <p className="text-muted-foreground">
+                        Payment instalments will appear here once your project payment schedule is set up.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {allInstalments.map((instalment) => (
+                        <div key={instalment.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex items-center gap-4">
+                            {instalment.status === 'paid' ? (
+                              <CheckCircle className="h-5 w-5 text-green-600" />
+                            ) : instalment.status === 'overdue' ? (
+                              <XCircle className="h-5 w-5 text-red-600" />
+                            ) : (
+                              <XCircle className="h-5 w-5 text-orange-600" />
+                            )}
+                            <div>
+                              <div className="font-medium">Instalment #{instalment.instalment_number}</div>
+                              <div className="text-sm text-muted-foreground">
+                                Due: {formatDate(instalment.due_date)} • {formatCurrency(instalment.amount)}
+                                {instalment.paid_date && ` • Paid on: ${formatDate(instalment.paid_date)}`}
+                              </div>
+                              {instalment.notes && (
+                                <p className="text-xs text-muted-foreground mt-1">{instalment.notes}</p>
+                              )}
                             </div>
                           </div>
+                          <Badge variant={
+                            instalment.status === 'paid' ? 'default' : 
+                            instalment.status === 'overdue' ? 'destructive' : 
+                            'outline'
+                          }>
+                            {instalment.status === 'paid' ? 'Paid' : instalment.status === 'overdue' ? 'Overdue' : 'Pending'}
+                          </Badge>
                         </div>
-                        <Badge variant={instalment.status === 'paid' ? 'default' : 'outline'}>
-                          {instalment.status === 'paid' ? 'Paid' : 'Pending'}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -401,7 +533,9 @@ const CustomerDashboard = () => {
                         <CardTitle className="text-sm">Front View Camera</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="aspect-video bg-muted rounded mb-3"></div>
+                        <div className="aspect-video bg-muted rounded mb-3 flex items-center justify-center">
+                          <Camera className="h-8 w-8 text-muted-foreground" />
+                        </div>
                         <div className="text-xs text-muted-foreground">Main entrance and facade progress</div>
                       </CardContent>
                     </Card>
@@ -410,7 +544,9 @@ const CustomerDashboard = () => {
                         <CardTitle className="text-sm">Back View Camera</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="aspect-video bg-muted rounded mb-3"></div>
+                        <div className="aspect-video bg-muted rounded mb-3 flex items-center justify-center">
+                          <Camera className="h-8 w-8 text-muted-foreground" />
+                        </div>
                         <div className="text-xs text-muted-foreground">Backyard and service area</div>
                       </CardContent>
                     </Card>
