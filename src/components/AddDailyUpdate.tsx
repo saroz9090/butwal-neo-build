@@ -74,11 +74,10 @@ const AddDailyUpdate = ({ isOpen, onClose, onSuccess }: AddDailyUpdateProps) => 
                 <SelectValue placeholder="Select project" />
               </SelectTrigger>
               <SelectContent>
-                {projects.map((project) => (
+              {projects.map((project) => (
                   <SelectItem key={project.id} value={project.id}>
                     {project.name} ({project.code})
                   </SelectItem>
-                ))}
                 ))}
               </SelectContent>
             </Select>
