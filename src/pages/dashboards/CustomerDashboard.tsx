@@ -22,6 +22,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
 import { useCustomerProject, useInstalments, useTasks, useDailyUpdates } from "@/hooks/useProjectData";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const CustomerDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
