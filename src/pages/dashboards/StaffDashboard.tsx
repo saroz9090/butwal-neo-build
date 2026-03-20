@@ -41,6 +41,8 @@ const StaffDashboard = () => {
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
   const [isAddInstalmentOpen, setIsAddInstalmentOpen] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [isEditUpdateOpen, setIsEditUpdateOpen] = useState(false);
+  const [editingUpdate, setEditingUpdate] = useState<DailyUpdate | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
