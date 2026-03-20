@@ -55,6 +55,7 @@ const StaffDashboard = () => {
   const { data: dailyUpdates = [], isLoading: updatesLoading } = useDailyUpdates();
   const deleteProject = useDeleteProject();
   const updateProject = useUpdateProject();
+  const deleteDailyUpdate = useDeleteDailyUpdate();
 
   // Fetch staff members
   const { data: staffMembers = [] } = useQuery({
