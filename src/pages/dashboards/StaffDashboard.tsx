@@ -748,6 +748,12 @@ const StaffDashboard = () => {
         onSuccess={handleUpdateSuccess}
       />
       
+      <EditDailyUpdateDialog
+        isOpen={isEditUpdateOpen}
+        onClose={() => { setIsEditUpdateOpen(false); setEditingUpdate(null); }}
+        update={editingUpdate}
+      />
+      
       <AddProjectDialog
         isOpen={isAddProjectOpen}
         onClose={() => setIsAddProjectOpen(false)}
