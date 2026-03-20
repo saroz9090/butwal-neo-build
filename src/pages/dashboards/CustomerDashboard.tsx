@@ -38,6 +38,19 @@ const CustomerDashboard = () => {
   const { data: allTasks = [], isLoading: tasksLoading } = useTasks(project?.id);
   const { data: allDailyUpdates = [], isLoading: updatesLoading } = useDailyUpdates(project?.id);
 
+  // Fetch creator profiles for updates
+  const creatorIds = [...new Set(allDailyUpdates.map(u => u.created_by))];
+  const { data: creators = [] } = useQuery({
+    queryKey: ['update_creators', creatorIds.join(',')],
+    queryFn: async () => {
+      if (creatorIds.length === 0) return [];
+      const { data } = await supabase.from('profiles').select('user_id, full_name').in('user_id', creatorIds);
+      return data || [];
+    },
+    enabled: creatorIds.length > 0,
+  });
+  const creatorMap = new Map(creators.map(c => [c.user_id, c.full_name]));
+
   // Filter tasks assigned to client
   const clientTasks = allTasks.filter(t => t.assigned_type === 'client');
   const pendingTasks = clientTasks.filter(t => t.status === 'pending');
