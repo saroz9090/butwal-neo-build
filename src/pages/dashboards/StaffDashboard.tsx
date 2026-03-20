@@ -166,6 +166,17 @@ const StaffDashboard = () => {
     setIsAddTaskOpen(true);
   };
 
+  const handleEditUpdate = (update: DailyUpdate) => {
+    setEditingUpdate(update);
+    setIsEditUpdateOpen(true);
+  };
+
+  const handleDeleteUpdate = async (id: string) => {
+    if (confirm("Are you sure you want to delete this update?")) {
+      await deleteDailyUpdate.mutateAsync(id);
+    }
+  };
+
   const getRoleBadge = (roleType: string) => {
     const variants = {
       admin: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
