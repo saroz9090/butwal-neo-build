@@ -26,11 +26,12 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { useProjects, useInstalments, useTasks, useDailyUpdates, useDeleteProject, useUpdateProject } from "@/hooks/useProjectData";
+import { useProjects, useInstalments, useTasks, useDailyUpdates, useDeleteProject, useUpdateProject, useDeleteDailyUpdate, DailyUpdate } from "@/hooks/useProjectData";
 import AddDailyUpdate from "@/components/AddDailyUpdate";
 import AddProjectDialog from "@/components/AddProjectDialog";
 import AddInstalmentDialog from "@/components/AddInstalmentDialog";
 import AddTaskDialog from "@/components/AddTaskDialog";
+import EditDailyUpdateDialog from "@/components/EditDailyUpdateDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
