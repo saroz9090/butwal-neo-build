@@ -397,15 +397,34 @@ const StaffDashboard = () => {
                         const project = projects.find(p => p.id === update.project_id);
                         return (
                           <div key={update.id} className="flex items-center justify-between p-3 border rounded-lg">
-                            <div>
+                            <div className="flex-1">
                               <div className="font-medium text-sm">{update.title}</div>
                               <div className="text-xs text-muted-foreground">
                                 {project?.name || 'Unknown Project'} • {new Date(update.created_at).toLocaleDateString()}
                               </div>
+                              {update.images && update.images.length > 0 && (
+                                <div className="flex gap-1 mt-1">
+                                  {update.images.slice(0, 3).map((img, i) => (
+                                    <img key={i} src={img} alt="" className="w-8 h-8 rounded object-cover" />
+                                  ))}
+                                  {update.images.length > 3 && (
+                                    <span className="text-xs text-muted-foreground self-center">+{update.images.length - 3}</span>
+                                  )}
+                                </div>
+                              )}
                             </div>
-                            <Badge variant="outline">
-                              {new Date(update.created_at).toDateString() === new Date().toDateString() ? 'Today' : 'Past'}
-                            </Badge>
+                            <div className="flex items-center gap-1">
+                              {(isAdmin || isManager) && (
+                                <>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditUpdate(update)}>
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDeleteUpdate(update.id)}>
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </div>
                         );
                       })
