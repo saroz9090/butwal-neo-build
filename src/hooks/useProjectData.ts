@@ -365,6 +365,31 @@ export const useCreateDailyUpdate = () => {
   });
 };
 
+export const useUpdateDailyUpdate = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; title?: string; description?: string; images?: string[] }) => {
+      const { data, error } = await supabase
+        .from('daily_updates')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['daily_updates'] });
+      toast({ title: 'Success', description: 'Update edited successfully' });
+    },
+    onError: (error: any) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+};
+
 export const useDeleteDailyUpdate = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();

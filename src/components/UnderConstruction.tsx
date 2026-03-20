@@ -42,7 +42,7 @@ const UnderConstruction = () => {
   const [food, setFood] = useState({ x: 5, y: 5 });
   const [direction, setDirection] = useState<'RIGHT' | 'LEFT' | 'UP' | 'DOWN'>('RIGHT');
   const [gameOver, setGameOver] = useState(false);
-  const gameLoopRef = useRef<NodeJS.Timeout>();
+  const gameLoopRef = useRef<ReturnType<typeof setInterval>>();
 
   // Format date for display
   const formatDate = (date: Date) => {
