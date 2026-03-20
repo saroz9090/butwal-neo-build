@@ -22,6 +22,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
 import { useCustomerProject, useInstalments, useTasks, useDailyUpdates } from "@/hooks/useProjectData";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const CustomerDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -35,6 +37,19 @@ const CustomerDashboard = () => {
   const { data: allInstalments = [], isLoading: instalmentsLoading } = useInstalments(project?.id);
   const { data: allTasks = [], isLoading: tasksLoading } = useTasks(project?.id);
   const { data: allDailyUpdates = [], isLoading: updatesLoading } = useDailyUpdates(project?.id);
+
+  // Fetch creator profiles for updates
+  const creatorIds = [...new Set(allDailyUpdates.map(u => u.created_by))];
+  const { data: creators = [] } = useQuery({
+    queryKey: ['update_creators', creatorIds.join(',')],
+    queryFn: async () => {
+      if (creatorIds.length === 0) return [];
+      const { data } = await supabase.from('profiles').select('user_id, full_name').in('user_id', creatorIds);
+      return data || [];
+    },
+    enabled: creatorIds.length > 0,
+  });
+  const creatorMap = new Map(creators.map(c => [c.user_id, c.full_name]));
 
   // Filter tasks assigned to client
   const clientTasks = allTasks.filter(t => t.assigned_type === 'client');
@@ -381,7 +396,7 @@ const CustomerDashboard = () => {
                           <div>
                             <h3 className="text-lg font-semibold">{update.title}</h3>
                             <p className="text-sm text-muted-foreground">
-                              {formatDate(update.created_at)}
+                              {formatDate(update.created_at)} • Posted by {creatorMap.get(update.created_by) || 'Team Member'}
                             </p>
                           </div>
                           <Badge variant="outline">{formatDate(update.created_at)}</Badge>
@@ -390,25 +405,18 @@ const CustomerDashboard = () => {
                         <p className="text-muted-foreground mb-4">{update.description}</p>
                         
                         {update.images && update.images.length > 0 && (
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
                             {update.images.map((image, index) => (
-                              <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden">
+                              <a key={index} href={image} target="_blank" rel="noopener noreferrer" className="block aspect-video bg-muted rounded-lg overflow-hidden border hover:opacity-90 transition-opacity">
                                 <img 
                                   src={image} 
-                                  alt={`Update ${update.id} - Image ${index + 1}`}
+                                  alt={`Site photo ${index + 1}`}
                                   className="w-full h-full object-cover"
                                 />
-                              </div>
+                              </a>
                             ))}
                           </div>
                         )}
-                        
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <MessageCircle className="h-4 w-4 mr-2" />
-                            Ask Question
-                          </Button>
-                        </div>
                       </div>
                     ))}
                   </div>

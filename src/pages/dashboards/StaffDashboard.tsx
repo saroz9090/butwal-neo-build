@@ -26,11 +26,12 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { useProjects, useInstalments, useTasks, useDailyUpdates, useDeleteProject, useUpdateProject } from "@/hooks/useProjectData";
+import { useProjects, useInstalments, useTasks, useDailyUpdates, useDeleteProject, useUpdateProject, useDeleteDailyUpdate, DailyUpdate } from "@/hooks/useProjectData";
 import AddDailyUpdate from "@/components/AddDailyUpdate";
 import AddProjectDialog from "@/components/AddProjectDialog";
 import AddInstalmentDialog from "@/components/AddInstalmentDialog";
 import AddTaskDialog from "@/components/AddTaskDialog";
+import EditDailyUpdateDialog from "@/components/EditDailyUpdateDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
@@ -40,6 +41,8 @@ const StaffDashboard = () => {
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
   const [isAddInstalmentOpen, setIsAddInstalmentOpen] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [isEditUpdateOpen, setIsEditUpdateOpen] = useState(false);
+  const [editingUpdate, setEditingUpdate] = useState<DailyUpdate | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -52,6 +55,7 @@ const StaffDashboard = () => {
   const { data: dailyUpdates = [], isLoading: updatesLoading } = useDailyUpdates();
   const deleteProject = useDeleteProject();
   const updateProject = useUpdateProject();
+  const deleteDailyUpdate = useDeleteDailyUpdate();
 
   // Fetch staff members
   const { data: staffMembers = [] } = useQuery({
@@ -160,6 +164,17 @@ const StaffDashboard = () => {
   const handleAddTask = (projectId: string) => {
     setSelectedProjectId(projectId);
     setIsAddTaskOpen(true);
+  };
+
+  const handleEditUpdate = (update: DailyUpdate) => {
+    setEditingUpdate(update);
+    setIsEditUpdateOpen(true);
+  };
+
+  const handleDeleteUpdate = async (id: string) => {
+    if (confirm("Are you sure you want to delete this update?")) {
+      await deleteDailyUpdate.mutateAsync(id);
+    }
   };
 
   const getRoleBadge = (roleType: string) => {
@@ -382,15 +397,34 @@ const StaffDashboard = () => {
                         const project = projects.find(p => p.id === update.project_id);
                         return (
                           <div key={update.id} className="flex items-center justify-between p-3 border rounded-lg">
-                            <div>
+                            <div className="flex-1">
                               <div className="font-medium text-sm">{update.title}</div>
                               <div className="text-xs text-muted-foreground">
                                 {project?.name || 'Unknown Project'} • {new Date(update.created_at).toLocaleDateString()}
                               </div>
+                              {update.images && update.images.length > 0 && (
+                                <div className="flex gap-1 mt-1">
+                                  {update.images.slice(0, 3).map((img, i) => (
+                                    <img key={i} src={img} alt="" className="w-8 h-8 rounded object-cover" />
+                                  ))}
+                                  {update.images.length > 3 && (
+                                    <span className="text-xs text-muted-foreground self-center">+{update.images.length - 3}</span>
+                                  )}
+                                </div>
+                              )}
                             </div>
-                            <Badge variant="outline">
-                              {new Date(update.created_at).toDateString() === new Date().toDateString() ? 'Today' : 'Past'}
-                            </Badge>
+                            <div className="flex items-center gap-1">
+                              {(isAdmin || isManager) && (
+                                <>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditUpdate(update)}>
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDeleteUpdate(update.id)}>
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </div>
                         );
                       })
@@ -712,6 +746,12 @@ const StaffDashboard = () => {
         isOpen={isAddUpdateOpen}
         onClose={() => setIsAddUpdateOpen(false)}
         onSuccess={handleUpdateSuccess}
+      />
+      
+      <EditDailyUpdateDialog
+        isOpen={isEditUpdateOpen}
+        onClose={() => { setIsEditUpdateOpen(false); setEditingUpdate(null); }}
+        update={editingUpdate}
       />
       
       <AddProjectDialog
