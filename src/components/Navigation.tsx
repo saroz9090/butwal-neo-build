@@ -76,9 +76,9 @@ const Navigation = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const handleLogin = () => {
-    navigate("/login");
-  };
+const handleLogin = () => {
+  window.location.href = "https://employee.butwalconstruction.com.np";
+};
 
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
@@ -90,14 +90,9 @@ const Navigation = () => {
     navigate("/");
   };
 
-  const handleDashboard = () => {
-    const userRole = localStorage.getItem("userRole");
-    if (userRole === "admin") {
-      navigate("/admin/dashboard");
-    } else {
-      navigate("/customer/dashboard");
-    }
-  };
+const handleDashboard = () => {
+  window.location.href = "https://employee.butwalconstruction.com.np";
+};
 
   return (
     <>
