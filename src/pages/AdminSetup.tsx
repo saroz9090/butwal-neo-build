@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/firebase";
+import { collection, getDocs, doc, setDoc } from "firebase/firestore";
 
 const AdminSetup = () => {
   const [email, setEmail] = useState("");
@@ -25,13 +26,14 @@ const AdminSetup = () => {
 
   const checkAdminExists = async () => {
     try {
-      const { data } = await supabase
-        .from('user_roles')
-        .select('id')
-        .eq('role', 'admin')
-        .limit(1);
-      
-      setAdminExists(data && data.length > 0);
+      const snap = await getDocs(collection(db, "users"));
+      let exists = false;
+      snap.forEach((docSnap) => {
+        if (docSnap.data().role === 'admin') {
+          exists = true;
+        }
+      });
+      setAdminExists(exists);
     } catch (err) {
       console.error('Error checking admin:', err);
       setAdminExists(false);
@@ -44,17 +46,23 @@ const AdminSetup = () => {
     setError("");
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('init-admin', {
-        body: {
-          email,
-          password,
-          fullName,
-          secretKey: 'BUTWAL_INIT_2024'
-        }
-      });
+      const id = `user-admin-${Date.now()}`;
+      const newUserDoc = {
+        id,
+        user_id: id,
+        email: email.trim().toLowerCase(),
+        password: password,
+        full_name: fullName,
+        phone: null,
+        address: null,
+        project_id: null,
+        role: "admin",
+        permissions: ["view_all_projects", "manage_timeline", "view_reports", "manage_payments", "update_progress"],
+        assigned_projects: [],
+        created_at: new Date().toISOString()
+      };
 
-      if (fnError) throw fnError;
-      if (data.error) throw new Error(data.error);
+      await setDoc(doc(db, "users", id), newUserDoc);
 
       setSuccess(true);
       toast({
@@ -65,9 +73,9 @@ const AdminSetup = () => {
       setTimeout(() => {
         navigate('/login');
       }, 2000);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error creating admin:', err);
-      setError(err.message || 'Failed to create admin account');
+      setError((err as Error).message || 'Failed to create admin account');
     } finally {
       setIsLoading(false);
     }

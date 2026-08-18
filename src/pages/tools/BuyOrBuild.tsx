@@ -68,11 +68,18 @@ const BuyOrBuild = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-20 pb-20 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-foreground">
-            Should I <span className="text-gradient">Buy or Build?</span>
+    <div className="min-h-screen relative overflow-hidden bg-background pt-32 pb-20 px-4">
+      {/* Liquid Ambient Iridescent Background Mesh (Apple iOS style) */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-1/6 left-1/10 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-primary/20 to-rose-600/10 blur-[130px] liquid-orb-1" />
+        <div className="absolute top-1/2 right-1/10 w-[550px] h-[550px] rounded-full bg-gradient-to-tr from-purple-600/20 to-indigo-600/15 blur-[140px] liquid-orb-2" />
+        <div className="absolute bottom-1/10 left-1/3 w-[450px] h-[450px] rounded-full bg-gradient-to-r from-pink-500/15 to-amber-500/10 blur-[120px] liquid-orb-3" />
+      </div>
+
+      <div className="max-w-4xl mx-auto relative z-10">
+        <div className="text-center mb-8 animate-fade-in">
+          <h1 className="text-4xl md:text-6xl font-black mb-4 text-foreground tracking-tight leading-tight">
+            Should I <span className="bg-clip-text text-transparent bg-gradient-to-r from-rose-400 via-primary to-pink-400">Buy or Build?</span>
           </h1>
           <p className="text-lg text-muted-foreground">Make an informed decision about your next home</p>
           <Button 
@@ -85,7 +92,7 @@ const BuyOrBuild = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card className="glass">
+          <Card className="glass border-white/10 shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Home className="w-5 h-5 text-primary" />
@@ -106,7 +113,7 @@ const BuyOrBuild = () => {
             </CardContent>
           </Card>
 
-          <Card className="glass">
+          <Card className="glass border-white/10 shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Hammer className="w-5 h-5 text-primary" />
@@ -148,7 +155,7 @@ const BuyOrBuild = () => {
           </Card>
         </div>
 
-        <Card className="glass mb-8">
+        <Card className="glass border-white/10 shadow-lg mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-primary" />
@@ -175,19 +182,19 @@ const BuyOrBuild = () => {
         </Button>
 
         {result && (
-          <Card className="glass glow">
+          <Card className="glass border-white/10 shadow-lg glow">
             <CardHeader>
               <CardTitle>Analysis Results</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 glass rounded-lg">
+                <div className="p-4 glass border-white/5 rounded-xl">
                   <div className="text-sm text-muted-foreground mb-1">Buying Total Cost</div>
                   <div className="text-2xl font-bold text-foreground">
                     NPR {result.buyTotal.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                   </div>
                 </div>
-                <div className="p-4 glass rounded-lg">
+                <div className="p-4 glass border-white/5 rounded-xl">
                   <div className="text-sm text-muted-foreground mb-1">Building Total Cost</div>
                   <div className="text-2xl font-bold text-foreground">
                     NPR {result.buildTotal.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -195,7 +202,7 @@ const BuyOrBuild = () => {
                 </div>
               </div>
               
-              <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+              <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl shadow-md">
                 <div className="text-sm font-semibold text-primary mb-2">Recommendation</div>
                 <p className="text-foreground">{result.recommendation}</p>
               </div>

@@ -141,14 +141,21 @@ const Estimate = () => {
   };
 
   return (
-    <div className="min-h-screen pt-32 pb-20">
-      <div className="container mx-auto px-4 max-w-6xl">
+    <div className="min-h-screen pt-32 pb-20 relative overflow-hidden">
+      {/* Liquid Ambient Iridescent Background Mesh (Apple iOS style) */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-1/6 left-1/10 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-primary/20 to-rose-600/10 blur-[130px] liquid-orb-1" />
+        <div className="absolute top-1/2 right-1/10 w-[550px] h-[550px] rounded-full bg-gradient-to-tr from-purple-600/20 to-indigo-600/15 blur-[140px] liquid-orb-2" />
+        <div className="absolute bottom-1/10 left-1/3 w-[450px] h-[450px] rounded-full bg-gradient-to-r from-pink-500/15 to-amber-500/10 blur-[120px] liquid-orb-3" />
+      </div>
+
+      <div className="container mx-auto px-4 max-w-6xl relative z-10">
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Cost <span className="text-primary">Estimate</span>
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">
+            Cost <span className="bg-clip-text text-transparent bg-gradient-to-r from-rose-400 via-primary to-pink-400 font-black">Estimate</span>
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-muted-foreground leading-relaxed">
             Visualize and calculate your dream construction project in 3D
           </p>
         </div>
@@ -169,8 +176,8 @@ const Estimate = () => {
                 </div>
               }>
                 <House3D 
-                  area={(parseFloat(area) || 600) * (parseInt(floors) || 1)} 
-                  floors={parseInt(floors) || 1}
+                  area={(parseFloat(area) || 600) * (parseFloat(floors) || 1)} 
+                  floors={parseFloat(floors) || 1}
                   materialType={materialType || "standard"}
                 />
               </Suspense>
@@ -201,6 +208,7 @@ const Estimate = () => {
                   id="area"
                   type="number"
                   min="1"
+                  step="any"
                   placeholder="Enter area per floor in sq ft"
                   value={area}
                   onChange={(e) => {
@@ -219,13 +227,14 @@ const Estimate = () => {
                 <Input
                   id="floors"
                   type="number"
-                  min="1"
+                  min="0.5"
                   max="10"
-                  placeholder="Enter number of floors"
+                  step="0.1"
+                  placeholder="Enter number of floors (e.g. 2.5)"
                   value={floors}
                   onChange={(e) => {
                     const value = e.target.value;
-                    if (value === "" || (parseFloat(value) >= 1 && parseFloat(value) <= 10)) {
+                    if (value === "" || (parseFloat(value) >= 0.1 && parseFloat(value) <= 10)) {
                       setFloors(value);
                     }
                   }}
@@ -444,12 +453,98 @@ const Estimate = () => {
         {/* Tool Suggestions */}
         {showResults && <ToolSuggestions />}
 
+        {/* Lead Generation & Formal BOQ Request Form */}
+        <Card className="glass p-8 mt-12 border-primary/30 shadow-xl max-w-4xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+              Personalized Engineering Analysis
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-foreground mt-3">
+              Request Official BOQ & Free Site Inspection
+            </h3>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-2">
+              Our Senior Civil Engineers in <strong>Butwal</strong> and <strong>Dang (Ghorahi & Tulsipur)</strong> will review your land dimensions, provide structural recommendations, and deliver a formal itemized quotation.
+            </p>
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const name = (form.elements.namedItem("clientName") as HTMLInputElement).value;
+              const phone = (form.elements.namedItem("clientPhone") as HTMLInputElement).value;
+              const location = (form.elements.namedItem("clientLocation") as HTMLSelectElement).value;
+              const plotSize = (form.elements.namedItem("plotSize") as HTMLInputElement).value;
+              const bType = (form.elements.namedItem("buildingType") as HTMLSelectElement).value;
+              const msg = (form.elements.namedItem("clientNotes") as HTMLTextAreaElement).value;
+
+              const text = `*New Construction Estimate Request*\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Location:* ${location}\n*Plot Size:* ${plotSize}\n*Built-up Area:* ${area || "N/A"} sq.ft (${floors} Floors)\n*Building Type:* ${bType}\n*Notes:* ${msg || "Looking for consultation"}`;
+              
+              window.open(`https://wa.me/9779763653181?text=${encodeURIComponent(text)}`, '_blank');
+            }}
+            className="space-y-4"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="clientName">Your Full Name *</Label>
+                <Input id="clientName" name="clientName" required placeholder="e.g. Ram Prasad Sharma" className="glass" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="clientPhone">Phone / WhatsApp Number *</Label>
+                <Input id="clientPhone" name="clientPhone" required placeholder="e.g. 98570XXXXX" className="glass" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="clientLocation">Project Location *</Label>
+                <select id="clientLocation" name="clientLocation" required className="w-full h-10 px-3 rounded-md bg-background border border-input text-sm">
+                  <option value="Butwal, Rupandehi">Butwal, Rupandehi</option>
+                  <option value="Tilottama, Rupandehi">Tilottama, Rupandehi</option>
+                  <option value="Ghorahi, Dang">Ghorahi, Dang</option>
+                  <option value="Tulsipur, Dang">Tulsipur, Dang</option>
+                  <option value="Lamahi, Dang">Lamahi, Dang</option>
+                  <option value="Other Dang Region">Other Dang Region</option>
+                  <option value="Other Western Nepal">Other Western Nepal</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="plotSize">Plot Size (Land Area)</Label>
+                <Input id="plotSize" name="plotSize" placeholder="e.g. 10 Dhur / 1 Kattha" className="glass" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="buildingType">Building Type</Label>
+                <select id="buildingType" name="buildingType" className="w-full h-10 px-3 rounded-md bg-background border border-input text-sm">
+                  <option value="Residential House (Turnkey)">Residential House (Turnkey)</option>
+                  <option value="Modern Villa / Duplex">Modern Villa / Duplex</option>
+                  <option value="Commercial Complex">Commercial Complex</option>
+                  <option value="Mixed Use (Shops + Flat)">Mixed Use (Shops + Flat)</option>
+                  <option value="Renovation / Extension">Renovation / Extension</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="clientNotes">Additional Requirements / Notes</Label>
+              <textarea 
+                id="clientNotes" 
+                name="clientNotes" 
+                rows={3} 
+                placeholder="Tell us about your timeline, special architectural preferences, or budget range..."
+                className="w-full p-3 rounded-md bg-background border border-input text-sm glass"
+              />
+            </div>
+
+            <Button type="submit" size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-12 text-base shadow-lg">
+              Submit & Connect with Engineer on WhatsApp
+            </Button>
+          </form>
+        </Card>
+
         {/* Disclaimer */}
         <Card className="glass p-6 mt-8">
           <p className="text-sm text-muted-foreground text-center">
-            <strong className="text-foreground">Note:</strong> This is an approximate estimate. 
-            Actual costs may vary based on specific project requirements, location, and market rates. 
-            Contact us for a detailed quotation.
+            <strong className="text-foreground">Engineering Note:</strong> Rates are calculated based on standard NBC 105:2020 seismic guidelines and prevailing market rates for Butwal & Dang. Actual costs may vary slightly based on soil conditions, architectural complexity, and custom luxury finishes.
           </p>
         </Card>
       </div>

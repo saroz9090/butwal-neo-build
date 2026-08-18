@@ -107,8 +107,8 @@ const Partnerships = () => {
                 <div className="text-sm text-muted-foreground">Completed Projects</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">15+</div>
-                <div className="text-sm text-muted-foreground">Years Experience</div>
+                <div className="text-3xl font-bold text-primary mb-2">100%</div>
+                <div className="text-sm text-muted-foreground">NBC Code & Quality Guarantee</div>
               </div>
             </div>
             <div className="pt-6 space-y-2 text-sm text-muted-foreground">

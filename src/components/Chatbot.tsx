@@ -15,18 +15,28 @@ export const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      const greeting = chatbotData.greetings[Math.floor(Math.random() * chatbotData.greetings.length)];
+      const greeting = `If you are looking for top-quality and reliable construction services in Nepal, both Butwal Construction and Dang Construction are excellent choices!
+
+Here is why they stand out:
+- Expert Engineering: Specialized in earthquake-resistant structures compliant with the Nepal National Building Code.
+- Modern Architectural & Floor Planning: Customized 2D/3D house maps and modern interior/exterior designs.
+- Quality & Trust: Experienced engineers, quality materials, transparent pricing, and timely completion.
+
+To help you choose the best option for your needs, could you share:
+1. Location: Where is your project site located (e.g., Butwal, Dang, or another region)?
+2. Project Type: Are you planning a residential home, commercial building, or just need a floor plan/design?`;
       setMessages([{ text: greeting, isBot: true, timestamp: new Date() }]);
     }
   }, [isOpen]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isTyping]);
 
   const findResponse = (userInput: string): string => {
     const lowercaseInput = userInput.toLowerCase();
@@ -40,26 +50,60 @@ export const Chatbot = () => {
     return chatbotData.fallback[Math.floor(Math.random() * chatbotData.fallback.length)];
   };
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = async () => {
+    const trimmedInput = input.trim();
+    if (!trimmedInput) return;
 
     const userMessage: Message = {
-      text: input,
+      text: trimmedInput,
       isBot: false,
       timestamp: new Date()
     };
 
     setMessages(prev => [...prev, userMessage]);
     setInput("");
+    setIsTyping(true);
 
-    setTimeout(() => {
+    // Fast local response determination in case of network issue
+    const localFallback = findResponse(trimmedInput);
+
+    try {
+      // AbortController for quick timeout if server is slow
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: trimmedInput }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      
       const botResponse: Message = {
-        text: findResponse(input),
+        text: data.reply || localFallback,
         isBot: true,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, botResponse]);
-    }, 600);
+    } catch (error) {
+      console.warn("Fast fallback to local knowledge base:", error);
+      const botResponse: Message = {
+        text: localFallback,
+        isBot: true,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, botResponse]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   return (
@@ -106,6 +150,18 @@ export const Chatbot = () => {
                 </div>
               </div>
             ))}
+            {isTyping && (
+              <div className="flex justify-start animate-fade-in">
+                <div className="bg-muted text-foreground max-w-[80%] rounded-2xl px-4 py-2.5 flex flex-col gap-1.5 shadow-md">
+                  <div className="flex items-center gap-1.5 py-1">
+                    <span className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
+                    <span className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
+                    <span className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+                  </div>
+                  <span className="text-[10px] text-muted-foreground font-bold tracking-wider uppercase">Assistant is replying...</span>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
 

@@ -12,126 +12,151 @@ interface House3DProps {
 function HouseModel({ area, floors, materialType = "standard" }: House3DProps) {
   const groupRef = useRef<THREE.Group>(null);
   
-  // Much larger scaling for proper size - 1000 sq ft should look substantial
-  const baseScale = 0.25; // Increased from 0.15
+  const baseScale = 0.25; 
   const width = Math.sqrt(area) * baseScale;
   const depth = width * 0.8;
-  const floorHeight = 4; // Taller floors
+  const floorHeight = 4; 
   const totalHeight = floors * floorHeight;
-
-  // Much larger ground to accommodate big house
   const groundSize = Math.max(60, width * 4);
 
+  // Slow ambient rotation for showcase presentation
   useFrame(() => {
     if (groupRef.current) {
-      groupRef.current.rotation.y += 0.001;
+      groupRef.current.rotation.y += 0.0012;
     }
   });
 
-  // Better car model
-  const Car = ({ position, color }: { position: [number, number, number], color: string }) => (
-    <group position={position}>
-      {/* Car body */}
-      <mesh position={[0, 0.4, 0]}>
-        <boxGeometry args={[2.5, 0.4, 1.2]} />
-        <meshStandardMaterial color={color} />
+  // Modern stylized Sedan / SUV
+  const Car = ({ position, color, rotationY = 0 }: { position: [number, number, number], color: string, rotationY?: number }) => (
+    <group position={position} rotation={[0, rotationY, 0]}>
+      {/* Car chassis / lower body */}
+      <mesh position={[0, 0.35, 0]} castShadow receiveShadow>
+        <boxGeometry args={[2.6, 0.45, 1.25]} />
+        <meshStandardMaterial color={color} roughness={0.2} metalness={0.8} />
       </mesh>
-      <mesh position={[0, 0.8, 0]}>
-        <boxGeometry args={[2.2, 0.4, 1.2]} />
-        <meshStandardMaterial color={color} />
+      
+      {/* Car cabin / upper body */}
+      <mesh position={[-0.1, 0.75, 0]} castShadow receiveShadow>
+        <boxGeometry args={[1.5, 0.45, 1.15]} />
+        <meshStandardMaterial color={color} roughness={0.2} metalness={0.8} />
       </mesh>
-      {/* Windshield */}
-      <mesh position={[0, 1.0, 0.3]}>
-        <boxGeometry args={[1.8, 0.3, 0.5]} />
-        <meshStandardMaterial color="#87CEEB" transparent opacity={0.7} />
+
+      {/* Windshield & Windows */}
+      <mesh position={[0.66, 0.75, 0]} rotation={[0, 0, -0.4]} castShadow>
+        <boxGeometry args={[0.1, 0.4, 1.0]} />
+        <meshStandardMaterial color="#111111" transparent opacity={0.8} roughness={0.1} />
       </mesh>
+      <mesh position={[-0.1, 0.75, 0.58]} castShadow>
+        <boxGeometry args={[1.2, 0.35, 0.02]} />
+        <meshStandardMaterial color="#111111" transparent opacity={0.8} roughness={0.1} />
+      </mesh>
+      <mesh position={[-0.1, 0.75, -0.58]} castShadow>
+        <boxGeometry args={[1.2, 0.35, 0.02]} />
+        <meshStandardMaterial color="#111111" transparent opacity={0.8} roughness={0.1} />
+      </mesh>
+
+      {/* Glowing Headlights */}
+      {[-0.45, 0.45].map((z, i) => (
+        <group key={`light-${i}`} position={[1.3, 0.35, z]}>
+          <mesh>
+            <sphereGeometry args={[0.1, 8, 8]} />
+            <meshBasicMaterial color="#FFFFDD" />
+          </mesh>
+          <pointLight color="#FFFFEE" intensity={1.5} distance={8} decay={1.5} />
+        </group>
+      ))}
+
       {/* Wheels */}
       {(
         [
-          [-0.8, 0.2, 0.6] as [number, number, number],
-          [0.8, 0.2, 0.6] as [number, number, number],
-          [-0.8, 0.2, -0.6] as [number, number, number],
-          [0.8, 0.2, -0.6] as [number, number, number]
+          [-0.75, 0.2, 0.6] as [number, number, number],
+          [0.75, 0.2, 0.6] as [number, number, number],
+          [-0.75, 0.2, -0.6] as [number, number, number],
+          [0.75, 0.2, -0.6] as [number, number, number]
         ]
       ).map((pos, i) => (
-        <mesh key={`wheel-${i}`} position={pos} rotation={[Math.PI/2, 0, 0]}>
-          <cylinderGeometry args={[0.2, 0.2, 0.15, 12]} />
-          <meshStandardMaterial color="#333333" />
+        <mesh key={`wheel-${i}`} position={pos} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <cylinderGeometry args={[0.24, 0.24, 0.2, 16]} />
+          <meshStandardMaterial color="#111111" roughness={0.9} />
         </mesh>
       ))}
     </group>
   );
 
-  // Better motorcycle model
-  const Motorcycle = ({ position, color }: { position: [number, number, number], color: string }) => (
-    <group position={position}>
-      {/* Main body */}
-      <mesh position={[0, 0.3, 0]}>
-        <boxGeometry args={[0.2, 0.15, 2.0]} />
-        <meshStandardMaterial color="#333333" />
+  const Motorcycle = ({ position, color, rotationY = 0 }: { position: [number, number, number], color: string, rotationY?: number }) => (
+    <group position={position} rotation={[0, rotationY, 0]}>
+      {/* Frame */}
+      <mesh position={[0, 0.4, 0]} castShadow>
+        <boxGeometry args={[0.18, 0.2, 1.8]} />
+        <meshStandardMaterial color="#222222" roughness={0.5} />
       </mesh>
-      {/* Seat */}
-      <mesh position={[0, 0.4, 0.3]}>
-        <boxGeometry args={[0.4, 0.1, 0.6]} />
-        <meshStandardMaterial color={color} />
+      {/* Gas Tank */}
+      <mesh position={[0, 0.6, -0.2]} castShadow>
+        <boxGeometry args={[0.3, 0.3, 0.6]} />
+        <meshStandardMaterial color={color} roughness={0.2} metalness={0.8} />
       </mesh>
-      {/* Fuel tank */}
-      <mesh position={[0, 0.5, -0.3]}>
-        <boxGeometry args={[0.3, 0.25, 0.4]} />
-        <meshStandardMaterial color={color} />
+      {/* Engine seat */}
+      <mesh position={[0, 0.5, 0.3]} castShadow>
+        <boxGeometry args={[0.26, 0.1, 0.5]} />
+        <meshStandardMaterial color="#111111" roughness={0.8} />
+      </mesh>
+      {/* Front Fork */}
+      <mesh position={[0, 0.65, -0.7]} rotation={[0.2, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.04, 0.04, 0.9, 8]} />
+        <meshStandardMaterial color="#CCCCCC" metalness={0.9} roughness={0.1} />
       </mesh>
       {/* Handlebars */}
-      <mesh position={[0, 0.6, 0.8]} rotation={[0, 0, Math.PI/2]}>
-        <cylinderGeometry args={[0.03, 0.03, 0.8, 8]} />
-        <meshStandardMaterial color="#333333" />
+      <mesh position={[0, 1.0, -0.65]} rotation={[0, 0, Math.PI / 2]} castShadow>
+        <cylinderGeometry args={[0.03, 0.03, 0.7, 8]} />
+        <meshStandardMaterial color="#222222" />
       </mesh>
       {/* Wheels */}
       {(
         [
-          [0, 0.15, 0.8] as [number, number, number],
-          [0, 0.15, -0.8] as [number, number, number]
+          [0, 0.22, 0.7] as [number, number, number],
+          [0, 0.22, -0.7] as [number, number, number]
         ]
       ).map((pos, i) => (
-        <mesh key={`bike-wheel-${i}`} position={pos} rotation={[Math.PI/2, 0, 0]}>
-          <cylinderGeometry args={[0.2, 0.2, 0.08, 12]} />
-          <meshStandardMaterial color="#333333" />
+        <mesh key={`bike-wheel-${i}`} position={pos} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <cylinderGeometry args={[0.25, 0.25, 0.12, 16]} />
+          <meshStandardMaterial color="#111111" roughness={0.9} />
         </mesh>
       ))}
     </group>
   );
 
-  // Material-based styling
+  // Modern Premium Architectural Colors
   const getHouseColors = () => {
     switch(materialType) {
       case "premium":
         return {
-          wall: "#FFF8F0",
-          foundation: "#8B7355",
-          roof: "#2C2C2C",
-          door: "#654321",
-          window: "#ADD8E6",
-          balcony: "#999999",
-          parapet: "#E5E5E5"
+          wall: "#FAF7F2",       // Warm Ivory
+          foundation: "#4E443C", // Deep Earth Umber
+          roof: "#1D2228",       // Charcoal Slate Blue
+          door: "#52321C",       // Rich Teak Wood
+          window: "#EBF3F9",     // Clear Pale Blue
+          balcony: "#3A3A3A",    // Matte Gunmetal
+          parapet: "#EFEAE4"     // Soft Off-white
         };
       case "luxury":
         return {
-          wall: "#FFFAF0",
-          foundation: "#A0826D",
-          roof: "#1A1A1A",
-          door: "#3E2723",
-          window: "#B0E0E6",
-          balcony: "#BDBDBD",
-          parapet: "#F5F5F5"
+          wall: "#FFFFFF",       // Pure Arctic White
+          foundation: "#363636", // Sleek Basalt Black
+          roof: "#151515",       // Pitch Black Obsidian
+          door: "#2E1C14",       // Exotic Dark Walnut
+          window: "#D9EAF7",     // Reflective Ice Glass
+          balcony: "#D4AF37",    // Anodized Champagne Gold Highlights
+          parapet: "#F8F8F8"     // Clean Alabaster
         };
       default: // standard
         return {
-          wall: "#F8F8F8",
-          foundation: "#7A6C5D",
-          roof: "#2C2C2C",
-          door: "#8B4513",
-          window: "#87CEEB",
-          balcony: "#666666",
-          parapet: "#E8E8E8"
+          wall: "#F2EFEB",       // Clean light warm grey
+          foundation: "#5C564E", // Natural Granite Grey
+          roof: "#2A2F35",       // Slate Graphite
+          door: "#783F27",       // Polished Cedar
+          window: "#E5ECEF",     // Standard Sky Reflection Glass
+          balcony: "#4D4D4D",    // Cool Silver Grey
+          parapet: "#EAE6E2"     // Neutral Warm White
         };
     }
   };
@@ -142,291 +167,384 @@ function HouseModel({ area, floors, materialType = "standard" }: House3DProps) {
 
   return (
     <group ref={groupRef}>
-      {/* Massive foundation for big house */}
-      <mesh position={[0, -0.4, 0]}>
-        <boxGeometry args={[width + 1.5, 0.8, depth + 1.5]} />
-        <meshStandardMaterial color={colors.foundation} roughness={0.9} />
+      {/* Ground plane with subtle texture Grid and shadow receiver */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
+        <planeGeometry args={[groundSize, groundSize]} />
+        <meshStandardMaterial color="#4A6E4A" roughness={1.0} />
       </mesh>
 
-      {/* Main house structure - much larger */}
-      <group position={[0, 0.4, 0]}>
-        {/* Building walls */}
-        <mesh position={[0, totalHeight / 2, 0]}>
+      {/* Modern interlocked path walkway around building */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]} receiveShadow>
+        <planeGeometry args={[width + 4.5, depth + 4.5]} />
+        <meshStandardMaterial color="#333333" roughness={0.9} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]} receiveShadow>
+        <planeGeometry args={[width + 4.0, depth + 4.0]} />
+        <meshStandardMaterial color="#D0D0D0" roughness={0.8} />
+      </mesh>
+
+      {/* Massive polished foundation for the estate */}
+      <mesh position={[0, 0.35, 0]} castShadow receiveShadow>
+        <boxGeometry args={[width + 1.2, 0.7, depth + 1.2]} />
+        <meshStandardMaterial color={colors.foundation} roughness={0.7} metalness={0.2} />
+      </mesh>
+
+      {/* Main architectural house structure */}
+      <group position={[0, 0.7, 0]}>
+        {/* Exterior Walls */}
+        <mesh position={[0, totalHeight / 2, 0]} castShadow receiveShadow>
           <boxGeometry args={[width, totalHeight, depth]} />
-          <meshStandardMaterial color={colors.wall} roughness={0.6} metalness={materialType === "luxury" ? 0.1 : 0} />
+          <meshStandardMaterial color={colors.wall} roughness={0.65} metalness={0.02} />
         </mesh>
 
-        {/* Decorative pillars for premium & luxury */}
+        {/* Vertical Wooden Accent Panels for modern aesthetic */}
+        {[-width / 2 + 0.5, width / 2 - 0.5].map((x, i) => (
+          <mesh key={`accent-${i}`} position={[x, totalHeight / 2, depth / 2 + 0.04]} castShadow receiveShadow>
+            <boxGeometry args={[0.8, totalHeight * 0.9, 0.08]} />
+            <meshStandardMaterial color={colors.door} roughness={0.4} />
+          </mesh>
+        ))}
+
+        {/* Decorative architectural pillars */}
         {(materialType === "premium" || materialType === "luxury") && (
           <>
-            {[-width/2 - 0.3, width/2 + 0.3].map((x, i) => (
-              <mesh key={`pillar-${i}`} position={[x, totalHeight / 2, depth/2 + 0.3]}>
-                <cylinderGeometry args={[0.25, 0.25, totalHeight, 12]} />
-                <meshStandardMaterial color={colors.foundation} roughness={0.4} metalness={0.3} />
+            {[-width / 2 - 0.25, width / 2 + 0.25].map((x, i) => (
+              <mesh key={`pillar-${i}`} position={[x, totalHeight / 2, depth / 2 + 0.4]} castShadow receiveShadow>
+                <cylinderGeometry args={[0.22, 0.22, totalHeight, 16]} />
+                <meshStandardMaterial color={colors.foundation} roughness={0.3} metalness={0.4} />
               </mesh>
             ))}
           </>
         )}
 
-        {/* Floor separations */}
+        {/* Floor separating slabs with modern overhangs */}
         {Array.from({ length: floors - 1 }).map((_, index) => (
-          <mesh key={`floor-${index}`} position={[0, (index + 1) * floorHeight, 0]}>
-            <boxGeometry args={[width + 0.2, 0.2, depth + 0.2]} />
-            <meshStandardMaterial color="#CCCCCC" />
+          <mesh key={`floor-${index}`} position={[0, (index + 1) * floorHeight, 0]} castShadow receiveShadow>
+            <boxGeometry args={[width + 0.6, 0.25, depth + 0.6]} />
+            <meshStandardMaterial color={colors.parapet} roughness={0.5} />
           </mesh>
         ))}
 
-        {/* Large windows for big house */}
+        {/* Large 3D Windows with frames & reflection effect */}
         {Array.from({ length: floors }).map((_, floorIndex) => {
-          const windowCount = Math.max(3, Math.floor(width / 4));
+          const windowCount = Math.max(3, Math.floor(width / 4.5));
           return (
             <group key={`floor-${floorIndex}`}>
-              {/* Front windows */}
-              {[...Array(windowCount)].map((_, i) => (
-                <group key={`front-${i}`}>
-                  <mesh 
-                    position={[
-                      -width/2 + (i + 1) * (width / (windowCount + 1)),
-                      floorIndex * floorHeight + 2.0,
-                      depth/2 + 0.02
-                    ]}
-                  >
-                    <boxGeometry args={[1.8, 2.0, 0.05]} />
-                    <meshStandardMaterial color={colors.window} transparent opacity={0.8} />
-                  </mesh>
-                  <mesh 
-                    position={[
-                      -width/2 + (i + 1) * (width / (windowCount + 1)),
-                      floorIndex * floorHeight + 2.0,
-                      depth/2 + 0.035
-                    ]}
-                  >
-                    <boxGeometry args={[1.9, 2.1, 0.03]} />
-                    <meshStandardMaterial color="#333333" />
-                  </mesh>
-                </group>
-              ))}
+              {/* Front Windows with Depth Frame */}
+              {[...Array(windowCount)].map((_, i) => {
+                const posX = -width / 2 + (i + 1) * (width / (windowCount + 1));
+                const posY = floorIndex * floorHeight + 2.1;
+                const posZ = depth / 2 + 0.01;
+                return (
+                  <group key={`front-win-${i}`}>
+                    {/* Glass Pane */}
+                    <mesh position={[posX, posY, posZ + 0.02]} castShadow>
+                      <boxGeometry args={[1.7, 1.9, 0.04]} />
+                      <meshStandardMaterial color={colors.window} transparent opacity={0.8} roughness={0.05} metalness={0.9} />
+                    </mesh>
+                    {/* Premium Outer Window Frame */}
+                    <mesh position={[posX, posY, posZ + 0.01]} castShadow>
+                      <boxGeometry args={[1.85, 2.05, 0.08]} />
+                      <meshStandardMaterial color="#1A1A1A" roughness={0.3} />
+                    </mesh>
+                  </group>
+                );
+              })}
             </group>
           );
         })}
 
-        {/* Large main entrance */}
-        <mesh position={[0, 2.0, depth/2 + 0.02]}>
-          <boxGeometry args={[2.0, 3.0, 0.1]} />
-          <meshStandardMaterial color={colors.door} roughness={0.8} />
-        </mesh>
+        {/* Sophisticated Dual-Wing Main Entrance Door with Frame */}
+        <group position={[0, 1.5, depth / 2 + 0.01]}>
+          {/* Main Frame */}
+          <mesh position={[0, 0, 0.04]} castShadow>
+            <boxGeometry args={[2.3, 3.1, 0.12]} />
+            <meshStandardMaterial color="#222222" roughness={0.5} />
+          </mesh>
+          {/* Timber Doors */}
+          <mesh position={[0, 0, 0.06]} castShadow receiveShadow>
+            <boxGeometry args={[2.1, 2.9, 0.08]} />
+            <meshStandardMaterial color={colors.door} roughness={0.3} />
+          </mesh>
+          {/* Polished Metal Handles */}
+          {[-0.15, 0.15].map((x, i) => (
+            <mesh key={`handle-${i}`} position={[x, 0, 0.11]} castShadow>
+              <cylinderGeometry args={[0.03, 0.03, 0.7, 8]} />
+              <meshStandardMaterial color={materialType === "luxury" ? "#D4AF37" : "#EEEEEE"} metalness={0.9} roughness={0.1} />
+            </mesh>
+          ))}
+        </group>
 
-        {/* Big balconies for upper floors */}
-        {Array.from({ length: floors - 1 }).map((_, index) => (
-          <group key={`balcony-${index}`} position={[0, (index + 1) * floorHeight + 0.1, depth/2 + 0.5]}>
-            <mesh>
-              <boxGeometry args={[width * 0.8, 0.15, 1.0]} />
-              <meshStandardMaterial color="#666666" />
-            </mesh>
-            <mesh position={[0, 0.8, -0.4]}>
-              <boxGeometry args={[width * 0.8, 1.5, 0.08]} />
-              <meshStandardMaterial color={colors.balcony} metalness={0.3} />
-            </mesh>
-          </group>
-        ))}
+        {/* Premium Balconies with Steel-Glass Railings */}
+        {Array.from({ length: floors - 1 }).map((_, index) => {
+          const balconyY = (index + 1) * floorHeight + 0.1;
+          const balconyZ = depth / 2 + 0.5;
+          return (
+            <group key={`balcony-${index}`} position={[0, balconyY, balconyZ]}>
+              {/* Balcony Concrete Slab Base */}
+              <mesh castShadow receiveShadow>
+                <boxGeometry args={[width * 0.85, 0.2, 1.1]} />
+                <meshStandardMaterial color={colors.parapet} roughness={0.6} />
+              </mesh>
+              {/* Semi-Transparent Glass Railing Panel */}
+              <mesh position={[0, 0.6, 0.52]} castShadow>
+                <boxGeometry args={[width * 0.83, 1.0, 0.05]} />
+                <meshStandardMaterial color="#87CEEB" transparent opacity={0.5} roughness={0.1} />
+              </mesh>
+              {/* Top Guard Rail Post */}
+              <mesh position={[0, 1.1, 0.52]} castShadow>
+                <boxGeometry args={[width * 0.85, 0.06, 0.08]} />
+                <meshStandardMaterial color={colors.balcony} metalness={0.8} roughness={0.2} />
+              </mesh>
+              {/* Vertical Metal support posts */}
+              {[-width * 0.4, -width * 0.2, 0, width * 0.2, width * 0.4].map((x, i) => (
+                <mesh key={`post-${i}`} position={[x, 0.5, 0.52]} castShadow>
+                  <cylinderGeometry args={[0.04, 0.04, 1.0, 8]} />
+                  <meshStandardMaterial color={colors.balcony} metalness={0.8} roughness={0.2} />
+                </mesh>
+              ))}
+            </group>
+          );
+        })}
       </group>
 
-      {/* Large roof */}
-      <mesh position={[0, totalHeight + 0.2, 0]}>
-        <boxGeometry args={[width + 0.8, 0.3, depth + 0.8]} />
-        <meshStandardMaterial color={colors.roof} roughness={0.7} />
+      {/* Main Roof Trim Base with wide eaves / overhangs */}
+      <mesh position={[0, totalHeight + 0.8, 0]} castShadow receiveShadow>
+        <boxGeometry args={[width + 0.9, 0.35, depth + 0.9]} />
+        <meshStandardMaterial color={colors.roof} roughness={0.5} />
       </mesh>
 
-      {/* Rooftop parapet */}
-      <mesh position={[0, totalHeight + 0.5, 0]}>
-        <boxGeometry args={[width + 1.0, 0.4, depth + 1.0]} />
-        <meshStandardMaterial color={colors.parapet} />
-      </mesh>
-
-      {/* Large parking area positioned properly */}
-      <group position={[width/2 + 6, 0, -depth/2]}>
-        {/* Parking surface */}
-        <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[12, 8]} />
-          <meshStandardMaterial color="#555555" roughness={0.8} />
+      {/* Contemporary Slanted Pitched Roof / Penthouse */}
+      <group position={[0, totalHeight + 0.9, 0]}>
+        {/* Penthouse structure */}
+        <mesh position={[0, 0.8, 0]} castShadow receiveShadow>
+          <boxGeometry args={[width * 0.65, 1.6, depth * 0.65]} />
+          <meshStandardMaterial color={colors.wall} roughness={0.7} />
+        </mesh>
+        
+        {/* Slanted architectural roof top */}
+        <mesh position={[0, 1.7, 0]} rotation={[0.06, 0, 0]} castShadow receiveShadow>
+          <boxGeometry args={[width * 0.72, 0.25, depth * 0.72]} />
+          <meshStandardMaterial color={colors.roof} roughness={0.4} />
         </mesh>
 
-        {/* Parking lines */}
-        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[11.5, 7.5]} />
-          <meshStandardMaterial color="#FFFFFF" transparent opacity={0.8} />
+        {/* Solar Panels on the roof block */}
+        <mesh position={[0, 1.84, 0]} rotation={[-0.03, 0, 0]}>
+          <boxGeometry args={[width * 0.5, 0.04, depth * 0.4]} />
+          <meshStandardMaterial color="#102540" roughness={0.1} metalness={0.8} />
         </mesh>
 
-        {/* Vehicles */}
-        <Car position={[-2, 0, 0]} color="#FF4444" />
-        <Car position={[2, 0, 2.5]} color="#3366CC" />
-        <Motorcycle position={[3, 0, -2]} color="#FF3366" />
-        <Motorcycle position={[-3, 0, -2]} color="#33CC33" />
+        {/* Brick chimney */}
+        <mesh position={[width * 0.22, 1.6, -depth * 0.18]} castShadow>
+          <boxGeometry args={[0.75, 2.5, 0.75]} />
+          <meshStandardMaterial color="#A0522D" roughness={0.85} />
+        </mesh>
+        {/* Metal Cap of Chimney */}
+        <mesh position={[width * 0.22, 2.85, -depth * 0.18]} castShadow>
+          <boxGeometry args={[0.85, 0.08, 0.85]} />
+          <meshStandardMaterial color="#222222" metalness={0.9} />
+        </mesh>
       </group>
 
-      {/* Very large ground */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.2, 0]}>
-        <planeGeometry args={[groundSize, groundSize]} />
-        <meshStandardMaterial color="#5A7D5A" roughness={1} />
+      {/* Rooftop Parapet wall protection */}
+      <mesh position={[0, totalHeight + 1.15, 0]} castShadow receiveShadow>
+        <boxGeometry args={[width + 0.8, 0.4, depth + 0.8]} />
+        <meshStandardMaterial color={colors.parapet} roughness={0.7} />
       </mesh>
 
-      {/* Compound wall for premium & luxury */}
+      {/* Spacious Dedicated Parking with high quality driveway */}
+      <group position={[width / 2 + 7.5, 0, -depth / 2 + 1]}>
+        {/* Paving block driveway */}
+        <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[13, 9]} />
+          <meshStandardMaterial color="#444444" roughness={0.95} />
+        </mesh>
+
+        {/* Minimal White grid divider border lines */}
+        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[12.6, 8.6]} />
+          <meshStandardMaterial color="#FFFFFF" transparent opacity={0.6} />
+        </mesh>
+        <mesh position={[0, 0.022, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[12.4, 8.4]} />
+          <meshStandardMaterial color="#3A3A3A" roughness={0.95} />
+        </mesh>
+
+        {/* Modern low-poly stylized cars and bikes */}
+        <Car position={[-2.4, 0, 0.5]} color="#D32F2F" rotationY={Math.PI / 18} />
+        <Car position={[2.4, 0, 1.8]} color="#1565C0" rotationY={-Math.PI / 12} />
+        <Motorcycle position={[2.8, 0, -2.4]} color="#FBC02D" rotationY={Math.PI / 6} />
+        <Motorcycle position={[-2.8, 0, -2.4]} color="#388E3C" rotationY={-Math.PI / 8} />
+      </group>
+
+      {/* Compound Boundary Wall for Luxury / Premium Estates */}
       {hasCompound && (
         <>
-          {/* Front compound wall with gate */}
-          <group>
-            {/* Left wall section */}
-            <mesh position={[-groundSize/4, 1.5, depth + 8]}>
-              <boxGeometry args={[groundSize/2.5, 3, 0.3]} />
+          <group position={[0, 0, 0]}>
+            {/* Left Gate Wall */}
+            <mesh position={[-groundSize / 3.8, 1.2, depth + 6]} castShadow receiveShadow>
+              <boxGeometry args={[groundSize / 2.6, 2.4, 0.35]} />
               <meshStandardMaterial color={colors.foundation} roughness={0.7} />
             </mesh>
-            {/* Right wall section */}
-            <mesh position={[groundSize/4, 1.5, depth + 8]}>
-              <boxGeometry args={[groundSize/2.5, 3, 0.3]} />
+            {/* Right Gate Wall */}
+            <mesh position={[groundSize / 3.8, 1.2, depth + 6]} castShadow receiveShadow>
+              <boxGeometry args={[groundSize / 2.6, 2.4, 0.35]} />
               <meshStandardMaterial color={colors.foundation} roughness={0.7} />
             </mesh>
-            {/* Gate pillars */}
-            {[-2.5, 2.5].map((x, i) => (
-              <mesh key={`gate-pillar-${i}`} position={[x, 2, depth + 8]}>
-                <boxGeometry args={[0.6, 4, 0.6]} />
-                <meshStandardMaterial color={colors.foundation} roughness={0.5} />
+            {/* Premium Pillars flanking the Entry gate */}
+            {[-3.2, 3.2].map((x, i) => (
+              <mesh key={`gate-pil-${i}`} position={[x, 1.5, depth + 6]} castShadow receiveShadow>
+                <boxGeometry args={[0.7, 3.0, 0.7]} />
+                <meshStandardMaterial color={colors.foundation} roughness={0.4} metalness={0.2} />
               </mesh>
             ))}
           </group>
-          {/* Side walls */}
-          <mesh position={[-groundSize/3, 1.5, 0]}>
-            <boxGeometry args={[0.3, 3, groundSize * 0.6]} />
+          {/* Side boundary walls */}
+          <mesh position={[-groundSize / 2.3, 1.2, 0]} castShadow receiveShadow>
+            <boxGeometry args={[0.35, 2.4, groundSize * 0.75]} />
             <meshStandardMaterial color={colors.foundation} roughness={0.7} />
           </mesh>
-          <mesh position={[groundSize/3, 1.5, 0]}>
-            <boxGeometry args={[0.3, 3, groundSize * 0.6]} />
+          <mesh position={[groundSize / 2.3, 1.2, 0]} castShadow receiveShadow>
+            <boxGeometry args={[0.35, 2.4, groundSize * 0.75]} />
             <meshStandardMaterial color={colors.foundation} roughness={0.7} />
           </mesh>
         </>
       )}
 
-      {/* Swimming pool for luxury */}
+      {/* Luxury Swimming Pool with water refraction & wooden sun-deck */}
       {hasPool && (
-        <group position={[-width - 8, 0, 0]}>
-          {/* Pool base */}
-          <mesh position={[0, -0.5, 0]}>
-            <boxGeometry args={[8, 1, 4]} />
-            <meshStandardMaterial color="#1E90FF" transparent opacity={0.8} roughness={0.1} metalness={0.3} />
+        <group position={[-width - 7, 0, 1]}>
+          {/* Wooden deck */}
+          <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+            <planeGeometry args={[11, 7]} />
+            <meshStandardMaterial color="#8B5A2B" roughness={0.5} />
           </mesh>
-          {/* Pool deck */}
-          <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[10, 6]} />
-            <meshStandardMaterial color="#D2B48C" roughness={0.6} />
+          {/* Blue pool base basin */}
+          <mesh position={[0, -0.4, 0]} castShadow receiveShadow>
+            <boxGeometry args={[9, 0.8, 5]} />
+            <meshStandardMaterial color="#005A9C" roughness={0.4} />
+          </mesh>
+          {/* Water reflection layer */}
+          <mesh position={[0, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[8.4, 4.4]} />
+            <meshStandardMaterial color="#40E0D0" transparent opacity={0.65} roughness={0.01} metalness={0.9} />
           </mesh>
         </group>
       )}
 
-      {/* Extensive garden with flowers and vegetation */}
+      {/* Fully Landscaped Garden with dynamic organic greenery */}
       <group>
-        {/* Large trees around property */}
+        {/* Premium stylized tall palm / pine trees */}
         {(
           [
             [-width - 8, 0, -depth - 6] as [number, number, number],
-            [width + 8, 0, depth + 6] as [number, number, number],
-            [-width - 6, 0, depth + 8] as [number, number, number],
-            [width + 6, 0, -depth - 8] as [number, number, number],
-            [-groundSize/4, 0, -groundSize/4] as [number, number, number],
-            [groundSize/4, 0, groundSize/4] as [number, number, number]
+            [width + 9, 0, depth + 8] as [number, number, number],
+            [-width - 7, 0, depth + 9] as [number, number, number],
+            [width + 8, 0, -depth - 9] as [number, number, number],
+            [-groundSize / 3.4, 0, -groundSize / 3.4] as [number, number, number],
+            [groundSize / 3.4, 0, groundSize / 3.4] as [number, number, number]
           ]
         ).map((pos, i) => (
-          <group key={`tree-${i}`} position={pos}>
-            <mesh position={[0, 2.5, 0]}>
-              <cylinderGeometry args={[0.5, 0.6, 5, 10]} />
-              <meshStandardMaterial color="#8B4513" />
+          <group key={`land-tree-${i}`} position={pos}>
+            {/* Trunk */}
+            <mesh position={[0, 2.5, 0]} castShadow>
+              <cylinderGeometry args={[0.24, 0.38, 5, 8]} />
+              <meshStandardMaterial color="#4A2F13" roughness={0.9} />
             </mesh>
-            <mesh position={[0, 5.5, 0]}>
-              <sphereGeometry args={[2.5, 12, 8]} />
-              <meshStandardMaterial color="#2E8B57" roughness={0.9} />
-            </mesh>
-          </group>
-        ))}
-
-        {/* Flower beds around house */}
-        {(
-          [
-            [-width - 1, 0, -depth - 1] as [number, number, number],
-            [width + 1, 0, depth + 1] as [number, number, number],
-            [-width - 1, 0, depth + 1] as [number, number, number],
-            [width + 1, 0, -depth - 1] as [number, number, number],
-            [-width - 2, 0, 0] as [number, number, number],
-            [width + 2, 0, 0] as [number, number, number]
-          ]
-        ).map((pos, i) => (
-          <group key={`flowerbed-${i}`} position={pos}>
-            {/* Flower bed base */}
-            <mesh position={[0, 0.1, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-              <circleGeometry args={[1.2, 8]} />
-              <meshStandardMaterial color="#8B7355" />
-            </mesh>
-            {/* Flowers */}
-            {[...Array(6)].map((_, j) => (
-              <group key={`flower-${j}`} position={[
-                Math.cos((j / 6) * Math.PI * 2) * 0.8,
-                0.2,
-                Math.sin((j / 6) * Math.PI * 2) * 0.8
-              ]}>
-                <mesh position={[0, 0.3, 0]}>
-                  <cylinderGeometry args={[0.05, 0.05, 0.6, 6]} />
-                  <meshStandardMaterial color="#228B22" />
-                </mesh>
-                <mesh position={[0, 0.7, 0]}>
-                  <sphereGeometry args={[0.3, 6, 4]} />
-                  <meshStandardMaterial color={i % 2 === 0 ? "#FF69B4" : "#FFD700"} />
-                </mesh>
-              </group>
+            {/* Top Foliage: Multi-layered pine tree style */}
+            {[5, 6.2, 7.4].map((y, l) => (
+              <mesh key={`foliage-${l}`} position={[0, y, 0]} castShadow>
+                <coneGeometry args={[1.8 - l * 0.4, 2.0, 10]} />
+                <meshStandardMaterial color={l % 2 === 0 ? "#1C542D" : "#246B3A"} roughness={0.9} />
+              </mesh>
             ))}
           </group>
         ))}
 
-        {/* Bushes and shrubs */}
+        {/* Beautiful vibrant flower beds surrounding the pathway */}
         {(
           [
-            [-width - 4, 0, -depth - 3] as [number, number, number],
-            [width + 4, 0, depth + 3] as [number, number, number],
-            [-width - 3, 0, depth + 4] as [number, number, number],
-            [width + 3, 0, -depth - 4] as [number, number, number],
-            [0, 0, -depth - 5] as [number, number, number],
-            [0, 0, depth + 5] as [number, number, number]
+            [-width - 1.5, 0, -depth - 2] as [number, number, number],
+            [width + 1.5, 0, depth + 2] as [number, number, number],
+            [-width - 1.5, 0, depth + 2] as [number, number, number],
+            [width + 1.5, 0, -depth - 2] as [number, number, number],
+            [-width - 2.5, 0, 1] as [number, number, number],
+            [width + 2.5, 0, -1] as [number, number, number]
           ]
         ).map((pos, i) => (
-          <mesh key={`bush-${i}`} position={pos}>
-            <sphereGeometry args={[1.2, 8, 6]} />
-            <meshStandardMaterial color="#3CB371" roughness={0.9} />
-          </mesh>
-        ))}
-
-        {/* Small plants scattered around */}
-        {(
-          [
-            [-width - 5, 0, -2] as [number, number, number],
-            [width + 5, 0, 2] as [number, number, number],
-            [-3, 0, depth + 3] as [number, number, number],
-            [3, 0, -depth - 3] as [number, number, number],
-            [-6, 0, 4] as [number, number, number],
-            [6, 0, -4] as [number, number, number]
-          ]
-        ).map((pos, i) => (
-          <group key={`plant-${i}`} position={pos}>
-            <mesh position={[0, 0.2, 0]}>
-              <cylinderGeometry args={[0.1, 0.15, 0.4, 6]} />
-              <meshStandardMaterial color="#32CD32" />
+          <group key={`land-flower-${i}`} position={pos}>
+            {/* Dark organic soil base */}
+            <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+              <circleGeometry args={[1.3, 16]} />
+              <meshStandardMaterial color="#3D2B1F" roughness={0.9} />
             </mesh>
-            <mesh position={[0, 0.5, 0]}>
-              <sphereGeometry args={[0.4, 5, 3]} />
-              <meshStandardMaterial color="#90EE90" />
-            </mesh>
+            {/* Lush vibrant flowers */}
+            {[...Array(6)].map((_, j) => {
+              const angle = (j / 6) * Math.PI * 2;
+              const fx = Math.cos(angle) * 0.8;
+              const fz = Math.sin(angle) * 0.8;
+              return (
+                <group key={`fl-${j}`} position={[fx, 0.1, fz]}>
+                  <mesh position={[0, 0.25, 0]} castShadow>
+                    <cylinderGeometry args={[0.03, 0.03, 0.5, 6]} />
+                    <meshStandardMaterial color="#2E7D32" />
+                  </mesh>
+                  <mesh position={[0, 0.55, 0]} castShadow>
+                    <sphereGeometry args={[0.24, 8, 8]} />
+                    <meshStandardMaterial color={i % 3 === 0 ? "#E91E63" : i % 3 === 1 ? "#FFEB3B" : "#9C27B0"} roughness={0.3} />
+                  </mesh>
+                </group>
+              );
+            })}
           </group>
         ))}
 
-        {/* Garden pathway */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, depth/2 + 3]}>
-          <planeGeometry args={[2.5, 8]} />
-          <meshStandardMaterial color={materialType === "luxury" ? "#B8956A" : "#A8A8A8"} roughness={0.6} />
+        {/* Manicured round boxwood shrubs */}
+        {(
+          [
+            [-width - 3.5, 0, -depth - 4] as [number, number, number],
+            [width + 3.5, 0, depth + 4] as [number, number, number],
+            [-width - 4, 0, depth + 4] as [number, number, number],
+            [width + 4, 0, -depth - 4] as [number, number, number],
+            [0, 0, -depth - 4] as [number, number, number],
+            [0, 0, depth + 4.5] as [number, number, number]
+          ]
+        ).map((pos, i) => (
+          <mesh key={`land-bush-${i}`} position={pos} castShadow>
+            <sphereGeometry args={[0.9, 12, 12]} />
+            <meshStandardMaterial color="#2E7D32" roughness={0.9} />
+          </mesh>
+        ))}
+
+        {/* Glowing Garden Lamp Posts */}
+        {(
+          [
+            [-3.5, 0, depth + 4.5] as [number, number, number],
+            [3.5, 0, depth + 4.5] as [number, number, number],
+            [-width / 2 - 3, 0, 0] as [number, number, number],
+            [width / 2 + 3, 0, 0] as [number, number, number]
+          ]
+        ).map((pos, i) => (
+          <group key={`lamp-${i}`} position={pos}>
+            {/* Metallic black post */}
+            <mesh position={[0, 1.1, 0]} castShadow>
+              <cylinderGeometry args={[0.06, 0.08, 2.2, 8]} />
+              <meshStandardMaterial color="#111111" metalness={0.9} roughness={0.2} />
+            </mesh>
+            {/* Glass lantern bulb */}
+            <mesh position={[0, 2.3, 0]} castShadow>
+              <sphereGeometry args={[0.22, 12, 12]} />
+              <meshBasicMaterial color="#FFFFDD" />
+            </mesh>
+            {/* Dynamic light emission */}
+            <pointLight position={[0, 2.3, 0]} color="#FFEECC" intensity={1.5} distance={15} decay={2.0} castShadow />
+          </group>
+        ))}
+
+        {/* Polished stone pathway leading to entrance */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, depth / 2 + 3.2]} receiveShadow>
+          <planeGeometry args={[2.5, 6.4]} />
+          <meshStandardMaterial color={materialType === "luxury" ? "#BCAAA4" : "#9E9E9E"} roughness={0.8} />
         </mesh>
       </group>
     </group>
@@ -435,21 +553,41 @@ function HouseModel({ area, floors, materialType = "standard" }: House3DProps) {
 
 export default function House3D({ area, floors, materialType = "standard" }: House3DProps) {
   return (
-    <div className="w-full h-[400px] rounded-xl overflow-hidden glass">
-      <Canvas>
-        <PerspectiveCamera makeDefault position={[25, 15, 25]} fov={35} />
+    <div className="w-full h-[450px] rounded-xl overflow-hidden glass relative group/canvas border border-white/10 shadow-inner">
+      <Canvas shadows>
+        <PerspectiveCamera makeDefault position={[22, 13, 22]} fov={38} />
         <OrbitControls 
           enableZoom={true}
           enablePan={true}
-          minDistance={12}
-          maxDistance={80} // Much larger max distance for big houses
-          target={[0, 8, 0]}
+          minDistance={10}
+          maxDistance={70} 
+          target={[0, 5, 0]}
+          maxPolarAngle={Math.PI / 2 - 0.05} // Keep camera above ground level
         />
         
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[20, 25, 20]} intensity={1.2} castShadow />
-        <pointLight position={[0, 15, 0]} intensity={0.4} />
-        <hemisphereLight intensity={0.3} color="#87CEEB" groundColor="#4A5D3F" />
+        {/* Soft elegant environmental light */}
+        <ambientLight intensity={0.5} />
+        
+        {/* Main Sun key light casting crisp sharp real-time shadows */}
+        <directionalLight 
+          position={[24, 30, 24]} 
+          intensity={1.3} 
+          castShadow 
+          shadow-mapSize-width={2048}
+          shadow-mapSize-height={2048}
+          shadow-camera-far={100}
+          shadow-camera-left={-25}
+          shadow-camera-right={25}
+          shadow-camera-top={25}
+          shadow-camera-bottom={-25}
+          shadow-bias={-0.0005}
+        />
+        
+        {/* Soft fill light */}
+        <pointLight position={[-15, 12, -15]} intensity={0.4} />
+        
+        {/* Sky gradient hemispherical light for rich color contrast */}
+        <hemisphereLight intensity={0.35} color="#87CEEB" groundColor="#3D5334" />
         
         <HouseModel area={area} floors={floors} materialType={materialType} />
       </Canvas>

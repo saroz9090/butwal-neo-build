@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Users, Trash2, Edit2, Shield, UserCog, HardHat, User } from "lucide-react";
+import { ArrowLeft, Plus, Users, Trash2, Edit2, Shield, UserCog, Key, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/firebase";
+import { collection, getDocs, doc, setDoc, deleteDoc } from "firebase/firestore";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 
@@ -17,43 +17,49 @@ interface UserData {
   id: string;
   email: string;
   fullName: string;
+  password?: string;
   phone?: string;
+  address?: string;
   role: string;
   createdAt: string;
 }
 
-const STAFF_PERMISSIONS = [
-  { id: "view_all_projects", label: "View All Projects" },
-  { id: "manage_timeline", label: "Manage Timeline" },
-  { id: "view_reports", label: "View Reports" },
-  { id: "manage_payments", label: "Manage Payments" },
-  { id: "update_progress", label: "Update Progress" },
-  { id: "view_assigned", label: "View Assigned Only" },
-  { id: "manage_materials", label: "Manage Materials" },
-  { id: "camera_access", label: "Camera Access" },
-];
-
 const AdminUserManagement = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { user, isTopAdmin, loading: authLoading } = useAuth();
   
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [creating, setCreating] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [processing, setProcessing] = useState(false);
 
-  // Form state
+  // Form state for creating user
   const [newUser, setNewUser] = useState({
     email: "",
     password: "",
     fullName: "",
     phone: "",
     address: "",
-    projectId: "",
-    role: "customer" as "admin" | "manager" | "site_staff" | "customer",
-    permissions: [] as string[],
-    assignedProjects: [] as string[],
+    role: "normal" as "top" | "normal",
+  });
+
+  // Form state for editing user
+  const [editForm, setEditForm] = useState({
+    email: "",
+    password: "",
+    fullName: "",
+    phone: "",
+    address: "",
+    role: "normal" as "top" | "normal",
+  });
+
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{ open: boolean; id: string; email: string }>({
+    open: false,
+    id: "",
+    email: "",
   });
 
   useEffect(() => {
@@ -62,51 +68,39 @@ const AdminUserManagement = () => {
       return;
     }
     
-    if (!authLoading && user && !isAdmin) {
+    if (!authLoading && user && !isTopAdmin) {
       toast({
         title: "Access Denied",
-        description: "Only administrators can access this page",
+        description: "Only top-level administrators can access user management.",
         variant: "destructive",
       });
       navigate("/");
       return;
     }
 
-    if (user && isAdmin) {
+    if (user && isTopAdmin) {
       fetchUsers();
     }
-  }, [user, isAdmin, authLoading, navigate]);
+  }, [user, isTopAdmin, authLoading, navigate, toast]);
 
   const fetchUsers = async () => {
     try {
-      const { data: profiles, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      // Fetch roles for each user
-      const usersWithRoles = await Promise.all(
-        (profiles || []).map(async (profile) => {
-          const { data: roleData } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', profile.user_id)
-            .maybeSingle();
-
-          return {
-            id: profile.user_id,
-            email: profile.email,
-            fullName: profile.full_name,
-            phone: profile.phone,
-            role: roleData?.role || 'unknown',
-            createdAt: profile.created_at,
-          };
-        })
-      );
-
-      setUsers(usersWithRoles);
+      const snap = await getDocs(collection(db, "users"));
+      const list: UserData[] = [];
+      snap.forEach((docSnap) => {
+        const data = docSnap.data();
+        list.push({
+          id: docSnap.id,
+          email: data.email || "",
+          fullName: data.full_name || data.fullName || "User",
+          password: data.password || "",
+          phone: data.phone || undefined,
+          address: data.address || undefined,
+          role: data.role || "normal",
+          createdAt: data.created_at || new Date().toISOString()
+        });
+      });
+      setUsers(list);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -121,84 +115,148 @@ const AdminUserManagement = () => {
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    setCreating(true);
+    setProcessing(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-user', {
-        body: {
-          email: newUser.email,
-          password: newUser.password,
-          fullName: newUser.fullName,
-          phone: newUser.phone || undefined,
-          address: newUser.address || undefined,
-          projectId: newUser.projectId || undefined,
-          role: newUser.role,
-          permissions: newUser.role !== 'customer' ? newUser.permissions : undefined,
-          assignedProjects: newUser.role !== 'customer' ? newUser.assignedProjects : undefined,
-        },
-      });
+      const id = `user-${Date.now()}`;
+      const newUserDoc = {
+        id,
+        user_id: id,
+        email: newUser.email.trim().toLowerCase(),
+        password: newUser.password,
+        full_name: newUser.fullName,
+        phone: newUser.phone || null,
+        address: newUser.address || null,
+        role: newUser.role, // 'top' or 'normal'
+        created_at: new Date().toISOString()
+      };
 
-      if (error) throw error;
+      await setDoc(doc(db, "users", id), newUserDoc);
 
       toast({
         title: "User Created",
         description: `Successfully created account for ${newUser.fullName}`,
       });
 
-      // Reset form
       setNewUser({
         email: "",
         password: "",
         fullName: "",
         phone: "",
         address: "",
-        projectId: "",
-        role: "customer",
-        permissions: [],
-        assignedProjects: [],
+        role: "normal",
       });
 
       setIsCreateDialogOpen(false);
       fetchUsers();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error creating user:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to create user",
+        description: (error as Error).message || "Failed to create user",
         variant: "destructive",
       });
     } finally {
-      setCreating(false);
+      setProcessing(false);
     }
   };
 
-  const togglePermission = (permId: string) => {
-    setNewUser(prev => ({
-      ...prev,
-      permissions: prev.permissions.includes(permId)
-        ? prev.permissions.filter(p => p !== permId)
-        : [...prev.permissions, permId]
-    }));
+  const openEditModal = (u: UserData) => {
+    setSelectedUser(u);
+    setEditForm({
+      email: u.email,
+      password: u.password || "",
+      fullName: u.fullName,
+      phone: u.phone || "",
+      address: u.address || "",
+      role: (u.role === 'top' ? 'top' : 'normal'),
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+    setProcessing(true);
+
+    try {
+      const updatedDoc = {
+        email: editForm.email.trim().toLowerCase(),
+        password: editForm.password,
+        full_name: editForm.fullName,
+        phone: editForm.phone || null,
+        address: editForm.address || null,
+        role: editForm.role,
+      };
+
+      await setDoc(doc(db, "users", selectedUser.id), updatedDoc, { merge: true });
+
+      toast({
+        title: "User Updated",
+        description: `Successfully updated account for ${editForm.fullName}`,
+      });
+
+      setIsEditDialogOpen(false);
+      setSelectedUser(null);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast({
+        title: "Error",
+        description: (error as Error).message || "Failed to update user",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleDeleteUser = (id: string, email: string) => {
+    if (user?.email === email) {
+      toast({
+        title: "Action Prohibited",
+        description: "You cannot delete your own currently logged-in top admin account.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setDeleteConfirmDialog({ open: true, id, email });
+  };
+
+  const executeDeleteUser = async () => {
+    const { id } = deleteConfirmDialog;
+    if (!id) return;
+    setProcessing(true);
+
+    try {
+      await deleteDoc(doc(db, "users", id));
+      toast({
+        title: "User Deleted",
+        description: "User account has been removed successfully.",
+      });
+      setDeleteConfirmDialog({ open: false, id: "", email: "" });
+      fetchUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete user account",
+        variant: "destructive",
+      });
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const getRoleIcon = (role: string) => {
-    switch (role) {
-      case 'admin': return <Shield className="h-4 w-4 text-red-500" />;
-      case 'manager': return <UserCog className="h-4 w-4 text-blue-500" />;
-      case 'site_staff': return <HardHat className="h-4 w-4 text-orange-500" />;
-      case 'customer': return <User className="h-4 w-4 text-green-500" />;
-      default: return <User className="h-4 w-4" />;
-    }
+    return role === 'top' ? <Shield className="h-4 w-4 text-primary" /> : <UserIcon className="h-4 w-4 text-blue-500" />;
   };
 
   const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case 'admin': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      case 'manager': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'site_staff': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
-      case 'customer': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+    return role === 'top' 
+      ? 'bg-primary/20 text-primary border-primary/30 font-bold' 
+      : 'bg-blue-500/20 text-blue-400 border-blue-500/30';
   };
 
   if (authLoading || loading) {
@@ -213,10 +271,10 @@ const AdminUserManagement = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <main className="pt-20 pb-16 px-4">
+      <main className="pt-28 pb-20 px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
@@ -226,8 +284,8 @@ const AdminUserManagement = () => {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-3xl font-bold">User Management</h1>
-                <p className="text-muted-foreground">Create and manage client & staff accounts</p>
+                <h1 className="text-3xl font-bold text-foreground">Top Admin User Management</h1>
+                <p className="text-muted-foreground">Create, check, and edit staff and admin accounts (Top role only)</p>
               </div>
             </div>
 
@@ -235,52 +293,51 @@ const AdminUserManagement = () => {
               <DialogTrigger asChild>
                 <Button className="gradient-primary">
                   <Plus className="h-4 w-4 mr-2" />
-                  Create User
+                  Add New User
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Create New User</DialogTitle>
+                  <DialogTitle>Add New User Account</DialogTitle>
                   <DialogDescription>
-                    Add a new client or staff member. They will receive login credentials.
+                    Create a new user with Top or Normal access privileges.
                   </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleCreateUser} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Full Name *</label>
-                      <Input
-                        value={newUser.fullName}
-                        onChange={(e) => setNewUser(prev => ({ ...prev, fullName: e.target.value }))}
-                        placeholder="John Doe"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Email *</label>
-                      <Input
-                        type="email"
-                        value={newUser.email}
-                        onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
-                        placeholder="user@example.com"
-                        required
-                      />
-                    </div>
+                <form onSubmit={handleCreateUser} className="space-y-4 pt-2">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Full Name *</label>
+                    <Input
+                      value={newUser.fullName}
+                      onChange={(e) => setNewUser(prev => ({ ...prev, fullName: e.target.value }))}
+                      placeholder="e.g. Ramesh Sharma"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Username / Email *</label>
+                    <Input
+                      type="email"
+                      value={newUser.email}
+                      onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
+                      placeholder="user@butwalconstruction.com.np"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Password *</label>
+                    <Input
+                      type="text"
+                      value={newUser.password}
+                      onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
+                      placeholder="Secure password"
+                      required
+                    />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Password *</label>
-                      <Input
-                        type="password"
-                        value={newUser.password}
-                        onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
-                        placeholder="Minimum 6 characters"
-                        minLength={6}
-                        required
-                      />
-                    </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Phone</label>
                       <Input
@@ -289,180 +346,135 @@ const AdminUserManagement = () => {
                         placeholder="+977 98XXXXXXXX"
                       />
                     </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Role *</label>
-                    <Select
-                      value={newUser.role}
-                      onValueChange={(value: any) => setNewUser(prev => ({ ...prev, role: value, permissions: [] }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="customer">Customer / Client</SelectItem>
-                        <SelectItem value="site_staff">Site Staff</SelectItem>
-                        <SelectItem value="manager">Project Manager</SelectItem>
-                        <SelectItem value="admin">Administrator</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {newUser.role === 'customer' && (
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Project ID</label>
-                      <Input
-                        value={newUser.projectId}
-                        onChange={(e) => setNewUser(prev => ({ ...prev, projectId: e.target.value }))}
-                        placeholder="e.g., Residence-2024-001"
-                      />
+                      <label className="text-sm font-medium">Role *</label>
+                      <Select
+                        value={newUser.role}
+                        onValueChange={(value) => setNewUser(prev => ({ ...prev, role: value as 'top' | 'normal' }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="top">Top (Full Manage)</SelectItem>
+                          <SelectItem value="normal">Normal (Post & Edit)</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                  )}
-
-                  {newUser.role !== 'customer' && newUser.role !== 'admin' && (
-                    <div className="space-y-3">
-                      <label className="text-sm font-medium">Permissions</label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {STAFF_PERMISSIONS.map((perm) => (
-                          <div key={perm.id} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={perm.id}
-                              checked={newUser.permissions.includes(perm.id)}
-                              onCheckedChange={() => togglePermission(perm.id)}
-                            />
-                            <label htmlFor={perm.id} className="text-sm cursor-pointer">
-                              {perm.label}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  </div>
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Address</label>
                     <Input
                       value={newUser.address}
                       onChange={(e) => setNewUser(prev => ({ ...prev, address: e.target.value }))}
-                      placeholder="Full address"
+                      placeholder="Butwal / Dang, Nepal"
                     />
                   </div>
 
-                  <Button type="submit" className="w-full gradient-primary" disabled={creating}>
-                    {creating ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Creating...
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Create User
-                      </>
-                    )}
+                  <Button type="submit" className="w-full gradient-primary mt-4" disabled={processing}>
+                    {processing ? "Creating..." : "Create User Account"}
                   </Button>
                 </form>
               </DialogContent>
             </Dialog>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <Card className="glass">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Users className="h-5 w-5 text-primary" />
+          {/* Role Description Card */}
+          <Card className="glass mb-8 border-primary/20">
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-primary/20 text-primary mt-1">
+                    <Shield className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{users.length}</p>
-                    <p className="text-sm text-muted-foreground">Total Users</p>
+                    <h3 className="font-bold text-foreground">Top Role (Top Administrator)</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Full access rights. Can view, create, edit usernames/passwords, and manage all user accounts in the system.
+                    </p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-            <Card className="glass">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-500/10">
-                    <User className="h-5 w-5 text-green-500" />
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400 mt-1">
+                    <UserIcon className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{users.filter(u => u.role === 'customer').length}</p>
-                    <p className="text-sm text-muted-foreground">Customers</p>
+                    <h3 className="font-bold text-foreground">Normal Role (Staff / Editor)</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Standard staff access. Can post updates, edit content, manage projects, and handle customer requests without user management privileges.
+                    </p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-            <Card className="glass">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-orange-500/10">
-                    <HardHat className="h-5 w-5 text-orange-500" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{users.filter(u => u.role === 'site_staff').length}</p>
-                    <p className="text-sm text-muted-foreground">Site Staff</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="glass">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-500/10">
-                    <UserCog className="h-5 w-5 text-blue-500" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{users.filter(u => u.role === 'manager').length}</p>
-                    <p className="text-sm text-muted-foreground">Managers</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Users List */}
           <Card className="glass">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                All Users
+                <Users className="h-5 w-5 text-primary" />
+                System Users ({users.length})
               </CardTitle>
               <CardDescription>
-                Manage user accounts and their permissions
+                Check all registered users, usernames, passwords, and assigned roles.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {users.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No users found. Create your first user above.</p>
+                  <p>No users found in database.</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {users.map((u) => (
                     <div
                       key={u.id}
-                      className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                      className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 rounded-xl bg-card border border-border/60 hover:border-primary/50 transition-all gap-4"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="p-2 rounded-full bg-background">
+                        <div className="p-3 rounded-xl bg-background border border-border">
                           {getRoleIcon(u.role)}
                         </div>
                         <div>
-                          <p className="font-medium">{u.fullName}</p>
-                          <p className="text-sm text-muted-foreground">{u.email}</p>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-foreground text-lg">{u.fullName}</h4>
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${getRoleBadgeColor(u.role)}`}>
+                              {u.role === 'top' ? 'Top Admin' : 'Normal Staff'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground font-mono mt-0.5">{u.email}</p>
+                          <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                            <span>Phone: {u.phone || 'N/A'}</span>
+                            <span>Address: {u.address || 'N/A'}</span>
+                            <span className="flex items-center gap-1 text-primary">
+                              <Key size={12} /> Password: <code className="bg-muted px-1.5 py-0.5 rounded text-foreground">{u.password || '••••••'}</code>
+                            </span>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(u.role)}`}>
-                          {u.role.replace('_', ' ')}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          {new Date(u.createdAt).toLocaleDateString()}
-                        </span>
+
+                      <div className="flex items-center gap-2 w-full md:w-auto justify-end">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openEditModal(u)}
+                          className="gap-1.5"
+                        >
+                          <Edit2 size={14} />
+                          Edit User
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDeleteUser(u.id, u.email)}
+                          className="gap-1.5"
+                        >
+                          <Trash2 size={14} />
+                          Delete
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -472,6 +484,116 @@ const AdminUserManagement = () => {
           </Card>
         </div>
       </main>
+
+      {/* Edit User Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit User Account</DialogTitle>
+            <DialogDescription>
+              Update username, password, full name, or access role.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleUpdateUser} className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Full Name *</label>
+              <Input
+                value={editForm.fullName}
+                onChange={(e) => setEditForm(prev => ({ ...prev, fullName: e.target.value }))}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Username / Email *</label>
+              <Input
+                type="email"
+                value={editForm.email}
+                onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Password *</label>
+              <Input
+                type="text"
+                value={editForm.password}
+                onChange={(e) => setEditForm(prev => ({ ...prev, password: e.target.value }))}
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Phone</label>
+                <Input
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Role *</label>
+                <Select
+                  value={editForm.role}
+                  onValueChange={(value) => setEditForm(prev => ({ ...prev, role: value as 'top' | 'normal' }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="top">Top (Full Manage)</SelectItem>
+                    <SelectItem value="normal">Normal (Post & Edit)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Address</label>
+              <Input
+                value={editForm.address}
+                onChange={(e) => setEditForm(prev => ({ ...prev, address: e.target.value }))}
+              />
+            </div>
+
+            <Button type="submit" className="w-full gradient-primary mt-4" disabled={processing}>
+              {processing ? "Saving..." : "Save Changes"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmDialog.open} onOpenChange={(open) => setDeleteConfirmDialog(prev => ({ ...prev, open }))}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="h-5 w-5" /> Confirm Account Deletion
+            </DialogTitle>
+            <DialogDescription className="pt-2">
+              Are you sure you want to delete user <strong className="text-foreground">{deleteConfirmDialog.email}</strong>? This action is permanent and cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex justify-end gap-3 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteConfirmDialog({ open: false, id: "", email: "" })}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={executeDeleteUser}
+              disabled={processing}
+            >
+              {processing ? "Deleting..." : "Yes, Delete User"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>

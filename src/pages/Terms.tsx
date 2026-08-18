@@ -331,17 +331,20 @@ const TermsAndConditions = () => {
               If you have any questions about these Terms and Conditions, please contact us:
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
-              <div className="bg-accent/5 p-4 rounded-lg">
-                <Mail className="text-accent mx-auto mb-2" size={20} />
-                <p className="text-sm font-medium">Email</p>
-                <p className="text-xs text-muted-foreground">info@butwalconstruction.com</p>
+              <div className="bg-primary/10 p-4 rounded-xl border border-border/50">
+                <Mail className="text-primary mx-auto mb-2" size={20} />
+                <p className="text-sm font-medium">Official Email</p>
+                <p className="text-xs text-muted-foreground">info@butwalconstruction.com.np</p>
               </div>
-              <div className="bg-accent/5 p-4 rounded-lg">
-                <Phone className="text-accent mx-auto mb-2" size={20} />
-                <p className="text-sm font-medium">Phone</p>
-                <p className="text-xs text-muted-foreground">+977 9845323733</p>
+              <div className="bg-primary/10 p-4 rounded-xl border border-border/50">
+                <Phone className="text-primary mx-auto mb-2" size={20} />
+                <p className="text-sm font-medium">Head Office Phone</p>
+                <p className="text-xs text-muted-foreground">+977 9857076965 / +977 9869472803</p>
               </div>
             </div>
+            <p className="text-xs text-muted-foreground mt-4">
+              📍 <strong>Head Office:</strong> Butwal-11, Kalikanagar, Horizonchowk, Annapurna Path, Rupandehi, Nepal
+            </p>
           </Card>
 
           {/* Final Note */}

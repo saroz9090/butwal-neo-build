@@ -1,146 +1,165 @@
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Home, ArrowLeft, Search, AlertTriangle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Shield, Lock, Eye, FileText, Phone, Mail, MapPin, ArrowRight, CheckCircle2 } from "lucide-react";
 
-const NotFound = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-  }, [location.pathname]);
-
+export default function Privacy() {
   return (
-    <div className="min-h-screen pt-32 pb-20">
+    <div className="min-h-screen pt-28 pb-20 bg-background text-foreground">
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
-          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <AlertTriangle className="text-primary" size={32} />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/30 text-primary text-sm font-semibold mb-4">
+            <Shield className="w-4 h-4 text-primary" />
+            <span>Data Protection & Client Security</span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            404 - Page <span className="text-primary">Not Found</span>
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight font-heading mb-4 text-foreground">
+            Privacy <span className="text-primary">Policy</span>
           </h1>
-          <p className="text-xl text-muted-foreground">
-            The page you're looking for doesn't exist or has been moved.
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+            How Butwal Construction & Builders protects your personal data, house plans, and property information.
+          </p>
+          <p className="text-xs text-muted-foreground mt-3">
+            Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
 
+        {/* Content Sections */}
         <div className="space-y-8">
-          {/* Quick Actions */}
-          <Card className="glass p-8 hover-lift">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                <Home className="text-primary" size={24} />
+          {/* Commitment Card */}
+          <Card className="glass p-6 sm:p-8 border-border/60 hover-lift">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary font-bold">
+                <Lock className="w-5 h-5" />
               </div>
-              <h2 className="text-2xl font-bold text-foreground">Quick Actions</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Our Privacy Commitment</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Button 
-                onClick={() => window.location.href = "/"}
-                className="w-full bg-primary hover:bg-primary/90 text-foreground h-12 text-lg"
-              >
-                <Home className="mr-2" size={20} />
-                Return to Homepage
-              </Button>
-              <Button 
-                onClick={() => window.history.back()}
-                variant="outline"
-                className="w-full h-12 text-lg border-primary/30 hover:border-primary"
-              >
-                <ArrowLeft className="mr-2" size={20} />
-                Go Back
-              </Button>
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              At <strong>Butwal Construction & Builders Pvt. Ltd.</strong> (and our regional branch <strong>Dang Construction & Builders</strong>), we respect and protect your privacy. When you request construction cost estimates, 3D elevation drawings, municipal Naksa Pass permits, or site inspections, your personal and architectural details are handled with strict engineering confidentiality.
+            </p>
+          </Card>
+
+          {/* Information We Collect */}
+          <Card className="glass p-6 sm:p-8 border-border/60 hover-lift">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary font-bold">
+                <Eye className="w-5 h-5" />
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Information We Collect</h2>
+            </div>
+            <div className="space-y-3 text-sm sm:text-base text-muted-foreground">
+              <p>To provide accurate civil engineering, estimation, and turnkey construction services, we collect:</p>
+              <ul className="space-y-2 pl-2">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-1" />
+                  <span><strong>Contact Details:</strong> Full name, phone number, WhatsApp number, and email address.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-1" />
+                  <span><strong>Project & Property Specifications:</strong> Land location (ward/municipality), plot area (Aana/Dhur/Sq. Ft.), soil type, and preferred floor count.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-1" />
+                  <span><strong>Architectural & Structural Preferences:</strong> 3D elevation preferences, budget targets, and custom floor planner layout drafts.</span>
+                </li>
+              </ul>
             </div>
           </Card>
 
-          {/* Popular Pages */}
-          <Card className="glass p-8 hover-lift">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center">
-                <Search className="text-accent" size={24} />
+          {/* How We Use Your Information */}
+          <Card className="glass p-6 sm:p-8 border-border/60 hover-lift">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary font-bold">
+                <FileText className="w-5 h-5" />
               </div>
-              <h2 className="text-2xl font-bold text-foreground">Popular Pages</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">How We Use Your Information</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <a 
-                href="/estimate" 
-                className="p-4 rounded-lg bg-accent/5 hover:bg-accent/10 text-foreground hover:text-primary transition-all duration-300 border border-transparent hover:border-primary/20"
-              >
-                <div className="font-semibold">Cost Estimate</div>
-                <div className="text-sm text-muted-foreground">Calculate construction costs</div>
-              </a>
-              <a 
-                href="/projects" 
-                className="p-4 rounded-lg bg-accent/5 hover:bg-accent/10 text-foreground hover:text-primary transition-all duration-300 border border-transparent hover:border-primary/20"
-              >
-                <div className="font-semibold">Our Projects</div>
-                <div className="text-sm text-muted-foreground">View completed work</div>
-              </a>
-              <a 
-                href="/contact" 
-                className="p-4 rounded-lg bg-accent/5 hover:bg-accent/10 text-foreground hover:text-primary transition-all duration-300 border border-transparent hover:border-primary/20"
-              >
-                <div className="font-semibold">Contact Us</div>
-                <div className="text-sm text-muted-foreground">Get in touch</div>
-              </a>
-              <a 
-                href="/tools/calculators" 
-                className="p-4 rounded-lg bg-accent/5 hover:bg-accent/10 text-foreground hover:text-primary transition-all duration-300 border border-transparent hover:border-primary/20"
-              >
-                <div className="font-semibold">Calculators</div>
-                <div className="text-sm text-muted-foreground">Construction tools</div>
-              </a>
+            <div className="space-y-3 text-sm sm:text-base text-muted-foreground">
+              <p>Your details are used exclusively for:</p>
+              <ul className="space-y-2 pl-2">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-1" />
+                  <span>Generating customized Bill of Quantities (BOQ) and rate estimations.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-1" />
+                  <span>Coordinating free site visits with civil engineers in Butwal, Rupandehi, or Dang Valley.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-1" />
+                  <span>Submitting Naksa Pass permit documents to local municipal sub-metropolises upon client authorization.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-1" />
+                  <span>Delivering construction milestone reports and photo updates for your project.</span>
+                </li>
+              </ul>
             </div>
           </Card>
 
-          {/* Error Details */}
-          <Card className="glass p-6">
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-2">
-                Attempted to access:
+          {/* Data Protection & Security */}
+          <Card className="glass p-6 sm:p-8 border-border/60 hover-lift">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary font-bold">
+                <Shield className="w-5 h-5" />
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">Zero Third-Party Sharing</h2>
+            </div>
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              We never sell, rent, or lease client personal contact details or house blueprints to third-party marketing companies. All blueprints, land certificates (Lalpurja copies submitted for municipal Naksa Pass), and structural calculations are archived in encrypted systems strictly accessible by our certified engineering team.
+            </p>
+          </Card>
+
+          {/* Contact Details & Grievances */}
+          <Card className="glass p-6 sm:p-8 border-primary/40 bg-gradient-to-br from-card via-primary/5 to-transparent hover-lift">
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">Privacy Inquiries & Official Contact</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              If you have any questions regarding how your project data is handled, feel free to contact our head office directly:
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-muted-foreground">
+              <div className="p-4 rounded-xl bg-background/50 border border-border/50 space-y-2">
+                <Badge variant="outline" className="border-primary/40 text-primary text-xs">Head Office</Badge>
+                <h4 className="font-bold text-foreground">Butwal Construction & Builders</h4>
+                <p className="flex items-start gap-2">
+                  <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>Butwal-11, Kalikanagar, Horizonchowk, Annapurna Path, Rupandehi, Nepal</span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-primary shrink-0" />
+                  <span>+977 9857076965 / +977 9869472803</span>
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-background/50 border border-border/50 space-y-2">
+                <Badge variant="outline" className="border-primary/40 text-primary text-xs">Regional Branch</Badge>
+                <h4 className="font-bold text-foreground">Dang Construction & Builders</h4>
+                <p className="flex items-start gap-2">
+                  <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>Ghorahi-15, Main Road, Dang, Nepal</span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-primary shrink-0" />
+                  <span>+977 9763653181</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-4 items-center justify-between pt-4 border-t border-border/40">
+              <p className="text-xs text-muted-foreground flex items-center gap-2">
+                <Mail className="w-4 h-4 text-primary shrink-0" />
+                <span>info@butwalconstruction.com.np</span>
               </p>
-              <code className="bg-slate-800 text-slate-200 px-3 py-2 rounded-lg font-mono text-sm break-all">
-                {location.pathname}
-              </code>
-            </div>
-          </Card>
-
-          {/* Help Section */}
-          <Card className="glass p-8 text-center">
-            <h3 className="text-2xl font-bold text-foreground mb-4">Need Help?</h3>
-            <p className="text-muted-foreground mb-6">
-              Can't find what you're looking for? Check our sitemap or contact our support team.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                onClick={() => window.location.href = "/sitemap"}
-                variant="outline"
-                className="border-primary/30 hover:border-primary"
-              >
-                View Sitemap
-              </Button>
-              <Button 
-                onClick={() => window.location.href = "/contact"}
-                className="bg-primary hover:bg-primary/90 text-foreground"
-              >
-                Contact Support
+              <Button asChild size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
+                <Link to="/contact">
+                  Contact Support <ArrowRight className="w-4 h-4 ml-1" />
+                </Link>
               </Button>
             </div>
-          </Card>
-
-          {/* Final Note */}
-          <Card className="glass p-6">
-            <p className="text-sm text-muted-foreground text-center">
-              <strong className="text-foreground">Note:</strong> If you believe this is an error, 
-              please contact our support team. We're here to help you find what you need.
-            </p>
           </Card>
         </div>
       </div>
     </div>
   );
-};
-
-export default NotFound;
+}

@@ -8,76 +8,156 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 290 47% 8%;
-    --foreground: 150 80% 99%;
+    --background: 280 35% 8%;
+    --foreground: 0 0% 98%;
 
-    --card: 290 40% 12%;
-    --card-foreground: 150 80% 99%;
+    --card: 280 28% 12%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 290 40% 12%;
-    --popover-foreground: 150 80% 99%;
+    --popover: 280 28% 12%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 349 96% 30%;
-    --primary-foreground: 150 80% 99%;
+    /* Crisp vibrant high-contrast Nepal crimson */
+    --primary: 348 86% 48%;
+    --primary-foreground: 0 0% 100%;
     
-    --secondary: 300 5% 42%;
-    --secondary-foreground: 150 80% 99%;
+    --secondary: 280 20% 18%;
+    --secondary-foreground: 0 0% 98%;
 
-    --accent: 40 95% 53%;
-    --accent-foreground: 290 47% 8%;
+    --accent: 280 22% 22%;
+    --accent-foreground: 0 0% 100%;
 
-    --muted: 300 5% 25%;
-    --muted-foreground: 300 5% 65%;
+    --muted: 280 18% 16%;
+    --muted-foreground: 280 10% 75%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 150 80% 99%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 300 5% 25%;
-    --input: 300 5% 20%;
-    --ring: 349 96% 30%;
+    --border: 280 15% 24%;
+    --input: 280 15% 20%;
+    --ring: 348 86% 48%;
 
-    --radius: 1rem;
+    --radius: 0.85rem;
 
-    /* Custom design tokens */
-    --glass-bg: 290 40% 12% / 0.7;
-    --glass-border: 300 5% 30% / 0.3;
+    /* Apple iOS Liquid Glass design tokens */
+    --glass-bg: 280 28% 12% / 0.7;
+    --glass-border: 280 15% 38% / 0.45;
+    --glass-ios-bg: rgba(28, 16, 38, 0.68);
+    --glass-ios-border: rgba(255, 255, 255, 0.14);
+    --glass-ios-highlight: rgba(255, 255, 255, 0.22);
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(349 96% 30%), hsl(349 96% 40%));
-    --gradient-accent: linear-gradient(135deg, hsl(40 95% 53%), hsl(349 96% 30%));
-    --gradient-dark: linear-gradient(180deg, hsl(290 47% 8%), hsl(290 47% 12%));
+    --gradient-primary: linear-gradient(135deg, hsl(348 86% 48%), hsl(348 90% 60%));
+    --gradient-accent: linear-gradient(135deg, hsl(38 92% 50%), hsl(348 86% 48%));
+    --gradient-dark: linear-gradient(180deg, hsl(280 35% 8%), hsl(280 28% 12%));
+    --gradient-liquid: linear-gradient(135deg, rgba(230, 40, 80, 0.25) 0%, rgba(147, 51, 234, 0.25) 50%, rgba(59, 130, 246, 0.2) 100%);
     
     /* Shadows */
-    --shadow-glow: 0 0 40px hsl(349 96% 30% / 0.3);
-    --shadow-glass: 0 8px 32px hsl(290 47% 4% / 0.5);
+    --shadow-glow: 0 0 25px hsl(348 86% 48% / 0.4);
+    --shadow-glass: 0 12px 40px -10px hsl(280 35% 4% / 0.7);
+    --shadow-ios-specular: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.22), 0 20px 48px -12px rgba(0, 0, 0, 0.6);
     
     /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-ios: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+    touch-action: manipulation;
   }
   
   h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
+  }
+
+  /* Smooth form inputs with iOS glass feel */
+  input, select, textarea {
+    @apply transition-all duration-200 ease-out text-foreground;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    @apply ring-2 ring-primary/60 border-primary/80 outline-none;
+  }
+
+  /* Universal button feel */
+  button:not(:disabled) {
+    @apply transition-all duration-200 ease-out cursor-pointer;
+  }
+  
+  button:not(:disabled):active {
+    transform: scale(0.96);
   }
 }
 
 @layer utilities {
+  /* Apple iOS Liquid Glass Surfaces */
   .glass {
     background: hsl(var(--glass-bg));
+    backdrop-filter: blur(28px) saturate(190%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: var(--shadow-ios-specular);
+  }
+
+  .glass-ios {
+    background: rgba(28, 16, 38, 0.62);
+    backdrop-filter: blur(32px) saturate(200%);
+    -webkit-backdrop-filter: blur(32px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.25), 0 20px 48px -15px rgba(0, 0, 0, 0.55);
+  }
+
+  .glass-ios-card {
+    background: linear-gradient(135deg, rgba(38, 22, 50, 0.72) 0%, rgba(24, 12, 34, 0.6) 100%);
+    backdrop-filter: blur(30px) saturate(190%);
+    -webkit-backdrop-filter: blur(30px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.2), 0 24px 50px -15px rgba(0, 0, 0, 0.6);
+    transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .glass-ios-card:hover {
+    border-color: rgba(255, 255, 255, 0.28);
+    box-shadow: inset 0 1px 2px 0 rgba(255, 255, 255, 0.35), 0 28px 60px -12px rgba(230, 40, 80, 0.25), 0 20px 45px -15px rgba(0, 0, 0, 0.7);
+    transform: translateY(-3px);
+  }
+
+  .glass-ios-pill {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.2), 0 8px 20px -6px rgba(0, 0, 0, 0.4);
+  }
+
+  .glass-ios-input {
+    background: rgba(20, 10, 28, 0.55);
     backdrop-filter: blur(20px);
-    border: 1px solid hsl(var(--glass-border));
-    box-shadow: var(--shadow-glass);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .glass-ios-input:focus {
+    background: rgba(26, 12, 36, 0.8);
+    border-color: hsl(var(--primary));
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2), 0 0 0 3px hsl(var(--primary) / 0.25);
   }
   
   .glow {
@@ -90,12 +170,162 @@ All colors MUST be HSL.
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  
-  .hover-lift {
-    transition: var(--transition-smooth);
+
+  /* Liquid background mesh animations */
+  .liquid-orb-1 {
+    animation: liquidOrbit 18s ease-in-out infinite alternate;
+  }
+
+  .liquid-orb-2 {
+    animation: liquidFloat 22s ease-in-out infinite alternate-reverse;
+  }
+
+  .liquid-orb-3 {
+    animation: liquidPulse 14s ease-in-out infinite alternate;
+  }
+
+  @keyframes liquidOrbit {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+      transform: translate(60px, -40px) scale(1.12);
+    }
+    66% {
+      transform: translate(-40px, 50px) scale(0.92);
+    }
+    100% {
+      transform: translate(30px, 20px) scale(1.05);
+    }
+  }
+
+  @keyframes liquidFloat {
+    0% {
+      transform: translate(0px, 0px) scale(1) rotate(0deg);
+    }
+    50% {
+      transform: translate(-70px, -50px) scale(1.15) rotate(180deg);
+    }
+    100% {
+      transform: translate(50px, 40px) scale(0.95) rotate(360deg);
+    }
+  }
+
+  @keyframes liquidPulse {
+    0% {
+      transform: scale(0.9) translate(0, 0);
+      opacity: 0.45;
+    }
+    50% {
+      transform: scale(1.18) translate(30px, -20px);
+      opacity: 0.75;
+    }
+    100% {
+      transform: scale(0.95) translate(-20px, 30px);
+      opacity: 0.5;
+    }
   }
   
-  .hover-lift:hover {
-    transform: translateY(-4px);
+  /* Smooth micro-interactions */
+  .hover-lift {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+    will-change: transform;
+  }
+  
+  @media (hover: hover) {
+    .hover-lift:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 32px -8px hsl(348 86% 48% / 0.2), var(--shadow-glass);
+      border-color: hsl(348 86% 48% / 0.4);
+    }
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 20px hsl(348 86% 48% / 0.35);
+  }
+
+  /* High contrast badge utilities */
+  .badge-contrast-primary {
+    @apply bg-primary/20 text-rose-300 border-primary/40 font-semibold;
+  }
+
+  .badge-contrast-emerald {
+    @apply bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-semibold;
+  }
+
+  .badge-contrast-purple {
+    @apply bg-purple-500/20 text-purple-300 border-purple-500/40 font-semibold;
+  }
+
+  /* Keyframe animations */
+  .animate-page-in {
+    animation: pageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.35s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-float-slow {
+    animation: floatSlow 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlow 3s ease-in-out infinite;
+  }
+
+  @keyframes pageEnter {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes floatSlow {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% {
+      box-shadow: 0 0 15px hsl(348 86% 48% / 0.2);
+    }
+    50% {
+      box-shadow: 0 0 30px hsl(348 86% 48% / 0.45);
+    }
   }
 }

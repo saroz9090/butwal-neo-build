@@ -1,34 +1,27 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, ChevronLeft, ChevronRight, Share2, Eye, TrendingUp, ZoomIn } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Share2, Eye, TrendingUp, ZoomIn, Building2, Filter, MessageCircle, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useWebsiteContent, HouseDesign } from "@/contexts/WebsiteContentContext";
+import LazyImage from "@/components/LazyImage";
+import { Link } from "react-router-dom";
 
-interface HouseDesign {
-  id: string;
-  title: string;
-  style: string;
-  description: string;
-  images: string[];
-  tags: string[];
-  features: string[];
-  baseViews: number;
-  growthRate: number;
-  currentViews?: number;
-}
-
-const HouseDesignsGallery = () => {
+export const HouseDesignsGallery = () => {
+  const { designs: baseDesigns } = useWebsiteContent();
   const [searchTerm, setSearchTerm] = useState("");
+  const [storeyFilter, setStoreyFilter] = useState("all");
+  const [styleFilter, setStyleFilter] = useState("all");
   const [selectedDesign, setSelectedDesign] = useState<HouseDesign | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [currentTime, setCurrentTime] = useState(Date.now());
 
-  const UPDATE_INTERVAL = 2 * 60 * 1000; // Update every 2 minutes
+  const UPDATE_INTERVAL = 2 * 60 * 1000;
   const MAX_TRENDING_DESIGNS = 2;
 
-  // Generate seeded random number based on design ID and time
   const getSeededRandom = (seed: string, timeSlot: number): number => {
     let hash = 0;
     for (let i = 0; i < seed.length; i++) {
@@ -39,106 +32,23 @@ const HouseDesignsGallery = () => {
     return (Math.sin(combinedSeed) * 10000) % 1;
   };
 
-  // Base designs data with fixed properties
-  const baseDesigns: HouseDesign[] = [
-    {
-      id: "1",
-      title: "Neoclassical Villa",
-      style: "Neoclassical",
-      description: "Elegant neoclassical villa with symmetrical design, grand columns, and classical details. Perfect for modern luxury living.",
-      images: [
-        "/designs/neo1.jpg",
-        "/designs/neo2.jpg", 
-        "/designs/neo3.jpg",
-        "/designs/neo4.jpg"
-      ],
-      tags: ["neoclassical", "villa", "luxury", "classical", "columns"],
-      features: ["Grand Entrance", "Symmetrical Design", "Classical Columns", "Luxury Finishes"],
-      baseViews: 150,
-      growthRate: 0.0002 // Much smaller growth rate
-    },
-    {
-      id: "2",
-      title: "Modern Minimalist House",
-      style: "Modern",
-      description: "Clean lines and minimalist design with focus on functionality and natural light.",
-      images: Array(4).fill("/placeholder.svg"),
-      tags: ["modern", "minimalist", "contemporary", "clean"],
-      features: ["Open Floor Plan", "Large Windows", "Minimalist Design"],
-      baseViews: 120,
-      growthRate: 0.0001
-    },
-    {
-      id: "3",
-      title: "Traditional Nepali House",
-      style: "Traditional",
-      description: "Authentic Nepali architecture with wooden carvings and traditional elements.",
-      images: Array(6).fill("/placeholder.svg"),
-      tags: ["traditional", "nepali", "wooden", "cultural"],
-      features: ["Wooden Carvings", "Traditional Roof", "Cultural Elements"],
-      baseViews: 80,
-      growthRate: 0.0003
-    },
-    {
-      id: "4",
-      title: "Contemporary Bungalow", 
-      style: "Contemporary",
-      description: "Modern bungalow design with spacious interiors and elegant exteriors.",
-      images: Array(5).fill("/placeholder.svg"),
-      tags: ["contemporary", "bungalow", "modern", "spacious"],
-      features: ["Spacious Interiors", "Modern Kitchen", "Elegant Exteriors"],
-      baseViews: 95,
-      growthRate: 0.00015
-    },
-    {
-      id: "5",
-      title: "Luxury Mountain Retreat",
-      style: "Modern",
-      description: "Stunning mountain retreat with panoramic views and luxury amenities.",
-      images: Array(6).fill("/placeholder.svg"),
-      tags: ["luxury", "mountain", "retreat", "panoramic"],
-      features: ["Panoramic Views", "Luxury Amenities", "Mountain Design"],
-      baseViews: 200,
-      growthRate: 0.00025
-    },
-    {
-      id: "6",
-      title: "Compact Urban Home",
-      style: "Contemporary",
-      description: "Smart space utilization for urban living with modern comforts.",
-      images: Array(3).fill("/placeholder.svg"),
-      tags: ["compact", "urban", "smart", "efficient"],
-      features: ["Space Efficient", "Modern Design", "Urban Living"],
-      baseViews: 60,
-      growthRate: 0.00008
-    }
-  ];
-
-  // Calculate current views based on time and growth rate - FIXED
   const calculateCurrentViews = (design: HouseDesign): number => {
-    const hoursSinceStart = (currentTime - 1700000000000) / (1000 * 60 * 60); // Time since a fixed date
-    const timeSlots = Math.floor(hoursSinceStart * 2); // 2 updates per hour
-    
-    const randomFactor = 0.8 + getSeededRandom(design.id, timeSlots) * 0.4;
-    
-    // Linear growth instead of exponential to prevent infinity
-    const additionalViews = Math.floor(design.baseViews * design.growthRate * timeSlots);
-    const views = design.baseViews + additionalViews;
-    
-    // Apply random factor and ensure minimum views
-    const finalViews = Math.floor(views * randomFactor);
-    return Math.max(design.baseViews, finalViews);
+    const baseViews = design.baseViews || 150;
+    const growthRate = design.growthRate || 1.2;
+    const timeSlot = Math.floor(currentTime / UPDATE_INTERVAL);
+    const randomFactor = Math.abs(getSeededRandom(design.id, timeSlot));
+    const baseTime = 1770000000000;
+    const hoursElapsed = Math.max(0, (currentTime - baseTime) / (3600 * 1000));
+    return Math.floor(baseViews + (hoursElapsed * growthRate) + (randomFactor * 25));
   };
 
-  // Get designs with current views
   const designs = useMemo(() => {
     return baseDesigns.map(design => ({
       ...design,
       currentViews: calculateCurrentViews(design)
     }));
-  }, [currentTime]);
+  }, [baseDesigns, currentTime]);
 
-  // Update time periodically to simulate view growth
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(Date.now());
@@ -147,9 +57,8 @@ const HouseDesignsGallery = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Get top 2 trending designs
   const trendingDesigns = useMemo(() => {
-    const sorted = [...designs].sort((a, b) => b.currentViews - a.currentViews);
+    const sorted = [...designs].sort((a, b) => (b.currentViews || 0) - (a.currentViews || 0));
     return sorted.slice(0, MAX_TRENDING_DESIGNS);
   }, [designs]);
 
@@ -158,23 +67,49 @@ const HouseDesignsGallery = () => {
   };
 
   const filteredDesigns = useMemo(() => {
-    return designs.filter(design =>
-      design.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      design.style.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      design.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      design.features.some(feature => feature.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-  }, [searchTerm, designs]);
+    return designs.filter(design => {
+      // Search
+      const matchesSearch = 
+        design.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        design.style.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        design.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        design.features.some(feature => feature.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      // Storey
+      let matchesStorey = true;
+      if (storeyFilter !== "all") {
+        const textToMatch = `${design.title} ${design.description} ${design.tags.join(" ")}`.toLowerCase();
+        if (storeyFilter === "1") matchesStorey = textToMatch.includes("1 storey") || textToMatch.includes("single storey") || textToMatch.includes("1.5");
+        if (storeyFilter === "2") matchesStorey = textToMatch.includes("2 storey") || textToMatch.includes("double storey");
+        if (storeyFilter === "2.5") matchesStorey = textToMatch.includes("2.5 storey") || textToMatch.includes("2.5");
+        if (storeyFilter === "3") matchesStorey = textToMatch.includes("3 storey") || textToMatch.includes("triple");
+      }
+
+      // Style
+      let matchesStyle = true;
+      if (styleFilter !== "all") {
+        matchesStyle = design.style.toLowerCase().includes(styleFilter.toLowerCase()) ||
+                       design.tags.some(t => t.toLowerCase().includes(styleFilter.toLowerCase()));
+      }
+
+      return matchesSearch && matchesStorey && matchesStyle;
+    });
+  }, [searchTerm, storeyFilter, styleFilter, designs]);
 
   const shareOnWhatsApp = (design: HouseDesign, imageIndex: number = 0) => {
     const currentImageUrl = design.images[imageIndex];
     const fullImageUrl = `${window.location.origin}${currentImageUrl}`;
     
-    const message = `🏠 *${design.title}*\n\n${design.description}\n\n⭐ *Key Features:*\n${design.features.map(feature => `• ${feature}`).join('\n')}\n\n👁️ ${formatViews(design.currentViews)} people have viewed this design!\n\n📸 View this design: ${fullImageUrl}\n\nInterested in this design? Contact us for more details! 🏡`;
+    const message = `${design.title}\n\n${design.description}\n\nKey Features:\n${design.features.map(feature => `- ${feature}`).join('\n')}\n\nInterested in this design? Contact Butwal Construction & Builders (Dang & Butwal Branch) for consultation!\n\nLink: ${fullImageUrl}`;
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
     window.open(whatsappUrl, '_blank');
+  };
+
+  const consultForDesign = (design: HouseDesign) => {
+    const message = `Namaste! I am interested in building the "${design.title}" (${design.style}) design. Please share floor plans and estimation for Dang / Butwal.`;
+    window.open(`https://wa.me/9779763653181?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const nextImage = () => {
@@ -199,261 +134,286 @@ const HouseDesignsGallery = () => {
     setIsZoomed(false);
   };
 
-  const toggleZoom = () => {
-    setIsZoomed(!isZoomed);
-  };
-
-  const sortedDesigns = useMemo(() => {
-    return [...filteredDesigns].sort((a, b) => b.currentViews - a.currentViews);
-  }, [filteredDesigns]);
-
-  const formatViews = (views: number): string => {
-    if (views >= 1000000) {
-      return (views / 1000000).toFixed(1) + 'M';
-    }
-    if (views >= 1000) {
-      return (views / 1000).toFixed(1) + 'K';
-    }
+  const formatViews = (views?: number): string => {
+    if (!views) return "0";
+    if (views >= 1000000) return (views / 1000000).toFixed(1) + 'M';
+    if (views >= 1000) return (views / 1000).toFixed(1) + 'K';
     return views.toString();
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="pt-20 pb-8 px-4">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gradient mb-4">
-              House Designs Gallery
-            </h1>
-            <p className="text-muted-foreground text-lg">
-            </p>
+    <div className="min-h-screen pt-32 pb-20">
+      <div className="container mx-auto px-4 max-w-7xl">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-sm font-semibold mb-4">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span>Architectural Elevations & Floor Plans</span>
+          </div>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground tracking-tight font-heading mb-4">
+            3D House Designs <span className="text-primary">Gallery</span>
+          </h1>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto">
+            Explore contemporary Box-Type, Modern Minimalist, and Classical Nepali house designs customized for land plots in Dang (Ghorahi, Tulsipur, Lamahi) and Butwal, Rupandehi.
+          </p>
+        </div>
+
+        {/* Filter Controls Bar */}
+        <div className="mb-10 p-4 rounded-2xl glass border border-border/60 space-y-4">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            {/* Search Input */}
+            <div className="relative w-full md:w-80">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by style, keywords, tags..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 bg-background/50"
+              />
+            </div>
+
+            {/* Storey Selection Tabs */}
+            <div className="flex flex-wrap gap-1.5 w-full md:w-auto">
+              {[
+                { id: "all", label: "All Storeys" },
+                { id: "1", label: "1 Storey" },
+                { id: "2", label: "2 Storey" },
+                { id: "2.5", label: "2.5 Storey" },
+                { id: "3", label: "3 Storey" }
+              ].map((st) => (
+                <Button
+                  key={st.id}
+                  size="sm"
+                  variant={storeyFilter === st.id ? "default" : "outline"}
+                  onClick={() => setStoreyFilter(st.id)}
+                  className={`text-xs ${storeyFilter === st.id ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground"}`}
+                >
+                  {st.label}
+                </Button>
+              ))}
+            </div>
           </div>
 
-          {/* Search and Stats */}
-          <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8">
-            <div className="max-w-md w-full">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  type="text"
-                  placeholder="Search by style, features, or keywords..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 glass"
-                />
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <TrendingUp className="h-4 w-4 text-green-400" />
-              <span>Updates every 2min</span>
-            </div>
+          {/* Style Filter Pills */}
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border/40 text-xs">
+            <span className="text-muted-foreground font-medium mr-1 flex items-center">
+              <Filter className="w-3 h-3 mr-1" /> Architectural Styles:
+            </span>
+            {["all", "Modern", "Box", "Contemporary", "Classical", "Villa"].map((style) => (
+              <Badge
+                key={style}
+                variant={styleFilter === style ? "default" : "outline"}
+                className={`cursor-pointer capitalize ${styleFilter === style ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground"}`}
+                onClick={() => setStyleFilter(style)}
+              >
+                {style === "all" ? "All Styles" : style}
+              </Badge>
+            ))}
+            {(searchTerm || storeyFilter !== "all" || styleFilter !== "all") && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setStoreyFilter("all");
+                  setStyleFilter("all");
+                }}
+                className="text-xs text-primary font-semibold hover:underline ml-auto"
+              >
+                Reset Filters
+              </button>
+            )}
           </div>
+        </div>
 
-          {/* Designs Grid */}
+        {/* Designs Grid */}
+        {filteredDesigns.length === 0 ? (
+          <div className="text-center py-16 glass rounded-2xl p-8">
+            <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-40" />
+            <h3 className="text-lg font-bold text-foreground">No house designs found</h3>
+            <p className="text-sm text-muted-foreground mt-1">Try selecting different storey filters or clear your search term.</p>
+          </div>
+        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedDesigns.map((design) => (
+            {filteredDesigns.map((design) => (
               <Card 
                 key={design.id} 
-                className="glass hover-lift cursor-pointer overflow-hidden relative"
+                className="glass hover-lift cursor-pointer overflow-hidden relative flex flex-col justify-between border-border/60 group"
                 onClick={() => openDesign(design)}
               >
-                {/* Popular Badge - Only show for top 2 */}
-                {isTrending(design.id) && (
-                  <div className="absolute top-2 left-2 z-10">
-                    <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                      <TrendingUp className="h-3 w-3" />
-                      TRENDING #{trendingDesigns.findIndex(d => d.id === design.id) + 1}
-                    </span>
-                  </div>
-                )}
-                
-                <div className="aspect-video relative bg-muted/20">
-                  <img 
-                    src={design.images[0]} 
-                    alt={design.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  <div className="absolute top-2 right-2 flex items-center gap-1">
-                    <Eye className="h-3 w-3" />
-                    <span className="bg-primary/90 text-primary-foreground px-2 py-1 rounded-full text-xs font-medium">
-                      {formatViews(design.currentViews)}
-                    </span>
-                  </div>
-                </div>
-                
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-lg">{design.title}</h3>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        shareOnWhatsApp(design, 0);
-                      }}
-                    >
-                      <Share2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-2">{design.style}</p>
-                  <p className="text-sm line-clamp-2">{design.description}</p>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {design.tags.slice(0, 3).map((tag) => (
-                      <span 
-                        key={tag}
-                        className="bg-muted text-muted-foreground px-2 py-1 rounded text-xs"
-                      >
-                        {tag}
+                <div>
+                  {/* Popular Badge */}
+                  {isTrending(design.id) && (
+                    <div className="absolute top-2 left-2 z-10">
+                      <span className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black px-2.5 py-0.5 rounded-full text-[11px] font-extrabold flex items-center gap-1 shadow-md">
+                        <TrendingUp className="h-3 w-3" />
+                        POPULAR CHOICE
                       </span>
-                    ))}
+                    </div>
+                  )}
+                  
+                  <div className="aspect-video relative overflow-hidden bg-muted/20">
+                    <LazyImage 
+                      src={design.images[0]} 
+                      alt={design.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute top-2 right-2 flex items-center gap-1">
+                      <span className="bg-black/70 backdrop-blur-sm text-white px-2 py-0.5 rounded-full text-xs font-mono flex items-center gap-1">
+                        <Eye className="h-3 w-3 text-primary" />
+                        {formatViews(design.currentViews)}
+                      </span>
+                    </div>
+                    <Badge className="absolute bottom-2 left-2 bg-primary/95 text-primary-foreground font-semibold text-xs border-none">
+                      {design.style}
+                    </Badge>
                   </div>
-                </CardContent>
+                  
+                  <CardContent className="p-5">
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1">{design.title}</h3>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">{design.description}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      {design.tags.slice(0, 3).map((tag) => (
+                        <span 
+                          key={tag}
+                          className="bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded text-[11px] font-medium"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </CardContent>
+                </div>
+
+                {/* Card Action */}
+                <div className="p-5 pt-0 border-t border-border/40 mt-2 flex flex-col gap-2">
+                  <Button 
+                    size="sm" 
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      consultForDesign(design);
+                    }}
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 mr-1.5" />
+                    Want This Design? Get Consultation
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>
+        )}
 
-          {/* No Results */}
-          {sortedDesigns.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">
-                No designs found matching your search. Try different keywords.
-              </p>
-            </div>
-          )}
+        {/* Custom Design Callout Banner */}
+        <div className="mt-16 p-8 sm:p-12 rounded-3xl glass border border-primary/30 text-center relative overflow-hidden bg-gradient-to-br from-card via-primary/5 to-purple-500/10 shadow-xl">
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-foreground mb-3">
+            Need a Custom Architectural Design for Your Land?
+          </h3>
+          <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto mb-6">
+            Our Senior Architects in Dang and Butwal will visit your plot, analyze orientation and Vastu, and develop photorealistic 3D drawings tailored to your exact plot dimensions.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
+              <Link to="/contact">Book Architectural Consultation</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="border-primary/40">
+              <Link to="/estimate">Calculate Construction Cost</Link>
+            </Button>
+          </div>
+        </div>
 
-          {/* Design Detail Modal */}
-          <Dialog open={!!selectedDesign} onOpenChange={() => setSelectedDesign(null)}>
-            <DialogContent className={`glass border-0 ${isZoomed ? 'max-w-full h-full' : 'max-w-4xl'}`}>
-              {selectedDesign && (
-                <>
-                  <DialogHeader>
-                    <div className="flex justify-between items-start">
-                      <DialogTitle className="text-2xl">{selectedDesign.title}</DialogTitle>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Eye className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">{formatViews(selectedDesign.currentViews)} views</span>
-                        {isTrending(selectedDesign.id) && (
-                          <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-2 py-1 rounded-full text-xs font-bold">
-                            TRENDING #{trendingDesigns.findIndex(d => d.id === selectedDesign.id) + 1}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </DialogHeader>
-                  
-                  {/* Image Carousel */}
-                  <div className={`relative bg-muted/20 rounded-lg ${isZoomed ? 'h-[80vh]' : 'aspect-video mb-4'}`}>
-                    <img
-                      src={selectedDesign.images[currentImageIndex]}
-                      alt={`${selectedDesign.title} - View ${currentImageIndex + 1}`}
-                      className={`w-full h-full object-contain rounded-lg cursor-${isZoomed ? 'zoom-out' : 'zoom-in'}`}
-                      onClick={toggleZoom}
-                    />
-                    
-                    {/* Navigation Arrows */}
-                    {selectedDesign.images.length > 1 && (
-                      <>
-                        <Button
-                          variant="secondary"
-                          size="icon"
-                          className="absolute left-2 top-1/2 transform -translate-y-1/2 glass"
-                          onClick={prevImage}
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="icon"
-                          className="absolute right-2 top-1/2 transform -translate-y-1/2 glass"
-                          onClick={nextImage}
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
-                    
-                    {/* Zoom Button */}
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="absolute top-2 right-2 glass"
-                      onClick={toggleZoom}
-                    >
-                      <ZoomIn className="h-4 w-4" />
-                    </Button>
-                    
-                    {/* Image Counter */}
-                    <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 glass px-3 py-1 rounded-full">
-                      <span className="text-sm">
-                        {currentImageIndex + 1} / {selectedDesign.images.length}
-                      </span>
+        {/* Design Detail Modal */}
+        <Dialog open={!!selectedDesign} onOpenChange={() => setSelectedDesign(null)}>
+          <DialogContent className={`glass max-w-4xl max-h-[90vh] overflow-y-auto ${isZoomed ? 'max-w-6xl' : ''}`}>
+            {selectedDesign && (
+              <div className="space-y-6">
+                <DialogHeader>
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+                    <Badge className="bg-primary text-primary-foreground">{selectedDesign.style}</Badge>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Eye className="h-3.5 w-3.5 text-primary" />
+                      <span>{formatViews(selectedDesign.currentViews)} views</span>
                     </div>
                   </div>
+                  <DialogTitle className="text-2xl sm:text-3xl font-bold text-foreground">
+                    {selectedDesign.title}
+                  </DialogTitle>
+                </DialogHeader>
 
-                  {/* Thumbnail Strip */}
-                  {selectedDesign.images.length > 1 && !isZoomed && (
-                    <div className="flex gap-2 overflow-x-auto pb-2">
-                      {selectedDesign.images.map((image, index) => (
-                        <img
-                          key={index}
-                          src={image}
-                          alt={`Thumbnail ${index + 1}`}
-                          className={`w-20 h-12 object-cover rounded cursor-pointer border-2 ${
-                            index === currentImageIndex ? 'border-accent' : 'border-transparent'
-                          }`}
-                          onClick={() => setCurrentImageIndex(index)}
-                        />
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Design Info - Hide when zoomed */}
-                  {!isZoomed && (
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="font-semibold mb-2">Description</h4>
-                        <p className="text-muted-foreground">{selectedDesign.description}</p>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-semibold mb-2">Style</h4>
-                        <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm">
-                          {selectedDesign.style}
-                        </span>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold mb-2">Key Features</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedDesign.features.map((feature, index) => (
-                            <span
-                              key={index}
-                              className="bg-muted text-muted-foreground px-3 py-1 rounded-full text-sm"
-                            >
-                              {feature}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* WhatsApp Share Button */}
-                      <Button 
-                        className="w-full gradient-primary hover:opacity-90"
-                        onClick={() => shareOnWhatsApp(selectedDesign, currentImageIndex)}
+                {/* Image Gallery Viewer */}
+                <div className="relative aspect-video rounded-xl overflow-hidden bg-black/40 border border-border/50">
+                  <LazyImage 
+                    src={selectedDesign.images[currentImageIndex]} 
+                    alt={selectedDesign.title}
+                    className="w-full h-full object-contain"
+                  />
+                  {selectedDesign.images.length > 1 && (
+                    <>
+                      <button 
+                        onClick={prevImage}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                        aria-label="Previous image"
                       >
-                        <Share2 className="h-4 w-4 mr-2" />
-                        Share this Design on WhatsApp
-                      </Button>
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button 
+                        onClick={nextImage}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                      <div className="absolute bottom-3 left-1/2 -translate-y-1/2 bg-black/70 text-white px-3 py-1 rounded-full text-xs font-mono">
+                        {currentImageIndex + 1} / {selectedDesign.images.length}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Description & Features */}
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-1">Overview</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{selectedDesign.description}</p>
+                  </div>
+
+                  {selectedDesign.features && selectedDesign.features.length > 0 && (
+                    <div>
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Key Specifications</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {selectedDesign.features.map((feature, i) => (
+                          <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground p-2 rounded-lg bg-card/60 border border-border/40">
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                            <span>{feature}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
-                </>
-              )}
-            </DialogContent>
-          </Dialog>
-        </div>
+                </div>
+
+                {/* Modal Actions */}
+                <div className="pt-4 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <Button 
+                    className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-md"
+                    onClick={() => consultForDesign(selectedDesign)}
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Request Custom Floor Plan for this Design
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full sm:w-auto"
+                    onClick={() => shareOnWhatsApp(selectedDesign, currentImageIndex)}
+                  >
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Share on WhatsApp
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

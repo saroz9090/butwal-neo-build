@@ -1,7 +1,11 @@
-import { Building2, Mail, Phone, MapPin, MessageCircle, Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
+import { Building2, Mail, Phone, MapPin, MessageCircle, Facebook, Instagram, Linkedin, Youtube, Sparkles, ArrowRight, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { DualPresenceMap } from "@/components/DualPresenceMap";
+import { useNepalBusinessStatus } from "@/hooks/useNepalBusinessStatus";
+import { Badge } from "@/components/ui/badge";
 
 const Footer = () => {
+  const businessStatus = useNepalBusinessStatus();
   const socialLinks = [
     { 
       icon: Facebook, 
@@ -38,22 +42,30 @@ const Footer = () => {
   return (
     <footer className="glass border-t border-border mt-20 pb-20 md:pb-0">
       <div className="container mx-auto px-4 py-12">
+        {/* Interactive Dual Hub Presence Banner */}
+        <div className="mb-12">
+          <DualPresenceMap compact={true} />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
             <div className="mb-4">
               <img 
                 src="/butwalconstructionandbuilderslogo.png" 
-                alt="Butwal Construction & Builders" 
+                alt="Butwal Construction & Builders - Best Construction Company in Butwal & Dang" 
                 className="h-12 w-auto object-contain"
               />
             </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              A sister company of Satyawati Devi Hardware, delivering excellence in construction.
+            <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+              <strong>Butwal Construction & Builders</strong> & <strong>Dang Construction & Builders</strong> — Flagship turnkey civil engineering, 3D architectural design & building permit experts in Nepal.
+            </p>
+            <p className="text-xs text-muted-foreground/80 mb-4">
+              Backed by Satyawati Devi Hardware and established engineering family networks.
             </p>
             
             {/* Social Media Links */}
-            <div className="flex items-center space-x-3 mt-6">
+            <div className="flex items-center space-x-3 mt-4">
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
@@ -69,70 +81,86 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links & Tools */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Quick Links</h4>
+            <h4 className="font-semibold text-foreground mb-4">Quick Navigation</h4>
             <div className="space-y-2">
               <Link to="/" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
                 Home
               </Link>
-              <Link to="/about" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                About Us
-              </Link>
-              <Link to="/projects" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                Projects
+              <Link to="/dang" className="block text-sm text-primary font-semibold hover:underline">
+                ★ Dang Branch (Ghorahi & Tulsipur)
               </Link>
               <Link to="/services" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                Services
+                Core Services
+              </Link>
+              <Link to="/designs" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                3D House Designs Gallery
+              </Link>
+              <Link to="/projects" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                Completed & Ongoing Projects
               </Link>
               <Link to="/estimate" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                Get Estimate
+                Construction Cost Estimator
+              </Link>
+              <Link to="/group-companies" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                Group Companies & Network
               </Link>
               <Link to="/contact" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                Contact
+                Contact & Regional Offices
               </Link>
             </div>
           </div>
 
-          {/* Services */}
+          {/* Group Companies */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Our Services</h4>
+            <h4 className="font-semibold text-foreground mb-4">Group Ecosystem</h4>
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Residential Construction</p>
-              <p className="text-sm text-muted-foreground">Commercial Buildings</p>
-              <p className="text-sm text-muted-foreground">Renovation & Remodeling</p>
-              <p className="text-sm text-muted-foreground">Project Management</p>
-              <p className="text-sm text-muted-foreground">Architectural Design</p>
-              <p className="text-sm text-muted-foreground">Construction Consulting</p>
+              <Link to="/group-companies" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                ★ Butwal Construction & Builders (HQ)
+              </Link>
+              <Link to="/dang" className="block text-sm text-primary font-medium hover:underline">
+                ★ Dang Construction & Builders (Regional)
+              </Link>
+              <Link to="/group-companies" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                • Satyawati Devi Hardware (10+ Yrs)
+              </Link>
+              <Link to="/group-companies" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                • Navdurga Furniture & Plywood
+              </Link>
+              <Link to="/group-companies" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                • Malika Hardware and Suppliers
+              </Link>
             </div>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Contact Us</h4>
+            <h4 className="font-semibold text-foreground mb-4">Regional Locations</h4>
             <div className="space-y-3">
-<div className="flex items-start space-x-2">
-  <MapPin size={16} className="text-primary mt-1 flex-shrink-0" />
-  <p className="text-sm text-muted-foreground">
-    <a 
-      href="https://www.google.com/maps/place/Butwal+Construction+and+Builders/@27.678078,83.460398,3884m/data=!3m1!1e3!4m6!3m5!1s0x3996876f7cb0d98d:0x3d0680af047da6ea!8m2!3d27.6780777!4d83.4603979!16s%2Fg%2F11mlw2yj59!5m1!1e1?hl=en&entry=ttu&g_ep=EgoyMDI1MTExNy4wIKXMDSoASAFQAw%3D%3D" 
-      target="_blank" 
-      rel="noopener noreferrer"
-      className="hover:text-primary transition-colors"
-    >
-      Butwal- Kalikanagar
-    </a>, 
-    <a 
-      href="https://www.google.com/maps/place/Butwal+Construction+and+Builders+-+Tilottama/@27.619188,83.474091,1943m/data=!3m1!1e3!4m6!3m5!1s0x399685796f0e443d:0xa678f71a16d2cf2d!8m2!3d27.6191877!4d83.4740908!16s%2Fg%2F11ynybd3tv!5m1!1e1?hl=en&entry=ttu&g_ep=EgoyMDI1MTExNy4wIKXMDSoASAFQAw%3D%3D" 
-      target="_blank" 
-      rel="noopener noreferrer"
-      className="hover:text-primary transition-colors"
-    >
-      Tilottama- Shankharpur
-    </a>
-  </p>
-</div>
+              <div className="flex items-start space-x-2">
+                <MapPin size={16} className="text-primary mt-1 flex-shrink-0" />
+                <p className="text-xs text-muted-foreground">
+                  <strong className="text-foreground block">Butwal Head Office (HQ):</strong>
+                  Butwal-11, Kalikanagar, Horizonchowk, Annapurna Path, Rupandehi, Nepal
+                </p>
+              </div>
 
+              <div className="flex items-start space-x-2">
+                <MapPin size={16} className="text-primary mt-1 flex-shrink-0" />
+                <p className="text-xs text-muted-foreground">
+                  <strong className="text-foreground block">Dang Regional Branch:</strong>
+                  Ghorahi-15, Main Road, Dang (Serving Ghorahi, Tulsipur, Lamahi)
+                </p>
+              </div>
+
+              <a 
+                href="tel:+9779857076965"
+                className="flex items-center space-x-2 hover:text-primary transition-colors group pt-2"
+              >
+                <Phone size={16} className="text-primary flex-shrink-0 group-hover:scale-110 transition-transform" />
+                <p className="text-sm text-muted-foreground group-hover:text-primary">+977 9857076965 (Direct)</p>
+              </a>
               <a 
                 href="https://wa.me/9779763653181" 
                 target="_blank" 
@@ -140,21 +168,20 @@ const Footer = () => {
                 className="flex items-center space-x-2 hover:text-primary transition-colors group"
               >
                 <MessageCircle size={16} className="text-primary flex-shrink-0 group-hover:scale-110 transition-transform" />
-                <p className="text-sm text-muted-foreground group-hover:text-primary">+977 9763653181</p>
+                <p className="text-sm text-muted-foreground group-hover:text-primary">+977 9763653181 (WhatsApp)</p>
               </a>
-<a 
-  href="tel:+9779869472803"
-  className="flex items-center space-x-2 hover:text-primary transition-colors group"
->
-  <Phone 
-    size={16} 
-    className="text-primary flex-shrink-0 group-hover:scale-110 transition-transform" 
-  />
-  <p className="text-sm text-muted-foreground group-hover:text-primary">
-    +977 9869472803
-  </p>
-</a>
-
+              <a 
+                href="tel:+9779869472803"
+                className="flex items-center space-x-2 hover:text-primary transition-colors group"
+              >
+                <Phone 
+                  size={16} 
+                  className="text-primary flex-shrink-0 group-hover:scale-110 transition-transform" 
+                />
+                <p className="text-sm text-muted-foreground group-hover:text-primary">
+                  +977 9869472803 (Hardware)
+                </p>
+              </a>
 
               <a 
                 href="mailto:info@butwalconstruction.com.np"
@@ -165,10 +192,35 @@ const Footer = () => {
               </a>
               
               {/* Business Hours */}
-              <div className="mt-4 pt-4 border-t border-border">
-                <h5 className="text-sm font-semibold text-foreground mb-2">Business Hours</h5>
-                <p className="text-xs text-muted-foreground">Sun - Fri: 9:00 AM - 6:00 PM</p>
-                <p className="text-xs text-muted-foreground">Saturday: 10:00 AM - 4:00 PM</p>
+              <div className="mt-4 pt-4 border-t border-border space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <h5 className="text-sm font-semibold text-foreground">Business Hours</h5>
+                  <Badge className={`text-[10px] font-bold px-2 py-0.5 ${
+                    businessStatus.isOpen 
+                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" 
+                      : "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                  }`}>
+                    {businessStatus.isOpen ? (
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                        Open Now
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                        {businessStatus.statusText}
+                      </span>
+                    )}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground flex items-center justify-between">
+                  <span>Sun - Fri: 9:00 AM - 6:00 PM</span>
+                </p>
+                <p className="text-xs text-muted-foreground">Saturday: On Appointment</p>
+                <div className="text-[11px] text-primary/90 font-medium pt-1 flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-primary" />
+                  <span>Nepal Time: {businessStatus.currentTimeFormatted}</span>
+                </div>
               </div>
             </div>
           </div>

@@ -55,13 +55,20 @@ const Testimonials = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pt-20 pb-20 px-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen pt-32 pb-20 relative overflow-hidden">
+      {/* Liquid Ambient Iridescent Background Mesh (Apple iOS style) */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-1/6 left-1/10 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-primary/20 to-rose-600/10 blur-[130px] liquid-orb-1" />
+        <div className="absolute top-1/2 right-1/10 w-[550px] h-[550px] rounded-full bg-gradient-to-tr from-purple-600/20 to-indigo-600/15 blur-[140px] liquid-orb-2" />
+        <div className="absolute bottom-1/10 left-1/3 w-[450px] h-[450px] rounded-full bg-gradient-to-r from-pink-500/15 to-amber-500/10 blur-[120px] liquid-orb-3" />
+      </div>
+
+      <div className="max-w-7xl mx-auto relative z-10 px-4">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-foreground">
-            Client <span className="text-gradient">Testimonials</span>
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-4 text-foreground leading-tight tracking-tight">
+            Client <span className="bg-clip-text text-transparent bg-gradient-to-r from-rose-400 via-primary to-pink-400 font-black">Testimonials</span>
           </h1>
-          <p className="text-lg text-muted-foreground mb-6">
+          <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
             Hear what our satisfied clients have to say about their experience
           </p>
           <Button 

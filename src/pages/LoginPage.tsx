@@ -99,22 +99,51 @@ const LoginPage = () => {
         </Link>
 
         {/* Login Card */}
-        <Card className="glass border-0">
-          <CardHeader className="text-center space-y-4">
+        <Card className="glass border border-primary/30 shadow-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-purple-500/10 p-2 text-center text-xs font-semibold text-primary border-b border-primary/20 flex items-center justify-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+            Website Admin & Management Portal
+          </div>
+          <CardHeader className="text-center space-y-3 pt-6">
             <div className="flex justify-center">
-              <div className="p-3 rounded-full bg-primary/10">
-                <Building2 className="h-8 w-8 text-primary" />
+              <div className="p-3.5 rounded-2xl bg-primary text-primary-foreground shadow-lg">
+                <Building2 className="h-8 w-8" />
               </div>
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold">Butwal Construction</CardTitle>
-              <CardDescription className="text-lg mt-2">
-                Project Management Portal
+              <CardTitle className="text-2xl font-black text-foreground">
+                Butwal Construction
+              </CardTitle>
+              <CardDescription className="text-sm font-medium text-muted-foreground mt-1">
+                Website Admin & Client Management Dashboard
               </CardDescription>
             </div>
           </CardHeader>
           
           <CardContent className="space-y-6">
+            {/* Other Portals Shortcut Box */}
+            <div className="bg-muted/40 p-3 rounded-xl border border-border text-xs space-y-2">
+              <p className="font-semibold text-foreground text-center">Looking for another system?</p>
+              <div className="grid grid-cols-2 gap-2">
+                <a 
+                  href="https://employee.butwalconstruction.com.np" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-lg bg-background hover:bg-primary/10 border border-border text-center font-medium text-foreground transition-colors block"
+                >
+                  Employee Portal ↗
+                </a>
+                <a 
+                  href="https://accounts.butwalconstruction.com.np" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-lg bg-background hover:bg-emerald-500/10 border border-border text-center font-medium text-foreground transition-colors block"
+                >
+                  ERP Accounts ↗
+                </a>
+              </div>
+            </div>
+
             {/* Error Alert */}
             {error && (
               <Alert variant="destructive">

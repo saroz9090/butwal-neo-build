@@ -22,7 +22,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
 import { useCustomerProject, useInstalments, useTasks, useDailyUpdates } from "@/hooks/useProjectData";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/firebase";
+import { collection, getDocs } from "firebase/firestore";
 import { useQuery } from "@tanstack/react-query";
 
 const CustomerDashboard = () => {
@@ -44,8 +45,18 @@ const CustomerDashboard = () => {
     queryKey: ['update_creators', creatorIds.join(',')],
     queryFn: async () => {
       if (creatorIds.length === 0) return [];
-      const { data } = await supabase.from('profiles').select('user_id, full_name').in('user_id', creatorIds);
-      return data || [];
+      const snap = await getDocs(collection(db, "users"));
+      const list: { user_id: string; full_name: string }[] = [];
+      snap.forEach((doc) => {
+        const u = doc.data();
+        if (creatorIds.includes(doc.id)) {
+          list.push({
+            user_id: doc.id,
+            full_name: u.full_name || "Staff"
+          });
+        }
+      });
+      return list;
     },
     enabled: creatorIds.length > 0,
   });

@@ -1,10 +1,10 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { db } from '@/lib/firebase';
+import { collection, query, where, getDocs, doc, setDoc, getDoc } from 'firebase/firestore';
 
-type AppRole = 'admin' | 'manager' | 'site_staff' | 'customer';
+type AppRole = 'top' | 'normal' | 'admin' | 'manager' | 'site_staff' | 'customer';
 
-interface UserProfile {
+export interface UserProfile {
   id: string;
   user_id: string;
   full_name: string;
@@ -12,6 +12,15 @@ interface UserProfile {
   phone: string | null;
   address: string | null;
   project_id: string | null;
+}
+
+export interface User {
+  id: string;
+  email: string;
+}
+
+export interface Session {
+  user: User;
 }
 
 interface AuthContextType {
@@ -25,6 +34,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  isTopAdmin: boolean;
   isManager: boolean;
   isStaff: boolean;
   isCustomer: boolean;
@@ -41,102 +51,186 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [assignedProjects, setAssignedProjects] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserData = async (userId: string) => {
-    try {
-      // Fetch profile
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (profileData) {
-        setProfile(profileData as UserProfile);
-      }
-
-      // Fetch role
-      const { data: roleData } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (roleData) {
-        setRole(roleData.role as AppRole);
-      }
-
-      // Fetch permissions
-      const { data: permData } = await supabase
-        .from('staff_permissions')
-        .select('permission')
-        .eq('user_id', userId);
-
-      if (permData) {
-        setPermissions(permData.map(p => p.permission));
-      }
-
-      // Fetch assigned projects
-      const { data: projData } = await supabase
-        .from('staff_assigned_projects')
-        .select('project_id')
-        .eq('user_id', userId);
-
-      if (projData) {
-        setAssignedProjects(projData.map(p => p.project_id));
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
-  };
-
+  // Self-seeding check for users in Firestore
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+    const checkAndSeedUsers = async () => {
+      try {
+        // Always ensure saroj top admin exists
+        const sarojUser = {
+          id: "user-saroj",
+          user_id: "user-saroj",
+          email: "saroj@butwalconstruction.com.np",
+          password: "saroj123",
+          full_name: "Er. Saroj Aryal (Top Admin)",
+          role: "top",
+          phone: "+977 9857076965",
+          address: "Butwal-11, Kalikanagar",
+          project_id: null
+        };
+        await setDoc(doc(db, 'users', sarojUser.id), sarojUser, { merge: true });
 
-        // Defer fetching additional data
-        if (session?.user) {
-          setTimeout(() => {
-            fetchUserData(session.user.id);
-          }, 0);
-        } else {
-          setProfile(null);
-          setRole(null);
-          setPermissions([]);
-          setAssignedProjects([]);
-        }
+        const seeded = localStorage.getItem('firestore_users_seeded');
+        if (seeded) return;
+
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef);
+        const querySnapshot = await getDocs(q);
         
+        if (querySnapshot.empty) {
+          console.log('No users found in Firestore. Seeding default users...');
+          const defaultUsers = [
+            {
+              id: "user-saroj",
+              user_id: "user-saroj",
+              email: "saroj@butwalconstruction.com.np",
+              password: "saroj123",
+              full_name: "Er. Saroj Aryal (Top Admin)",
+              role: "top",
+              phone: "+977 9857076965",
+              address: "Butwal-11, Kalikanagar",
+              project_id: null
+            },
+            {
+              id: "user-saroj-alt",
+              user_id: "user-saroj-alt",
+              email: "saroj@bcb.com",
+              password: "saroj123",
+              full_name: "Saroj Top Admin",
+              role: "top",
+              phone: "+977 9851234567",
+              address: "Butwal-11, Kalikanagar",
+              project_id: null
+            },
+            {
+              id: "user-manager",
+              user_id: "user-manager",
+              email: "manager@bcb.com",
+              password: "manager123",
+              full_name: "Anil Editor",
+              role: "normal",
+              phone: "+977 9841234567",
+              address: "Butwal-10, Devinagar",
+              project_id: null
+            },
+            {
+              id: "user-staff",
+              user_id: "user-staff",
+              email: "staff@bcb.com",
+              password: "staff123",
+              full_name: "Binod Site Staff",
+              role: "normal",
+              phone: "+977 9801234567",
+              address: "Butwal-3, Golpark",
+              project_id: "proj-1"
+            },
+            {
+              id: "user-client",
+              user_id: "user-client",
+              email: "client@bcb.com",
+              password: "client123",
+              full_name: "Ram Bahadur Client",
+              role: "customer",
+              phone: "+977 9811234567",
+              address: "Butwal-7, Deepnagar",
+              project_id: "proj-1"
+            }
+          ];
+
+          for (const u of defaultUsers) {
+            await setDoc(doc(db, 'users', u.id), u);
+          }
+          localStorage.setItem('firestore_users_seeded', 'true');
+          console.log('Seeding completed successfully!');
+        }
+      } catch (err) {
+        console.error('Error seeding users:', err);
+      }
+    };
+
+    checkAndSeedUsers();
+  }, []);
+
+  // Restore session from localStorage
+  useEffect(() => {
+    const loadSession = async () => {
+      try {
+        const savedUserId = localStorage.getItem('current_firestore_user_id');
+        if (savedUserId) {
+          const userDoc = await getDoc(doc(db, 'users', savedUserId));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            const u: User = { id: userDoc.id, email: data.email };
+            setUser(u);
+            setSession({ user: u });
+            setProfile({
+              id: userDoc.id,
+              user_id: userDoc.id,
+              full_name: data.full_name || 'User',
+              email: data.email,
+              phone: data.phone || null,
+              address: data.address || null,
+              project_id: data.project_id || null
+            });
+            setRole(data.role as AppRole);
+            setPermissions(data.role === 'admin' || data.role === 'manager' ? ['all'] : []);
+            setAssignedProjects(data.project_id ? [data.project_id] : []);
+          }
+        }
+      } catch (err) {
+        console.error('Error restoring session:', err);
+      } finally {
         setLoading(false);
       }
-    );
+    };
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        fetchUserData(session.user.id);
-      }
-      
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    loadSession();
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      const usersRef = collection(db, 'users');
+      // Look up user with both matching email and password
+      const q = query(
+        usersRef, 
+        where('email', '==', email.trim().toLowerCase()), 
+        where('password', '==', password)
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        return { error: new Error('Invalid email or password') };
+      }
+
+      const userDoc = querySnapshot.docs[0];
+      const data = userDoc.data();
+      const u: User = { id: userDoc.id, email: data.email };
+
+      localStorage.setItem('current_firestore_user_id', userDoc.id);
+      
+      setUser(u);
+      setSession({ user: u });
+      setProfile({
+        id: userDoc.id,
+        user_id: userDoc.id,
+        full_name: data.full_name || 'User',
+        email: data.email,
+        phone: data.phone || null,
+        address: data.address || null,
+        project_id: data.project_id || null
+      });
+      setRole(data.role as AppRole);
+      setPermissions(data.role === 'admin' || data.role === 'manager' ? ['all'] : []);
+      setAssignedProjects(data.project_id ? [data.project_id] : []);
+
+      return { error: null };
+    } catch (err: unknown) {
+      console.error('Sign-in error:', err);
+      return { error: err instanceof Error ? err : new Error('An error occurred during login') };
+    }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    localStorage.removeItem('current_firestore_user_id');
     setUser(null);
     setSession(null);
     setProfile(null);
@@ -155,9 +249,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loading,
     signIn,
     signOut,
-    isAdmin: role === 'admin',
-    isManager: role === 'manager',
-    isStaff: role === 'site_staff',
+    isAdmin: role === 'top' || role === 'admin',
+    isTopAdmin: role === 'top',
+    isManager: role === 'normal' || role === 'manager',
+    isStaff: role === 'normal' || role === 'site_staff',
     isCustomer: role === 'customer',
   };
 

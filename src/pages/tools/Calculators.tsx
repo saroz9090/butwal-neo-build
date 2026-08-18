@@ -100,12 +100,19 @@ const Calculators = () => {
   ];
 
   return (
-    <div className="min-h-screen pt-32 pb-20 bg-background">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen relative overflow-hidden bg-background pt-32 pb-20 px-4">
+      {/* Liquid Ambient Iridescent Background Mesh (Apple iOS style) */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-1/6 left-1/10 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-primary/20 to-rose-600/10 blur-[130px] liquid-orb-1" />
+        <div className="absolute top-1/2 right-1/10 w-[550px] h-[550px] rounded-full bg-gradient-to-tr from-purple-600/20 to-indigo-600/15 blur-[140px] liquid-orb-2" />
+        <div className="absolute bottom-1/10 left-1/3 w-[450px] h-[450px] rounded-full bg-gradient-to-r from-pink-500/15 to-amber-500/10 blur-[120px] liquid-orb-3" />
+      </div>
+
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-foreground">
-            Financial <span className="text-primary">Calculators</span>
+          <h1 className="text-5xl md:text-6xl font-black mb-6 text-foreground tracking-tight leading-tight">
+            Financial <span className="bg-clip-text text-transparent bg-gradient-to-r from-rose-400 via-primary to-pink-400">Calculators</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Plan your construction budget with our comprehensive financial tools
@@ -300,9 +307,9 @@ const Calculators = () => {
                       Annual Rental Income: NPR {(parseFloat(monthlyRent) * 12).toLocaleString()}
                     </div>
                     <div className="text-sm text-muted-foreground mt-2">
-                      {rentalYield > 6 ? "✅ Excellent rental yield for Nepal market!" : 
-                       rentalYield > 4 ? "✓ Good rental yield" : 
-                       "⚠️ Consider location and property type"}
+                      {rentalYield > 6 ? "Excellent rental yield for Nepal market!" : 
+                       rentalYield > 4 ? "Good rental yield" : 
+                       "Consider location and property type"}
                     </div>
                   </div>
                 )}

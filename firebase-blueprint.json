@@ -1,0 +1,93 @@
+{
+  "rules": [
+    {
+      "collection": "users",
+      "description": "User profiles and roles",
+      "fields": [
+        { "name": "email", "type": "string" },
+        { "name": "full_name", "type": "string" },
+        { "name": "role", "type": "string" }
+      ],
+      "security": {
+        "read": "request.auth != null",
+        "write": "request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'"
+      }
+    },
+    {
+      "collection": "blogPosts",
+      "description": "Blog posts for the website",
+      "fields": [
+        { "name": "title", "type": "string" },
+        { "name": "excerpt", "type": "string" },
+        { "name": "content", "type": "string" },
+        { "name": "coverImage", "type": "string" },
+        { "name": "author", "type": "string" },
+        { "name": "date", "type": "string" },
+        { "name": "readTime", "type": "string" },
+        { "name": "isPublished", "type": "boolean" }
+      ],
+      "security": {
+        "read": "true",
+        "write": "request.auth != null && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'manager')"
+      }
+    },
+    {
+      "collection": "projects",
+      "description": "Construction projects portfolio",
+      "fields": [
+        { "name": "code", "type": "string" },
+        { "name": "title", "type": "string" },
+        { "name": "category", "type": "string" },
+        { "name": "location", "type": "string" },
+        { "name": "client", "type": "string" },
+        { "name": "area", "type": "string" },
+        { "name": "status", "type": "string" },
+        { "name": "progress", "type": "number" },
+        { "name": "image", "type": "string" },
+        { "name": "description", "type": "string" },
+        { "name": "cost", "type": "string" },
+        { "name": "startDate", "type": "string" },
+        { "name": "completionDate", "type": "string" }
+      ],
+      "security": {
+        "read": "true",
+        "write": "request.auth != null && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'manager')"
+      }
+    },
+    {
+      "collection": "designs",
+      "description": "House designs gallery",
+      "fields": [
+        { "name": "title", "type": "string" },
+        { "name": "style", "type": "string" },
+        { "name": "description", "type": "string" },
+        { "name": "images", "type": "array" },
+        { "name": "tags", "type": "array" },
+        { "name": "features", "type": "array" },
+        { "name": "baseViews", "type": "number" },
+        { "name": "growthRate", "type": "number" },
+        { "name": "currentViews", "type": "number" }
+      ],
+      "security": {
+        "read": "true",
+        "write": "request.auth != null && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'manager')"
+      }
+    },
+    {
+      "collection": "settings",
+      "description": "Global website settings",
+      "fields": [
+        { "name": "companyName", "type": "string" },
+        { "name": "tagline", "type": "string" },
+        { "name": "contactEmail", "type": "string" },
+        { "name": "contactPhone", "type": "string" },
+        { "name": "address", "type": "string" },
+        { "name": "socialLinks", "type": "map" }
+      ],
+      "security": {
+        "read": "true",
+        "write": "request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'"
+      }
+    }
+  ]
+}

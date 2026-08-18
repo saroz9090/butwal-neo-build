@@ -4,15 +4,22 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToolsProvider } from "@/contexts/ToolsContext";
+import { WebsiteContentProvider } from "@/contexts/WebsiteContentContext";
 import { AuthProvider } from "@/hooks/useAuth";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
+import SEOHead from "./components/SEOHead";
+import { ScrollToTop } from "./components/ScrollToTop";
+
 import Home from "./pages/Home";
 import AboutServices from "./pages/AboutServices";
+import DangBranch from "./pages/DangBranch";
 import Projects from "./pages/Projects";
 import Blog from "./pages/Blog";
 import Estimate from "./pages/Estimate";
 import Contact from "./pages/Contact";
+import GroupCompanies from "./pages/GroupCompanies";
+import ToolsHubPage from "./pages/tools/ToolsHubPage";
 import PermitAssistant from "./pages/tools/PermitAssistant";
 import Calculators from "./pages/tools/Calculators";
 import VastuGuide from "./pages/tools/VastuGuide";
@@ -34,6 +41,8 @@ import AdminSetup from "./pages/AdminSetup";
 import Privacy from "./pages/Privacy";
 import TermsAndConditions from "./pages/Terms";
 import Sitemap from "./pages/Sitemap";
+import BlogPostDetail from "./pages/BlogPostDetail";
+import ProjectDetail from "./pages/ProjectDetail";
 
 const queryClient = new QueryClient();
 
@@ -41,15 +50,25 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <ToolsProvider>
+        <WebsiteContentProvider>
+          <ToolsProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ScrollToTop />
+            <SEOHead />
             <Navigation />
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/about" element={<AboutServices />} />
+              <Route path="/about" element={<AboutServices defaultTab="about" />} />
+              <Route path="/services" element={<AboutServices defaultTab="services" />} />
+              <Route path="/dang" element={<DangBranch />} />
+              <Route path="/dang/:location" element={<DangBranch />} />
+              <Route path="/group-companies" element={<GroupCompanies />} />
               <Route path="/projects" element={<Projects />} />
+              <Route path="/projects/:id" element={<ProjectDetail />} />
+              <Route path="/tools" element={<ToolsHubPage />} />
+              <Route path="/apps" element={<ToolsHubPage />} />
               <Route path="/tools/permits" element={<PermitAssistant />} />
               <Route path="/tools/calculators" element={<Calculators />} />
               <Route path="/tools/vastu" element={<VastuGuide />} />
@@ -59,6 +78,7 @@ const App = () => (
               <Route path="/partnerships" element={<Partnerships />} />
               <Route path="/testimonials" element={<Testimonials />} />
               <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:id" element={<BlogPostDetail />} />
               <Route path="/estimate" element={<Estimate />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/floor-planner" element={<FloorPlannerPage />} />
@@ -77,9 +97,11 @@ const App = () => (
             </Routes>
             <Footer />
             <Chatbot />
+
           </BrowserRouter>
         </ToolsProvider>
-      </AuthProvider>
+      </WebsiteContentProvider>
+    </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

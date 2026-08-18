@@ -11,10 +11,24 @@ const Sitemap = () => {
       pages: [
         { name: "Home", path: "/", description: "Welcome to Butwal Construction & Builders" },
         { name: "About & Services", path: "/about", description: "Learn about our company and services" },
+        { name: "Group Companies", path: "/group-companies", description: "Butwal Construction, Dang Construction & sister companies" },
         { name: "Projects", path: "/projects", description: "View our completed construction projects" },
         { name: "Testimonials", path: "/testimonials", description: "Client reviews and success stories" },
         { name: "Partnerships", path: "/partnerships", description: "Our trusted partners and suppliers" },
         { name: "Contact", path: "/contact", description: "Get in touch with our team" },
+      ]
+    },
+    {
+      title: "Group Companies & Subsidiaries",
+      icon: Building2,
+      color: "text-amber-500",
+      bgColor: "bg-amber-500/10",
+      pages: [
+        { name: "Butwal Construction and Builders", path: "/group-companies", description: "Main turnkey construction & architectural engineering flagship" },
+        { name: "Dang Construction and Builders", path: "/group-companies", description: "Newly opened regional division serving Ghorahi & Tulsipur in Dang Valley" },
+        { name: "Satyawati Devi Hardware", path: "/group-companies", description: "Established leading TMT steel rebar, cement & building material supplier" },
+        { name: "Navdurga Furniture & Plywood", path: "/group-companies", description: "IS 710 Marine plywood, custom modular kitchen & furniture center" },
+        { name: "Malika Hardware and Suppliers", path: "/group-companies", description: "Wholesale CPVC/PPR plumbing, electricals, and paints store" },
       ]
     },
     {

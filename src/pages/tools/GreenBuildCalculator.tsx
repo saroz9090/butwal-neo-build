@@ -110,11 +110,18 @@ const GreenBuildCalculator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-20 pb-20 px-4">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-foreground">
-            Green Build <span className="text-gradient">Calculator</span>
+    <div className="min-h-screen relative overflow-hidden bg-background pt-32 pb-20 px-4">
+      {/* Liquid Ambient Iridescent Background Mesh (Apple iOS style) */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-1/6 left-1/10 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-primary/20 to-rose-600/10 blur-[130px] liquid-orb-1" />
+        <div className="absolute top-1/2 right-1/10 w-[550px] h-[550px] rounded-full bg-gradient-to-tr from-purple-600/20 to-indigo-600/15 blur-[140px] liquid-orb-2" />
+        <div className="absolute bottom-1/10 left-1/3 w-[450px] h-[450px] rounded-full bg-gradient-to-r from-pink-500/15 to-amber-500/10 blur-[120px] liquid-orb-3" />
+      </div>
+
+      <div className="max-w-5xl mx-auto relative z-10">
+        <div className="text-center mb-8 animate-fade-in">
+          <h1 className="text-4xl md:text-6xl font-black mb-4 text-foreground tracking-tight leading-tight">
+            Green Build <span className="bg-clip-text text-transparent bg-gradient-to-r from-rose-400 via-primary to-pink-400">Calculator</span>
           </h1>
           <p className="text-lg text-muted-foreground">Calculate savings with eco-friendly features</p>
           <Button 
@@ -127,7 +134,7 @@ const GreenBuildCalculator = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card className="glass">
+          <Card className="glass border-white/10 shadow-lg">
             <CardHeader>
               <CardTitle>Building Details</CardTitle>
             </CardHeader>
@@ -155,7 +162,7 @@ const GreenBuildCalculator = () => {
             </CardContent>
           </Card>
 
-          <Card className="glass">
+          <Card className="glass border-white/10 shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Leaf className="w-5 h-5 text-primary" />
@@ -257,26 +264,26 @@ const GreenBuildCalculator = () => {
 
         {result && (
           <div className="space-y-6">
-            <Card className="glass glow">
+            <Card className="glass border-white/10 shadow-lg glow">
               <CardHeader>
                 <CardTitle>Annual Savings</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 glass rounded-lg">
+                <div className="p-4 glass border-white/5 rounded-xl shadow-sm">
                   <Zap className="w-8 h-8 text-primary mb-2" />
                   <div className="text-sm text-muted-foreground">Energy Savings</div>
                   <div className="text-2xl font-bold text-foreground">{result.energySavings.toLocaleString()} kWh</div>
                 </div>
-                <div className="p-4 glass rounded-lg">
+                <div className="p-4 glass border-white/5 rounded-xl shadow-sm">
                   <Droplet className="w-8 h-8 text-primary mb-2" />
                   <div className="text-sm text-muted-foreground">Water Savings</div>
                   <div className="text-2xl font-bold text-foreground">{result.waterSavings.toLocaleString()} L</div>
                 </div>
-                <div className="p-4 glass rounded-lg">
+                <div className="p-4 glass border-white/5 rounded-xl shadow-sm">
                   <div className="text-sm text-muted-foreground">Annual Cost Savings</div>
                   <div className="text-2xl font-bold text-primary">NPR {result.costSavings.toLocaleString()}</div>
                 </div>
-                <div className="p-4 glass rounded-lg">
+                <div className="p-4 glass border-white/5 rounded-xl shadow-sm">
                   <Leaf className="w-8 h-8 text-primary mb-2" />
                   <div className="text-sm text-muted-foreground">Carbon Reduction</div>
                   <div className="text-2xl font-bold text-foreground">{result.carbonReduction.toLocaleString()} kg CO₂</div>
@@ -284,16 +291,16 @@ const GreenBuildCalculator = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass">
+            <Card className="glass border-white/10 shadow-lg">
               <CardHeader>
                 <CardTitle>Investment Analysis</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="p-4 glass rounded-lg">
+                <div className="p-4 glass border-white/5 rounded-xl shadow-sm">
                   <div className="text-sm text-muted-foreground mb-1">Initial Investment</div>
                   <div className="text-2xl font-bold text-foreground">NPR {result.initialCost.toLocaleString()}</div>
                 </div>
-                <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl shadow-md">
                   <div className="text-sm text-muted-foreground mb-1">Payback Period</div>
                   <div className="text-3xl font-bold text-primary">{result.paybackYears} years</div>
                   <p className="text-sm text-muted-foreground mt-2">
@@ -303,7 +310,7 @@ const GreenBuildCalculator = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass">
+            <Card className="glass border-white/10 shadow-lg">
               <CardHeader>
                 <CardTitle>Environmental Impact</CardTitle>
               </CardHeader>

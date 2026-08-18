@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Plus, Image, X, Upload } from "lucide-react";
+import { Plus, X, Upload, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateDailyUpdate, useProjects } from "@/hooks/useProjectData";
-import { supabase } from "@/integrations/supabase/client";
+import { uploadImageToFreeCloud } from "@/lib/imageUpload";
 
 interface AddDailyUpdateProps {
   isOpen: boolean;
@@ -21,46 +21,44 @@ const AddDailyUpdate = ({ isOpen, onClose, onSuccess }: AddDailyUpdateProps) => 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [projectId, setProjectId] = useState("");
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [uploading, setUploading] = useState(false);
+  const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   const { data: projects = [] } = useProjects();
   const createUpdate = useCreateDailyUpdate();
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (files.length + selectedFiles.length > 5) {
+    if (files.length + previews.length > 5) {
       toast({ title: "Limit", description: "Max 5 images allowed", variant: "destructive" });
       return;
     }
-    setSelectedFiles(prev => [...prev, ...files]);
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => setPreviews(prev => [...prev, reader.result as string]);
-      reader.readAsDataURL(file);
-    });
+
+    setIsUploadingPhotos(true);
+    try {
+      const newUrls: string[] = [];
+      for (const file of files) {
+        const result = await uploadImageToFreeCloud(file);
+        newUrls.push(result.url);
+      }
+      setPreviews(prev => [...prev, ...newUrls]);
+      toast({
+        title: "Photos Processed",
+        description: `${newUrls.length} photo(s) compressed & prepared for update.`,
+      });
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Upload Error", description: "Failed to process photo", variant: "destructive" });
+    } finally {
+      setIsUploadingPhotos(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
     setPreviews(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const uploadImages = async (): Promise<string[]> => {
-    if (!user || selectedFiles.length === 0) return [];
-    const urls: string[] = [];
-    for (const file of selectedFiles) {
-      const ext = file.name.split('.').pop();
-      const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await supabase.storage.from('daily-updates').upload(path, file);
-      if (error) throw error;
-      const { data: urlData } = supabase.storage.from('daily-updates').getPublicUrl(path);
-      urls.push(urlData.publicUrl);
-    }
-    return urls;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -74,39 +72,34 @@ const AddDailyUpdate = ({ isOpen, onClose, onSuccess }: AddDailyUpdateProps) => 
       return;
     }
 
-    setUploading(true);
     try {
-      const imageUrls = await uploadImages();
       await createUpdate.mutateAsync({
         project_id: projectId,
         title,
         description,
         created_by: user.id,
-        images: imageUrls,
+        images: previews,
       });
       setTitle("");
       setDescription("");
       setProjectId("");
-      setSelectedFiles([]);
       setPreviews([]);
       onSuccess?.();
       onClose();
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    } finally {
-      setUploading(false);
+    } catch (err) {
+      toast({ title: "Error", description: (err as Error).message, variant: "destructive" });
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-2xl sm:max-w-3xl max-h-[88vh] overflow-y-auto px-6 py-6">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5" />
-            Add Daily Update
+          <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+            <Plus className="h-5 w-5 text-primary" />
+            Add Daily Progress Update
           </DialogTitle>
-          <DialogDescription>Post a progress update for a construction project</DialogDescription>
+          <DialogDescription>Post a progress update for a construction project with site photos.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -160,18 +153,33 @@ const AddDailyUpdate = ({ isOpen, onClose, onSuccess }: AddDailyUpdateProps) => 
                 ))}
               </div>
             )}
-            {selectedFiles.length < 5 && (
-              <Button type="button" variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
-                <Upload className="h-4 w-4 mr-2" />
-                Add Photos
+            {previews.length < 5 && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full" 
+                disabled={isUploadingPhotos}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {isUploadingPhotos ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin text-primary" />
+                    Compressing & Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Add Progress Photos
+                  </>
+                )}
               </Button>
             )}
           </div>
 
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" onClick={onClose} className="flex-1">Cancel</Button>
-            <Button type="submit" className="flex-1" disabled={createUpdate.isPending || uploading}>
-              {uploading ? "Uploading..." : createUpdate.isPending ? "Posting..." : "Post Update"}
+            <Button type="submit" className="flex-1" disabled={createUpdate.isPending}>
+              {createUpdate.isPending ? "Posting..." : "Post Update"}
             </Button>
           </div>
         </form>
