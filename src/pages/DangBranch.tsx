@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
+import { motion, AnimatePresence } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +25,11 @@ import { useWebsiteContent, INITIAL_PROJECTS } from "@/contexts/WebsiteContentCo
 import LazyImage from "@/components/LazyImage";
 import project1 from "@/assets/project-1.jpg";
 import project2 from "@/assets/project-2.jpg";
+import { 
+  AnimatedSection, 
+  StaggerContainer, 
+  StaggerItem 
+} from "@/components/AnimatedSection";
 
 export const DangBranch = () => {
   const { location: locationParam } = useParams<{ location?: string }>();
@@ -202,7 +208,7 @@ export const DangBranch = () => {
 
       {/* Services in Dang */}
       <section className="py-20 container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <AnimatedSection className="text-center max-w-3xl mx-auto mb-16">
           <Badge className="bg-primary/10 text-primary border-primary/30 mb-3">Comprehensive Solutions</Badge>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
             Our Construction Services in <span className="text-primary">Dang</span>
@@ -210,38 +216,40 @@ export const DangBranch = () => {
           <p className="text-muted-foreground mt-3">
             From initial plot soil testing and 3D architectural models to turnkey handover, we handle everything under one roof.
           </p>
-        </div>
+        </AnimatedSection>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {dangServices.map((service, idx) => (
-            <Card key={idx} className="glass p-6 hover-lift border-border/50 hover:border-primary/50 transition-all flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                    <service.icon className="w-6 h-6" />
+            <StaggerItem key={idx}>
+              <Card className="glass p-6 hover-lift border-border/50 hover:border-primary/50 transition-all flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                      <service.icon className="w-6 h-6" />
+                    </div>
+                    <Badge variant="secondary" className="text-xs font-medium">{service.badge}</Badge>
                   </div>
-                  <Badge variant="secondary" className="text-xs font-medium">{service.badge}</Badge>
+                  <h3 className="text-xl font-bold text-foreground mb-2">{service.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{service.desc}</p>
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-2">{service.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{service.desc}</p>
-              </div>
-              <div className="pt-6 border-t border-border/40 mt-6 flex items-center justify-between">
-                <Link to="/estimate" className="text-xs font-bold text-primary hover:underline flex items-center">
-                  Get Estimate <ArrowRight className="w-3.5 h-3.5 ml-1" />
-                </Link>
-                <Link to="/contact" className="text-xs font-medium text-muted-foreground hover:text-foreground">
-                  Consult Engineer
-                </Link>
-              </div>
-            </Card>
+                <div className="pt-6 border-t border-border/40 mt-6 flex items-center justify-between">
+                  <Link to="/estimate" className="text-xs font-bold text-primary hover:underline flex items-center">
+                    Get Estimate <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                  </Link>
+                  <Link to="/contact" className="text-xs font-medium text-muted-foreground hover:text-foreground">
+                    Consult Engineer
+                  </Link>
+                </div>
+              </Card>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </section>
 
       {/* Areas We Serve in Dang */}
       <section className="py-16 bg-card/40 border-y border-border/40">
         <div className="container mx-auto px-4 max-w-5xl">
-          <div className="text-center mb-10">
+          <AnimatedSection className="text-center mb-10">
             <h2 className="text-3xl font-extrabold text-foreground">Areas We Serve Across Dang Valley</h2>
             <p className="text-sm text-muted-foreground mt-2">Choose your city to see localized services, municipality approval guides, and key landmarks.</p>
             
@@ -252,17 +260,18 @@ export const DangBranch = () => {
                   key={key}
                   variant={activeAreaTab === key ? "default" : "outline"}
                   onClick={() => setActiveAreaTab(key)}
-                  className={`capitalize ${activeAreaTab === key ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground"}`}
+                  className={`capitalize transition-all hover:scale-105 ${activeAreaTab === key ? "bg-primary text-primary-foreground font-bold shadow-lg" : "text-muted-foreground"}`}
                 >
                   <MapPin className="w-4 h-4 mr-1.5" />
                   {key}
                 </Button>
               ))}
             </div>
-          </div>
+          </AnimatedSection>
 
           {/* Active Area Card */}
-          <Card className="glass p-8 border-primary/30 shadow-xl">
+          <AnimatedSection delay={0.15}>
+            <Card className="glass p-8 border-primary/30 shadow-xl transition-all">
             <div className="space-y-6">
               <div>
                 <Badge className="bg-primary/20 text-primary mb-2">Regional Coverage</Badge>
@@ -299,13 +308,13 @@ export const DangBranch = () => {
               </div>
 
               <div className="pt-4 flex flex-wrap items-center gap-4">
-                <Button asChild className="bg-primary text-primary-foreground font-bold">
+                <Button asChild className="bg-primary text-primary-foreground font-bold hover:scale-105 transition-all">
                   <Link to="/contact">Book Site Consultation in {areaDetails[activeAreaTab].title.split(" ")[0]}</Link>
                 </Button>
                 <Button 
                   variant="outline" 
                   onClick={() => window.open(`https://wa.me/9779763653181?text=Hello! I am planning a construction project in ${areaDetails[activeAreaTab].title.split(" ")[0]}.`, '_blank')}
-                  className="text-green-500 border-green-500/40 hover:bg-green-500 hover:text-white"
+                  className="text-green-500 border-green-500/40 hover:bg-green-500 hover:text-white transition-all hover:scale-105"
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
                   Quick WhatsApp Enquiry
@@ -313,6 +322,7 @@ export const DangBranch = () => {
               </div>
             </div>
           </Card>
+          </AnimatedSection>
         </div>
       </section>
 

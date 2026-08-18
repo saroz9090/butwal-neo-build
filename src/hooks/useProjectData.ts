@@ -361,13 +361,40 @@ export const useProjects = () => {
   return useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
-      await checkAndSeed('projects', SEED_PROJECTS);
       const snap = await getDocs(collection(db, 'projects'));
+      if (snap.empty) {
+        // Auto-seed SEED_PROJECTS if Firestore collection is empty
+        for (const proj of SEED_PROJECTS) {
+          await setDoc(doc(db, 'projects', proj.id), cleanUndefined({
+            ...proj,
+            title: proj.name,
+            location: proj.address,
+            category: 'Residential',
+          }));
+        }
+        return SEED_PROJECTS;
+      }
       const list: Project[] = [];
-      snap.forEach((doc) => {
-        list.push(doc.data() as Project);
+      snap.forEach((docSnap) => {
+        const data = docSnap.data();
+        list.push({
+          id: docSnap.id,
+          code: data.code || `PROJ-${docSnap.id.slice(-4)}`,
+          name: data.name || data.title || "Construction Project",
+          client_id: data.client_id || null,
+          manager_id: data.manager_id || null,
+          status: data.status || 'Ongoing',
+          progress: typeof data.progress === 'number' ? data.progress : 0,
+          start_date: data.start_date || data.startDate || null,
+          estimated_completion: data.estimated_completion || data.completionDate || null,
+          total_cost: typeof data.total_cost === 'number' ? data.total_cost : 0,
+          description: data.description || null,
+          address: data.address || data.location || null,
+          created_at: data.created_at || new Date().toISOString(),
+          updated_at: data.updated_at || new Date().toISOString(),
+        });
       });
-      return list.sort((a, b) => b.created_at.localeCompare(a.created_at));
+      return list.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
     },
   });
 };
@@ -380,7 +407,23 @@ export const useProject = (projectId: string | undefined) => {
       const docRef = doc(db, 'projects', projectId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        return docSnap.data() as Project;
+        const data = docSnap.data();
+        return {
+          id: docSnap.id,
+          code: data.code || `PROJ-${docSnap.id.slice(-4)}`,
+          name: data.name || data.title || "Construction Project",
+          client_id: data.client_id || null,
+          manager_id: data.manager_id || null,
+          status: data.status || 'Ongoing',
+          progress: typeof data.progress === 'number' ? data.progress : 0,
+          start_date: data.start_date || data.startDate || null,
+          estimated_completion: data.estimated_completion || data.completionDate || null,
+          total_cost: typeof data.total_cost === 'number' ? data.total_cost : 0,
+          description: data.description || null,
+          address: data.address || data.location || null,
+          created_at: data.created_at || new Date().toISOString(),
+          updated_at: data.updated_at || new Date().toISOString(),
+        } as Project;
       }
       return null;
     },
@@ -395,9 +438,12 @@ export const useCreateProject = () => {
   return useMutation({
     mutationFn: async (project: { code: string; name: string; status?: string; progress?: number; description?: string | null; address?: string | null; start_date?: string | null; estimated_completion?: string | null; total_cost?: number; client_id?: string | null; manager_id?: string | null }) => {
       const id = `proj-${Date.now()}`;
-      const newProj: Project = {
+      const newProj = {
         ...project,
         id,
+        title: project.name,
+        location: project.address || 'Butwal',
+        category: 'Residential',
         status: project.status || 'Ongoing',
         progress: project.progress || 0,
         description: project.description || null,
@@ -405,13 +451,14 @@ export const useCreateProject = () => {
         start_date: project.start_date || null,
         estimated_completion: project.estimated_completion || null,
         total_cost: project.total_cost || 0,
+        cost: project.total_cost ? `NPR ${(project.total_cost / 10000000).toFixed(2)} Crore` : undefined,
         client_id: project.client_id || null,
         manager_id: project.manager_id || null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
       await setDoc(doc(db, 'projects', id), cleanUndefined(newProj));
-      return newProj;
+      return newProj as Project;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });

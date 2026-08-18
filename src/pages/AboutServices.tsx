@@ -45,6 +45,12 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "motion/react";
+import { 
+  AnimatedSection, 
+  StaggerContainer, 
+  StaggerItem,
+  AnimatedCounter
+} from "@/components/AnimatedSection";
 
 interface ServiceItem {
   id: string;
@@ -543,7 +549,7 @@ const AboutServices = ({ defaultTab }: AboutServicesProps) => {
             </Card>
 
             {/* Group Ecosystem Section */}
-            <div className="space-y-6">
+            <AnimatedSection delay={0.1} className="space-y-6">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <Badge className="bg-primary/10 text-primary border-primary/30 mb-2">Integrated Strength</Badge>
@@ -555,13 +561,13 @@ const AboutServices = ({ defaultTab }: AboutServicesProps) => {
                   </p>
                 </div>
                 <Link to="/group-companies">
-                  <Button variant="outline" className="border-primary/40 text-primary hover:bg-primary hover:text-white font-semibold">
+                  <Button variant="outline" className="border-primary/40 text-primary hover:bg-primary hover:text-white font-semibold transition-all hover:scale-105">
                     Explore Sister Companies <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
                   {
                     name: "Satyawati Devi Hardware",
@@ -585,27 +591,29 @@ const AboutServices = ({ defaultTab }: AboutServicesProps) => {
                     badge: "Interior Specialist"
                   }
                 ].map((item, idx) => (
-                  <Card key={idx} className="glass p-6 hover-lift border-border/70 flex flex-col justify-between rounded-3xl">
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="w-11 h-11 rounded-2xl bg-primary/15 text-primary border border-primary/30 flex items-center justify-center">
-                          <item.icon size={22} />
+                  <StaggerItem key={idx}>
+                    <Card className="glass p-6 hover-lift border-border/70 flex flex-col justify-between rounded-3xl h-full transition-all duration-300">
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="w-11 h-11 rounded-2xl bg-primary/15 text-primary border border-primary/30 flex items-center justify-center">
+                            <item.icon size={22} />
+                          </div>
+                          <Badge className="text-[11px] bg-primary/20 text-rose-300 border border-primary/40 font-bold px-2.5 py-0.5">
+                            {item.badge}
+                          </Badge>
                         </div>
-                        <Badge className="text-[11px] bg-primary/20 text-rose-300 border border-primary/40 font-bold px-2.5 py-0.5">
-                          {item.badge}
-                        </Badge>
+                        <h3 className="font-extrabold text-foreground text-lg mb-1">{item.name}</h3>
+                        <div className="text-xs font-bold text-primary mb-3">{item.role}</div>
+                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
                       </div>
-                      <h3 className="font-extrabold text-foreground text-lg mb-1">{item.name}</h3>
-                      <div className="text-xs font-bold text-primary mb-3">{item.role}</div>
-                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-                    </div>
-                  </Card>
+                    </Card>
+                  </StaggerItem>
                 ))}
-              </div>
-            </div>
+              </StaggerContainer>
+            </AnimatedSection>
 
             {/* Core Values / Engineering Pillars */}
-            <div>
+            <AnimatedSection delay={0.15}>
               <div className="text-center max-w-2xl mx-auto mb-8">
                 <Badge className="bg-primary/10 text-primary border-primary/30 mb-2">Our Values</Badge>
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground">
@@ -613,7 +621,7 @@ const AboutServices = ({ defaultTab }: AboutServicesProps) => {
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
                   {
                     icon: ShieldCheck,
@@ -636,33 +644,39 @@ const AboutServices = ({ defaultTab }: AboutServicesProps) => {
                     desc: "We stand behind our craftsmanship with a comprehensive 12-month post-handover defect liability warranty."
                   }
                 ].map((val, idx) => (
-                  <Card key={idx} className="glass p-6 hover-lift text-center border-border/60">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
-                      <val.icon size={24} />
-                    </div>
-                    <h3 className="font-bold text-foreground text-base mb-2">{val.title}</h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{val.desc}</p>
-                  </Card>
+                  <StaggerItem key={idx}>
+                    <Card className="glass p-6 hover-lift text-center border-border/60 h-full">
+                      <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
+                        <val.icon size={24} />
+                      </div>
+                      <h3 className="font-bold text-foreground text-base mb-2">{val.title}</h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{val.desc}</p>
+                    </Card>
+                  </StaggerItem>
                 ))}
-              </div>
-            </div>
+              </StaggerContainer>
+            </AnimatedSection>
 
             {/* Verified Statistics Banner */}
-            <Card className="glass p-8 md:p-12 border-border/70 rounded-3xl">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                {[
-                  { number: "100%", label: "NBC 105:2020 Code Compliant" },
-                  { number: "500+", label: "Projects Completed" },
-                  { number: "200+", label: "Satisfied Homeowners" },
-                  { number: "50+", label: "Engineers & Craftsmen" }
-                ].map((stat, idx) => (
-                  <div key={idx} className="space-y-1">
-                    <div className="text-3xl md:text-5xl font-black text-primary">{stat.number}</div>
-                    <div className="text-xs sm:text-sm text-muted-foreground font-medium">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </Card>
+            <AnimatedSection delay={0.2}>
+              <Card className="glass p-8 md:p-12 border-border/70 rounded-3xl">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                  {[
+                    { number: 100, suffix: "%", label: "NBC 105:2020 Code Compliant" },
+                    { number: 500, suffix: "+", label: "Projects Completed" },
+                    { number: 200, suffix: "+", label: "Satisfied Homeowners" },
+                    { number: 50, suffix: "+", label: "Engineers & Craftsmen" }
+                  ].map((stat, idx) => (
+                    <div key={idx} className="space-y-1">
+                      <div className="text-3xl md:text-5xl font-black text-primary">
+                        <AnimatedCounter to={stat.number} suffix={stat.suffix} />
+                      </div>
+                      <div className="text-xs sm:text-sm text-muted-foreground font-medium">{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </AnimatedSection>
 
           </TabsContent>
 

@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence } from "motion/react";
 import { ToolsProvider } from "@/contexts/ToolsContext";
 import { WebsiteContentProvider } from "@/contexts/WebsiteContentContext";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -11,6 +12,7 @@ import Footer from "./components/Footer";
 import SEOHead from "./components/SEOHead";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { ScrollProgress } from "./components/ScrollProgress";
+import { PageTransition } from "./components/PageTransition";
 
 import Home from "./pages/Home";
 import AboutServices from "./pages/AboutServices";
@@ -47,6 +49,52 @@ import ProjectDetail from "./pages/ProjectDetail";
 
 const queryClient = new QueryClient();
 
+const AnimatedRoutes = () => {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+        <Route path="/about" element={<PageTransition><AboutServices defaultTab="about" /></PageTransition>} />
+        <Route path="/services" element={<PageTransition><AboutServices defaultTab="services" /></PageTransition>} />
+        <Route path="/dang" element={<PageTransition><DangBranch /></PageTransition>} />
+        <Route path="/dang/:location" element={<PageTransition><DangBranch /></PageTransition>} />
+        <Route path="/group-companies" element={<PageTransition><GroupCompanies /></PageTransition>} />
+        <Route path="/projects" element={<PageTransition><Projects /></PageTransition>} />
+        <Route path="/projects/:id" element={<PageTransition><ProjectDetail /></PageTransition>} />
+        <Route path="/tools" element={<PageTransition><ToolsHubPage /></PageTransition>} />
+        <Route path="/apps" element={<PageTransition><ToolsHubPage /></PageTransition>} />
+        <Route path="/tools/permits" element={<PageTransition><PermitAssistant /></PageTransition>} />
+        <Route path="/tools/calculators" element={<PageTransition><Calculators /></PageTransition>} />
+        <Route path="/tools/vastu" element={<PageTransition><VastuGuide /></PageTransition>} />
+        <Route path="/tools/buy-or-build" element={<PageTransition><BuyOrBuild /></PageTransition>} />
+        <Route path="/tools/timeline" element={<PageTransition><ConstructionTimeline /></PageTransition>} />
+        <Route path="/tools/green-calculator" element={<PageTransition><GreenBuildCalculator /></PageTransition>} />
+        <Route path="/partnerships" element={<PageTransition><Partnerships /></PageTransition>} />
+        <Route path="/testimonials" element={<PageTransition><Testimonials /></PageTransition>} />
+        <Route path="/blog" element={<PageTransition><Blog /></PageTransition>} />
+        <Route path="/blog/:id" element={<PageTransition><BlogPostDetail /></PageTransition>} />
+        <Route path="/estimate" element={<PageTransition><Estimate /></PageTransition>} />
+        <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
+        <Route path="/floor-planner" element={<PageTransition><FloorPlannerPage /></PageTransition>} />
+        <Route path="/under-construction" element={<PageTransition><UnderConstructionPage /></PageTransition>} />
+        <Route path="/designs" element={<PageTransition><HouseDesignsGallery /></PageTransition>} />
+        <Route path="/login" element={<PageTransition><LoginPage /></PageTransition>} />
+        <Route path="/terms" element={<PageTransition><TermsAndConditions /></PageTransition>} />
+        <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
+        {/* Dashboard routes */}
+        <Route path="/customer/dashboard" element={<PageTransition><CustomerDashboard /></PageTransition>} />
+        <Route path="/staff/dashboard" element={<PageTransition><StaffDashboard /></PageTransition>} />
+        <Route path="/admin/users" element={<PageTransition><AdminUserManagement /></PageTransition>} />
+        <Route path="/admin/setup" element={<PageTransition><AdminSetup /></PageTransition>} />
+        <Route path="/sitemap" element={<PageTransition><Sitemap /></PageTransition>} />
+        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -60,43 +108,7 @@ const App = () => (
             <ScrollProgress />
             <SEOHead />
             <Navigation />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<AboutServices defaultTab="about" />} />
-              <Route path="/services" element={<AboutServices defaultTab="services" />} />
-              <Route path="/dang" element={<DangBranch />} />
-              <Route path="/dang/:location" element={<DangBranch />} />
-              <Route path="/group-companies" element={<GroupCompanies />} />
-              <Route path="/projects" element={<Projects />} />
-              <Route path="/projects/:id" element={<ProjectDetail />} />
-              <Route path="/tools" element={<ToolsHubPage />} />
-              <Route path="/apps" element={<ToolsHubPage />} />
-              <Route path="/tools/permits" element={<PermitAssistant />} />
-              <Route path="/tools/calculators" element={<Calculators />} />
-              <Route path="/tools/vastu" element={<VastuGuide />} />
-              <Route path="/tools/buy-or-build" element={<BuyOrBuild />} />
-              <Route path="/tools/timeline" element={<ConstructionTimeline />} />
-              <Route path="/tools/green-calculator" element={<GreenBuildCalculator />} />
-              <Route path="/partnerships" element={<Partnerships />} />
-              <Route path="/testimonials" element={<Testimonials />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:id" element={<BlogPostDetail />} />
-              <Route path="/estimate" element={<Estimate />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/floor-planner" element={<FloorPlannerPage />} />
-              <Route path="/under-construction" element={<UnderConstructionPage />} />
-              <Route path="/designs" element={<HouseDesignsGallery />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/terms" element={<TermsAndConditions />} />
-              <Route path="/privacy" element={<Privacy />} />
-              {/* Dashboard routes */}
-              <Route path="/customer/dashboard" element={<CustomerDashboard />} />
-              <Route path="/staff/dashboard" element={<StaffDashboard />} />
-              <Route path="/admin/users" element={<AdminUserManagement />} />
-              <Route path="/admin/setup" element={<AdminSetup />} />
-              <Route path="/sitemap" element={<Sitemap />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AnimatedRoutes />
             <Footer />
             <Chatbot />
 

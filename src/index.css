@@ -307,6 +307,96 @@ All colors MUST be HSL.
     animation: pulseGlow 3s ease-in-out infinite;
   }
 
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.12) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmerSweep 2.5s infinite;
+  }
+
+  .animate-glow-border {
+    position: relative;
+  }
+  .animate-glow-border::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(90deg, hsl(348 86% 48%), hsl(280 80% 60%), hsl(348 86% 48%));
+    background-size: 200% 200%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: borderGlowRotate 4s linear infinite;
+    pointer-events: none;
+  }
+
+  .animate-bounce-gentle {
+    animation: bounceGentle 2s ease-in-out infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spinSlow 20s linear infinite;
+  }
+
+  .hover-card-tilt {
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+    will-change: transform;
+  }
+  .hover-card-tilt:hover {
+    transform: translateY(-5px) scale(1.015);
+    box-shadow: 0 20px 40px -15px hsl(348 86% 48% / 0.25), 0 0 20px hsl(348 86% 48% / 0.15);
+  }
+
+  .interactive-button {
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .interactive-button:hover {
+    transform: translateY(-2px) scale(1.02);
+  }
+  .interactive-button:active {
+    transform: translateY(1px) scale(0.97);
+  }
+
+  @keyframes shimmerSweep {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  @keyframes borderGlowRotate {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes bounceGentle {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  @keyframes spinSlow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   @keyframes pageEnter {
     from {
       opacity: 0;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { 
@@ -34,6 +34,8 @@ const Navigation = () => {
   const { settings } = useWebsiteContent();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showBottomNav, setShowBottomNav] = useState(true);
+  const lastScrollY = useRef(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -42,9 +44,22 @@ const Navigation = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 30);
+      const currentScrollY = window.scrollY;
+      setScrolled(currentScrollY > 30);
+
+      // Intelligent scroll detection for mobile bottom bar
+      if (currentScrollY < 60) {
+        setShowBottomNav(true);
+      } else if (currentScrollY > lastScrollY.current + 8 && currentScrollY > 80) {
+        // Scrolling down -> hide the floating bottom nav bar so it's not stuck on screen
+        setShowBottomNav(false);
+      } else if (currentScrollY < lastScrollY.current - 8) {
+        // Scrolling up -> reveal bottom nav bar smoothly
+        setShowBottomNav(true);
+      }
+      lastScrollY.current = currentScrollY;
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -438,52 +453,62 @@ const Navigation = () => {
         </AnimatePresence>
       </header>
 
-      {/* iPhone-style Floating Mobile Bottom Navigation Bar */}
-      <div className="lg:hidden fixed bottom-4 left-4 right-4 z-50 glass-ios rounded-[24px] border border-white/15 shadow-2xl backdrop-blur-3xl px-3 py-2">
-        <div className="flex items-center justify-around">
-          {primaryNavItems.slice(0, 5).map((item) => {
-            const active = isActive(item.path);
-            return (
-              <Link key={item.path} to={item.path} className="flex-1">
-                <motion.div
-                  whileTap={{ scale: 0.88 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                  className={`flex flex-col items-center py-1 rounded-xl transition-colors duration-200 ${
-                    active
-                      ? "text-primary font-bold"
-                      : "text-muted-foreground hover:text-white"
-                  }`}
-                >
-                  <item.icon size={18} className={active ? "text-primary stroke-[2.5]" : ""} />
-                  <span className="text-[10px] font-semibold leading-tight mt-0.5">{item.name}</span>
-                  {active && (
-                    <motion.div 
-                      layoutId="activeDotMobile"
-                      className="w-1 h-1 bg-primary rounded-full mt-0.5"
-                    />
-                  )}
-                </motion.div>
-              </Link>
-            );
-          })}
-          
-          {/* Direct WhatsApp Call in Bottom Nav */}
-          <a 
-            href="https://wa.me/9779763653181" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex-1"
+      {/* iPhone-style Floating Mobile Bottom Navigation Bar with auto-hide on scroll down */}
+      <AnimatePresence>
+        {showBottomNav && (
+          <motion.div 
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="lg:hidden fixed bottom-4 left-4 right-4 z-40 glass-ios rounded-[24px] border border-white/15 shadow-2xl backdrop-blur-3xl px-3 py-2 pointer-events-auto"
           >
-            <motion.div 
-              whileTap={{ scale: 0.88 }}
-              className="flex flex-col items-center py-1 text-[#25D366] hover:text-green-400 transition-colors"
-            >
-              <MessageCircle size={18} />
-              <span className="text-[10px] font-semibold leading-tight mt-0.5">WhatsApp</span>
-            </motion.div>
-          </a>
-        </div>
-      </div>
+            <div className="flex items-center justify-around">
+              {primaryNavItems.slice(0, 5).map((item) => {
+                const active = isActive(item.path);
+                return (
+                  <Link key={item.path} to={item.path} className="flex-1">
+                    <motion.div
+                      whileTap={{ scale: 0.88 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                      className={`flex flex-col items-center py-1 rounded-xl transition-colors duration-200 ${
+                        active
+                          ? "text-primary font-bold"
+                          : "text-muted-foreground hover:text-white"
+                      }`}
+                    >
+                      <item.icon size={18} className={active ? "text-primary stroke-[2.5]" : ""} />
+                      <span className="text-[10px] font-semibold leading-tight mt-0.5">{item.name}</span>
+                      {active && (
+                        <motion.div 
+                          layoutId="activeDotMobile"
+                          className="w-1 h-1 bg-primary rounded-full mt-0.5"
+                        />
+                      )}
+                    </motion.div>
+                  </Link>
+                );
+              })}
+              
+              {/* Direct WhatsApp Call in Bottom Nav */}
+              <a 
+                href="https://wa.me/9779763653181" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex-1"
+              >
+                <motion.div 
+                  whileTap={{ scale: 0.88 }}
+                  className="flex flex-col items-center py-1 text-[#25D366] hover:text-green-400 transition-colors"
+                >
+                  <MessageCircle size={18} />
+                  <span className="text-[10px] font-semibold leading-tight mt-0.5">WhatsApp</span>
+                </motion.div>
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Login Portal Selection Modal */}
       <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
