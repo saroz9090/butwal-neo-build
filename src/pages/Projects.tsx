@@ -38,6 +38,12 @@ import { useWebsiteContent, INITIAL_PROJECTS, WebsiteProject } from "@/contexts/
 import LazyImage from "@/components/LazyImage";
 import { motion } from "motion/react";
 import project1_img1 from "@/assets/project-1.jpg";
+import { 
+  AnimatedSection, 
+  StaggerContainer, 
+  StaggerItem, 
+  AnimatedCard 
+} from "@/components/AnimatedSection";
 
 interface ProjectDisplayItem {
   id: string;
@@ -257,68 +263,64 @@ export const Projects = () => {
             <p className="text-sm text-muted-foreground mt-1">Try clearing some filters or searching for another term.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {filteredProjects.map((project, index) => (
-              <motion.div
-                key={project.id || index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: index * 0.05 }}
-              >
-                <Card
-                  className="glass overflow-hidden hover-lift group cursor-pointer h-full flex flex-col justify-between border-border/60"
-                  onClick={() => navigate(`/projects/${project.id}`)}
-                >
-                  <div>
-                    <div className="relative aspect-video w-full overflow-hidden">
-                      <LazyImage
-                        src={project.images[0]}
-                        alt={project.title}
-                        className="transition-transform duration-500 group-hover:scale-105 w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/40 to-transparent" />
-                      <div className="absolute top-4 right-4 flex items-center gap-2">
-                        {project.code && (
-                          <span className="px-2.5 py-1 text-xs font-mono font-bold rounded-md bg-black/60 text-white backdrop-blur-md border border-white/20">
-                            {project.code}
-                          </span>
-                        )}
-                        <Badge className="bg-primary text-primary-foreground font-semibold shadow-md">{project.status}</Badge>
-                      </div>
-                    </div>
-                    
-                    <div className="p-6">
-                      <div className="flex items-center space-x-2 mb-3">
-                        <Badge variant="outline" className="border-primary/50 text-primary font-medium">
-                          {project.category}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground font-mono">{project.year}</span>
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {filteredProjects.map((project) => (
+              <StaggerItem key={project.id}>
+                <AnimatedCard>
+                  <Card
+                    className="glass-ios-card overflow-hidden hover-lift group cursor-pointer h-full flex flex-col justify-between border-border/60"
+                    onClick={() => navigate(`/projects/${project.id}`)}
+                  >
+                    <div>
+                      <div className="relative aspect-video w-full overflow-hidden">
+                        <LazyImage
+                          src={project.images[0]}
+                          alt={project.title}
+                          className="transition-transform duration-700 group-hover:scale-110 w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/40 to-transparent" />
+                        <div className="absolute top-4 right-4 flex items-center gap-2">
+                          {project.code && (
+                            <span className="px-2.5 py-1 text-xs font-mono font-bold rounded-md bg-black/60 text-white backdrop-blur-md border border-white/20">
+                              {project.code}
+                            </span>
+                          )}
+                          <Badge className="bg-primary text-primary-foreground font-semibold shadow-md">{project.status}</Badge>
+                        </div>
                       </div>
                       
-                      <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
-                        {project.title}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground mb-3 flex items-center">
-                        <MapPin size={14} className="mr-1 text-primary shrink-0" /> {project.location}
-                      </p>
-                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{project.description}</p>
+                      <div className="p-6">
+                        <div className="flex items-center space-x-2 mb-3">
+                          <Badge variant="outline" className="border-primary/50 text-primary font-medium">
+                            {project.category}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground font-mono">{project.year}</span>
+                        </div>
+                        
+                        <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                          {project.title}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-3 flex items-center">
+                          <MapPin size={14} className="mr-1 text-primary shrink-0" /> {project.location}
+                        </p>
+                        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{project.description}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="px-6 pb-6 pt-0 flex items-center justify-between border-t border-border/40 mt-2 pt-4">
-                    <span className="text-xs sm:text-sm font-semibold text-primary inline-flex items-center hover:underline">
-                      View Gallery & Specs →
-                    </span>
-                    {project.cost && (
-                      <span className="text-xs font-medium text-muted-foreground">
-                        {project.cost}
+                    <div className="px-6 pb-6 pt-0 flex items-center justify-between border-t border-border/40 mt-2 pt-4">
+                      <span className="text-xs sm:text-sm font-semibold text-primary inline-flex items-center hover:underline">
+                        View Gallery & Specs →
                       </span>
-                    )}
-                  </div>
-                </Card>
-              </motion.div>
+                      {project.cost && (
+                        <span className="text-xs font-medium text-muted-foreground">
+                          {project.cost}
+                        </span>
+                      )}
+                    </div>
+                  </Card>
+                </AnimatedCard>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         )}
 
         {/* Related Portals & Interactive Tools Navigation */}

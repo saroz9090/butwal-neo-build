@@ -113,7 +113,9 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                   <h3 className="font-bold text-base text-foreground group-hover:text-primary transition-colors">
                     Website Admin Portal
                   </h3>
-                 
+                  <Badge className="bg-amber-500 text-white border-none text-[11px] flex items-center gap-1">
+                    <Flame className="w-3 h-3 fill-current" /> Firebase Auth
+                  </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Internal admin dashboard for managing house designs, cost estimates, client leads & website content.

@@ -10,6 +10,7 @@ import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import SEOHead from "./components/SEOHead";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { ScrollProgress } from "./components/ScrollProgress";
 
 import Home from "./pages/Home";
 import AboutServices from "./pages/AboutServices";
@@ -56,6 +57,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <ScrollToTop />
+            <ScrollProgress />
             <SEOHead />
             <Navigation />
             <Routes>

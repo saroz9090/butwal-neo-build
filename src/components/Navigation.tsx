@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { 
   Menu, 
   X, 
@@ -263,171 +263,179 @@ const Navigation = () => {
         </nav>
 
         {/* Mobile / Tablet Dropdown Menu - Organized with Clear Sections */}
-        {isOpen && (
-          <div className="lg:hidden glass-ios backdrop-blur-3xl border-t border-white/15 shadow-2xl animate-fade-in max-h-[85vh] overflow-y-auto pb-8">
-            <div className="container mx-auto px-4 py-4 space-y-5">
-              
-              {/* Primary Pages */}
-              <div>
-                <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground px-2 mb-2">
-                  Main Menu
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {primaryNavItems.map((item) => {
-                    const active = isActive(item.path);
-                    return (
-                      <Link
-                        key={item.path}
-                        to={item.path}
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <Button
-                          variant="ghost"
-                          className={`w-full justify-start text-xs sm:text-sm font-medium rounded-2xl h-11 transition-all ${
-                            active
-                              ? "bg-primary text-white font-bold shadow-lg shadow-primary/25"
-                              : "text-foreground glass-ios border border-white/10 hover:bg-white/10"
-                          }`}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.28, ease: "easeOut" }}
+              className="lg:hidden glass-ios backdrop-blur-3xl border-t border-white/15 shadow-2xl overflow-hidden max-h-[85vh] overflow-y-auto pb-8"
+            >
+              <div className="container mx-auto px-4 py-4 space-y-5">
+                
+                {/* Primary Pages */}
+                <div>
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground px-2 mb-2">
+                    Main Menu
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {primaryNavItems.map((item) => {
+                      const active = isActive(item.path);
+                      return (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          onClick={() => setIsOpen(false)}
                         >
-                          <item.icon className={`mr-2 h-4 w-4 ${active ? "text-white" : "text-primary"}`} />
-                          <span className="truncate">{item.name}</span>
-                        </Button>
-                      </Link>
-                    );
-                  })}
+                          <Button
+                            variant="ghost"
+                            className={`w-full justify-start text-xs sm:text-sm font-medium rounded-2xl h-11 transition-all ${
+                              active
+                                ? "bg-primary text-white font-bold shadow-lg shadow-primary/25"
+                                : "text-foreground glass-ios border border-white/10 hover:bg-white/10"
+                            }`}
+                          >
+                            <item.icon className={`mr-2 h-4 w-4 ${active ? "text-white" : "text-primary"}`} />
+                            <span className="truncate">{item.name}</span>
+                          </Button>
+                        </Link>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
 
-              {/* Interactive Apps Hub Section */}
-              <div className="p-4 rounded-3xl glass-ios border border-white/15 space-y-3">
-                <div className="flex items-center justify-between px-1">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
-                    <Wrench className="w-3.5 h-3.5" />
-                    Interactive Tools & Apps
-                  </span>
-                  <Link 
-                    to="/tools" 
+                {/* Interactive Apps Hub Section */}
+                <div className="p-4 rounded-3xl glass-ios border border-white/15 space-y-3">
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+                      <Wrench className="w-3.5 h-3.5" />
+                      Interactive Tools & Apps
+                    </span>
+                    <Link 
+                      to="/tools" 
+                      onClick={() => setIsOpen(false)}
+                      className="text-[11px] text-primary hover:underline font-bold"
+                    >
+                      View All Apps →
+                    </Link>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {quickAppsList.map((app) => (
+                      <Link
+                        key={app.path}
+                        to={app.path}
+                        onClick={() => setIsOpen(false)}
+                        className="p-2.5 rounded-2xl glass-ios border border-white/10 hover:border-primary/50 transition-all flex items-center gap-2.5 group active:scale-[0.98]"
+                      >
+                        <div className="w-8 h-8 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <app.icon className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">{app.name}</div>
+                          <div className="text-[10px] text-muted-foreground truncate">{app.desc}</div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Regional Branches */}
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    to="/contact"
                     onClick={() => setIsOpen(false)}
-                    className="text-[11px] text-primary hover:underline font-bold"
+                    className="p-3 rounded-2xl bg-card/80 border border-border/70 text-left hover:border-primary/60 transition-all"
                   >
-                    View All Apps →
+                    <Badge className="text-[10px] bg-primary/20 text-rose-300 border border-primary/40 font-bold mb-1">Corporate HQ</Badge>
+                    <div className="text-xs font-bold text-foreground">Butwal Head Office</div>
+                    <div className="text-[10px] text-muted-foreground">Butwal-11, Kalikanagar</div>
+                  </Link>
+                  <Link
+                    to="/dang"
+                    onClick={() => setIsOpen(false)}
+                    className="p-3 rounded-2xl bg-card/80 border border-border/70 text-left hover:border-primary/60 transition-all"
+                  >
+                    <Badge className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 font-bold mb-1">Regional Branch</Badge>
+                    <div className="text-xs font-bold text-foreground">Dang Branch</div>
+                    <div className="text-[10px] text-muted-foreground">Ghorahi-15, Main Road</div>
                   </Link>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {quickAppsList.map((app) => (
-                    <Link
-                      key={app.path}
-                      to={app.path}
-                      onClick={() => setIsOpen(false)}
-                      className="p-2.5 rounded-2xl glass-ios border border-white/10 hover:border-primary/50 transition-all flex items-center gap-2.5 group active:scale-[0.98]"
+
+                {/* Quick Links / Company Info */}
+                <div className="flex flex-wrap gap-2 pt-1 border-t border-border/40">
+                  <Link to="/about" onClick={() => setIsOpen(false)} className="text-xs text-muted-foreground hover:text-white px-2 py-1">
+                    About Us
+                  </Link>
+                  <Link to="/blog" onClick={() => setIsOpen(false)} className="text-xs text-muted-foreground hover:text-white px-2 py-1">
+                    Blog & Articles
+                  </Link>
+                  <Link to="/group-companies" onClick={() => setIsOpen(false)} className="text-xs text-muted-foreground hover:text-white px-2 py-1">
+                    Group Companies
+                  </Link>
+                  <Link to="/privacy" onClick={() => setIsOpen(false)} className="text-xs text-muted-foreground hover:text-white px-2 py-1">
+                    Privacy Policy
+                  </Link>
+                </div>
+
+                {/* Social Media Links for Mobile */}
+                <div className="flex items-center justify-center space-x-4 pt-3 border-t border-border">
+                  {socialLinks.map((social) => (
+                    <a
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`p-2 text-muted-foreground ${social.color} transition-all duration-200 rounded-full bg-card hover:scale-110`}
+                      aria-label={social.label}
                     >
-                      <div className="w-8 h-8 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                        <app.icon className="w-4 h-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">{app.name}</div>
-                        <div className="text-[10px] text-muted-foreground truncate">{app.desc}</div>
-                      </div>
-                    </Link>
+                      <social.icon size={18} />
+                    </a>
                   ))}
                 </div>
-              </div>
 
-              {/* Regional Branches */}
-              <div className="grid grid-cols-2 gap-2">
-                <Link
-                  to="/contact"
-                  onClick={() => setIsOpen(false)}
-                  className="p-3 rounded-2xl bg-card/80 border border-border/70 text-left hover:border-primary/60 transition-all"
-                >
-                  <Badge className="text-[10px] bg-primary/20 text-rose-300 border border-primary/40 font-bold mb-1">Corporate HQ</Badge>
-                  <div className="text-xs font-bold text-foreground">Butwal Head Office</div>
-                  <div className="text-[10px] text-muted-foreground">Butwal-11, Kalikanagar</div>
-                </Link>
-                <Link
-                  to="/dang"
-                  onClick={() => setIsOpen(false)}
-                  className="p-3 rounded-2xl bg-card/80 border border-border/70 text-left hover:border-primary/60 transition-all"
-                >
-                  <Badge className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 font-bold mb-1">Regional Branch</Badge>
-                  <div className="text-xs font-bold text-foreground">Dang Branch</div>
-                  <div className="text-[10px] text-muted-foreground">Ghorahi-15, Main Road</div>
-                </Link>
-              </div>
-
-              {/* Quick Links / Company Info */}
-              <div className="flex flex-wrap gap-2 pt-1 border-t border-border/40">
-                <Link to="/about" onClick={() => setIsOpen(false)} className="text-xs text-muted-foreground hover:text-white px-2 py-1">
-                  About Us
-                </Link>
-                <Link to="/blog" onClick={() => setIsOpen(false)} className="text-xs text-muted-foreground hover:text-white px-2 py-1">
-                  Blog & Articles
-                </Link>
-                <Link to="/group-companies" onClick={() => setIsOpen(false)} className="text-xs text-muted-foreground hover:text-white px-2 py-1">
-                  Group Companies
-                </Link>
-                <Link to="/privacy" onClick={() => setIsOpen(false)} className="text-xs text-muted-foreground hover:text-white px-2 py-1">
-                  Privacy Policy
-                </Link>
-              </div>
-
-              {/* Social Media Links for Mobile */}
-              <div className="flex items-center justify-center space-x-4 pt-3 border-t border-border">
-                {socialLinks.map((social) => (
-                  <a
-                    key={social.label}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`p-2 text-muted-foreground ${social.color} transition-all duration-200 rounded-full bg-card hover:scale-110`}
-                    aria-label={social.label}
-                  >
-                    <social.icon size={18} />
-                  </a>
-                ))}
-              </div>
-
-              {/* Login / User Portal for Mobile */}
-              {isLoggedIn ? (
-                <div className="space-y-2 border-t border-border pt-4">
+                {/* Login / User Portal for Mobile */}
+                {isLoggedIn ? (
+                  <div className="space-y-2 border-t border-border pt-4">
+                    <Button 
+                      onClick={() => {
+                        handleDashboard();
+                        setIsOpen(false);
+                      }}
+                      variant="ghost" 
+                      className="w-full justify-start text-white bg-card rounded-xl"
+                    >
+                      <User className="h-4 w-4 mr-2 text-primary" />
+                      {userName || "Dashboard"}
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        handleLogout();
+                        setIsOpen(false);
+                      }}
+                      variant="outline" 
+                      className="w-full border-primary/50 text-white hover:bg-primary hover:text-white rounded-xl transition-all"
+                    >
+                      Logout
+                    </Button>
+                  </div>
+                ) : (
                   <Button 
                     onClick={() => {
-                      handleDashboard();
-                      setIsOpen(false);
-                    }}
-                    variant="ghost" 
-                    className="w-full justify-start text-white bg-card rounded-xl"
-                  >
-                    <User className="h-4 w-4 mr-2 text-primary" />
-                    {userName || "Dashboard"}
-                  </Button>
-                  <Button 
-                    onClick={() => {
-                      handleLogout();
+                      handleLogin();
                       setIsOpen(false);
                     }}
                     variant="outline" 
-                    className="w-full border-primary/50 text-white hover:bg-primary hover:text-white rounded-xl transition-all"
+                    className="w-full border-border/80 text-white hover:border-primary hover:bg-card rounded-xl transition-all"
                   >
-                    Logout
+                    <User className="h-4 w-4 mr-2 text-primary" />
+                    Client & Staff Portal Login
                   </Button>
-                </div>
-              ) : (
-                <Button 
-                  onClick={() => {
-                    handleLogin();
-                    setIsOpen(false);
-                  }}
-                  variant="outline" 
-                  className="w-full border-border/80 text-white hover:border-primary hover:bg-card rounded-xl transition-all"
-                >
-                  <User className="h-4 w-4 mr-2 text-primary" />
-                  Client & Staff Portal Login
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* iPhone-style Floating Mobile Bottom Navigation Bar */}

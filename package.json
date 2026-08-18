@@ -93,9 +93,5 @@
     "globals": "^15.15.0",
     "ts-node": "^10.9.2",
     "typescript-eslint": "^8.38.0"
-  },
-  "allowScripts": {
-    "@google/genai@2.17.1": true,
-    "esbuild@0.28.2": true
   }
 }

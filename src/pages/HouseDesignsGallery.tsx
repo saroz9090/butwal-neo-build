@@ -8,6 +8,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useWebsiteContent, HouseDesign } from "@/contexts/WebsiteContentContext";
 import LazyImage from "@/components/LazyImage";
 import { Link } from "react-router-dom";
+import { motion } from "motion/react";
+import { 
+  AnimatedSection, 
+  StaggerContainer, 
+  StaggerItem, 
+  AnimatedCard 
+} from "@/components/AnimatedSection";
 
 export const HouseDesignsGallery = () => {
   const { designs: baseDesigns } = useWebsiteContent();
@@ -232,95 +239,100 @@ export const HouseDesignsGallery = () => {
             <p className="text-sm text-muted-foreground mt-1">Try selecting different storey filters or clear your search term.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredDesigns.map((design) => (
-              <Card 
-                key={design.id} 
-                className="glass hover-lift cursor-pointer overflow-hidden relative flex flex-col justify-between border-border/60 group"
-                onClick={() => openDesign(design)}
-              >
-                <div>
-                  {/* Popular Badge */}
-                  {isTrending(design.id) && (
-                    <div className="absolute top-2 left-2 z-10">
-                      <span className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black px-2.5 py-0.5 rounded-full text-[11px] font-extrabold flex items-center gap-1 shadow-md">
-                        <TrendingUp className="h-3 w-3" />
-                        POPULAR CHOICE
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="aspect-video relative overflow-hidden bg-muted/20">
-                    <LazyImage 
-                      src={design.images[0]} 
-                      alt={design.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute top-2 right-2 flex items-center gap-1">
-                      <span className="bg-black/70 backdrop-blur-sm text-white px-2 py-0.5 rounded-full text-xs font-mono flex items-center gap-1">
-                        <Eye className="h-3 w-3 text-primary" />
-                        {formatViews(design.currentViews)}
-                      </span>
-                    </div>
-                    <Badge className="absolute bottom-2 left-2 bg-primary/95 text-primary-foreground font-semibold text-xs border-none">
-                      {design.style}
-                    </Badge>
-                  </div>
-                  
-                  <CardContent className="p-5">
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1">{design.title}</h3>
-                    </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">{design.description}</p>
-                    <div className="flex flex-wrap gap-1.5 mt-3">
-                      {design.tags.slice(0, 3).map((tag) => (
-                        <span 
-                          key={tag}
-                          className="bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded text-[11px] font-medium"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </CardContent>
-                </div>
-
-                {/* Card Action */}
-                <div className="p-5 pt-0 border-t border-border/40 mt-2 flex flex-col gap-2">
-                  <Button 
-                    size="sm" 
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      consultForDesign(design);
-                    }}
+              <StaggerItem key={design.id}>
+                <AnimatedCard>
+                  <Card 
+                    className="glass-ios-card hover-lift cursor-pointer overflow-hidden relative flex flex-col justify-between border-border/60 group h-full"
+                    onClick={() => openDesign(design)}
                   >
-                    <MessageCircle className="w-3.5 h-3.5 mr-1.5" />
-                    Want This Design? Get Consultation
-                  </Button>
-                </div>
-              </Card>
+                    <div>
+                      {/* Popular Badge */}
+                      {isTrending(design.id) && (
+                        <div className="absolute top-2 left-2 z-10">
+                          <span className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black px-2.5 py-0.5 rounded-full text-[11px] font-extrabold flex items-center gap-1 shadow-md">
+                            <TrendingUp className="h-3 w-3" />
+                            POPULAR CHOICE
+                          </span>
+                        </div>
+                      )}
+                      
+                      <div className="aspect-video relative overflow-hidden bg-muted/20">
+                        <LazyImage 
+                          src={design.images[0]} 
+                          alt={design.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        <div className="absolute top-2 right-2 flex items-center gap-1">
+                          <span className="bg-black/70 backdrop-blur-sm text-white px-2 py-0.5 rounded-full text-xs font-mono flex items-center gap-1">
+                            <Eye className="h-3 w-3 text-primary" />
+                            {formatViews(design.currentViews)}
+                          </span>
+                        </div>
+                        <Badge className="absolute bottom-2 left-2 bg-primary/95 text-primary-foreground font-semibold text-xs border-none">
+                          {design.style}
+                        </Badge>
+                      </div>
+                      
+                      <CardContent className="p-5">
+                        <div className="flex justify-between items-start mb-1">
+                          <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1">{design.title}</h3>
+                        </div>
+                        <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">{design.description}</p>
+                        <div className="flex flex-wrap gap-1.5 mt-3">
+                          {design.tags.slice(0, 3).map((tag) => (
+                            <span 
+                              key={tag}
+                              className="bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded text-[11px] font-medium"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </div>
+
+                    {/* Card Action */}
+                    <div className="p-5 pt-0 border-t border-border/40 mt-2 flex flex-col gap-2">
+                      <Button 
+                        size="sm" 
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-sm hover:scale-[1.02] transition-all"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          consultForDesign(design);
+                        }}
+                      >
+                        <MessageCircle className="w-3.5 h-3.5 mr-1.5" />
+                        Want This Design? Get Consultation
+                      </Button>
+                    </div>
+                  </Card>
+                </AnimatedCard>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         )}
 
         {/* Custom Design Callout Banner */}
-        <div className="mt-16 p-8 sm:p-12 rounded-3xl glass border border-primary/30 text-center relative overflow-hidden bg-gradient-to-br from-card via-primary/5 to-purple-500/10 shadow-xl">
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-foreground mb-3">
-            Need a Custom Architectural Design for Your Land?
-          </h3>
-          <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto mb-6">
-            Our Senior Architects in Dang and Butwal will visit your plot, analyze orientation and Vastu, and develop photorealistic 3D drawings tailored to your exact plot dimensions.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
-              <Link to="/contact">Book Architectural Consultation</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="border-primary/40">
-              <Link to="/estimate">Calculate Construction Cost</Link>
-            </Button>
+        <AnimatedSection direction="zoom" className="mt-16">
+          <div className="p-8 sm:p-12 rounded-3xl glass border border-primary/30 text-center relative overflow-hidden bg-gradient-to-br from-card via-primary/5 to-purple-500/10 shadow-xl">
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-foreground mb-3">
+              Need a Custom Architectural Design for Your Land?
+            </h3>
+            <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto mb-6">
+              Our Senior Architects in Dang and Butwal will visit your plot, analyze orientation and Vastu, and develop photorealistic 3D drawings tailored to your exact plot dimensions.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold hover:scale-105 transition-all">
+                <Link to="/contact">Book Architectural Consultation</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-primary/40 hover:scale-105 transition-all">
+                <Link to="/estimate">Calculate Construction Cost</Link>
+              </Button>
+            </div>
           </div>
-        </div>
+        </AnimatedSection>
 
         {/* Design Detail Modal */}
         <Dialog open={!!selectedDesign} onOpenChange={() => setSelectedDesign(null)}>

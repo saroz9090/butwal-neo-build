@@ -5,6 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { 
+  AnimatedSection, 
+  StaggerContainer, 
+  StaggerItem, 
+  AnimatedCard 
+} from "@/components/AnimatedSection";
+import { 
   Wrench, 
   Calculator, 
   Compass, 
@@ -186,7 +192,7 @@ export default function ToolsHubPage() {
 
       <div className="container mx-auto px-4 max-w-7xl relative z-10">
         {/* Page Hero */}
-        <div className="text-center mb-12 animate-fade-in">
+        <AnimatedSection direction="down" className="text-center mb-12">
           <Badge className="mb-3 px-4 py-1.5 text-sm bg-primary/20 text-primary border-primary/30 font-medium">
             <Wrench className="w-4 h-4 mr-1.5 inline text-primary" />
             Interactive Construction Suite
@@ -198,10 +204,10 @@ export default function ToolsHubPage() {
             All our powerful calculators, floor planners, 3D visualizers, Vastu guides, and legal permit assistants in one place.
             Click on any app below to launch it instantly.
           </p>
-        </div>
+        </AnimatedSection>
 
         {/* Filter and Search Bar */}
-        <div className="glass border-white/10 shadow-lg rounded-2xl p-4 md:p-6 mb-10 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <AnimatedSection direction="up" delay={0.1} className="glass-ios-card border-white/10 shadow-lg rounded-2xl p-4 md:p-6 mb-10 flex flex-col md:flex-row gap-4 items-center justify-between">
           {/* Category Tabs */}
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
             {categories.map((cat) => (
@@ -210,7 +216,7 @@ export default function ToolsHubPage() {
                 size="sm"
                 variant={selectedCategory === cat ? "default" : "outline"}
                 onClick={() => setSelectedCategory(cat)}
-                className={selectedCategory === cat ? "bg-primary text-primary-foreground font-semibold" : "border-border text-muted-foreground hover:text-foreground"}
+                className={selectedCategory === cat ? "bg-primary text-primary-foreground font-semibold shadow-sm" : "border-border text-muted-foreground hover:text-foreground"}
               >
                 {cat}
               </Button>
@@ -228,69 +234,72 @@ export default function ToolsHubPage() {
               className="pl-9 bg-card/60 border-border"
             />
           </div>
-        </div>
+        </AnimatedSection>
 
         {/* Apps & Tools Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTools.map((tool) => {
             const Icon = tool.icon;
             return (
-              <Card 
-                key={tool.id} 
-                className="glass border-white/10 hover:border-primary/60 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 flex flex-col justify-between group overflow-hidden"
-              >
-                <div>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
-                        <Icon className="w-6 h-6" />
-                      </div>
-                      <Badge variant="outline" className={`text-xs font-semibold ${tool.badgeColor}`}>
-                        {tool.badge}
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">
-                      {tool.title}
-                    </CardTitle>
-                    <CardDescription className="text-xs font-medium text-muted-foreground/80">
-                      Category: {tool.category}
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {tool.description}
-                    </p>
-
+              <StaggerItem key={tool.id}>
+                <AnimatedCard>
+                  <Card 
+                    className="glass-ios-card border-white/10 hover:border-primary/60 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 flex flex-col justify-between group overflow-hidden h-full"
+                  >
                     <div>
-                      <span className="text-xs font-bold text-foreground block mb-2">Key Capabilities:</span>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {tool.features.map((feat, idx) => (
-                          <div key={idx} className="flex items-center space-x-1.5 text-xs text-muted-foreground">
-                            <Sparkles className="w-3 h-3 text-primary flex-shrink-0" />
-                            <span className="truncate">{feat}</span>
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+                            <Icon className="w-6 h-6" />
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </div>
+                          <Badge variant="outline" className={`text-xs font-semibold ${tool.badgeColor}`}>
+                            {tool.badge}
+                          </Badge>
+                        </div>
+                        <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">
+                          {tool.title}
+                        </CardTitle>
+                        <CardDescription className="text-xs font-medium text-muted-foreground/80">
+                          Category: {tool.category}
+                        </CardDescription>
+                      </CardHeader>
 
-                <CardFooter className="pt-4 border-t border-border/50 mt-4 bg-card/30 flex items-center justify-between">
-                  <span className="text-[11px] text-muted-foreground italic truncate max-w-[180px]">
-                    {tool.recommendedFor}
-                  </span>
-                  <Link to={tool.path}>
-                    <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-md">
-                      Launch App
-                      <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-                    </Button>
-                  </Link>
-                </CardFooter>
-              </Card>
+                      <CardContent className="space-y-4">
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {tool.description}
+                        </p>
+
+                        <div>
+                          <span className="text-xs font-bold text-foreground block mb-2">Key Capabilities:</span>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {tool.features.map((feat, idx) => (
+                              <div key={idx} className="flex items-center space-x-1.5 text-xs text-muted-foreground">
+                                <Sparkles className="w-3 h-3 text-primary flex-shrink-0" />
+                                <span className="truncate">{feat}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </div>
+
+                    <CardFooter className="pt-4 border-t border-border/50 mt-4 bg-card/30 flex items-center justify-between">
+                      <span className="text-[11px] text-muted-foreground italic truncate max-w-[180px]">
+                        {tool.recommendedFor}
+                      </span>
+                      <Link to={tool.path}>
+                        <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-md hover:scale-105 transition-all">
+                          Launch App
+                          <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                        </Button>
+                      </Link>
+                    </CardFooter>
+                  </Card>
+                </AnimatedCard>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerContainer>
 
         {filteredTools.length === 0 && (
           <div className="text-center py-16 glass border-white/10 shadow-lg rounded-2xl">
@@ -304,25 +313,27 @@ export default function ToolsHubPage() {
         )}
 
         {/* Support Section */}
-        <div className="mt-16 glass border-white/10 shadow-lg rounded-2xl p-8 text-center">
-          <h2 className="text-2xl font-bold mb-2">Need Expert Architectural or Engineering Assistance?</h2>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Our team of engineers at Butwal Construction and Builders can review your floor plans, municipal permits, and structural estimates.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link to="/contact">
-              <Button size="lg" className="bg-primary text-primary-foreground">
-                Consult with Our Engineers
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-            <Link to="/group-companies">
-              <Button size="lg" variant="outline" className="border-border">
-                Explore Sister Companies
-              </Button>
-            </Link>
+        <AnimatedSection direction="zoom" className="mt-16">
+          <div className="glass-ios-card border-white/10 shadow-lg rounded-2xl p-8 text-center">
+            <h2 className="text-2xl font-bold mb-2">Need Expert Architectural or Engineering Assistance?</h2>
+            <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+              Our team of engineers at Butwal Construction and Builders can review your floor plans, municipal permits, and structural estimates.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <Link to="/contact">
+                <Button size="lg" className="bg-primary text-primary-foreground hover:scale-105 transition-all">
+                  Consult with Our Engineers
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+              <Link to="/group-companies">
+                <Button size="lg" variant="outline" className="border-border hover:scale-105 transition-all">
+                  Explore Sister Companies
+                </Button>
+              </Link>
+            </div>
           </div>
-        </div>
+        </AnimatedSection>
       </div>
     </div>
   );
