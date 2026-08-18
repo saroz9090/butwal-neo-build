@@ -369,27 +369,30 @@ export const WebsiteContentProvider: React.FC<{ children: React.ReactNode }> = (
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(() => {
     try {
       const cached = localStorage.getItem("bc_cached_blogs");
-      return cached ? JSON.parse(cached) : INITIAL_BLOGS;
+      if (cached !== null) return JSON.parse(cached);
+      return [];
     } catch {
-      return INITIAL_BLOGS;
+      return [];
     }
   });
 
   const [projects, setProjects] = useState<WebsiteProject[]>(() => {
     try {
       const cached = localStorage.getItem("bc_cached_projects");
-      return cached ? JSON.parse(cached) : INITIAL_PROJECTS;
+      if (cached !== null) return JSON.parse(cached);
+      return [];
     } catch {
-      return INITIAL_PROJECTS;
+      return [];
     }
   });
 
   const [designs, setDesigns] = useState<HouseDesign[]>(() => {
     try {
       const cached = localStorage.getItem("bc_cached_designs");
-      return cached ? JSON.parse(cached) : INITIAL_DESIGNS;
+      if (cached !== null) return JSON.parse(cached);
+      return [];
     } catch {
-      return INITIAL_DESIGNS;
+      return [];
     }
   });
 
@@ -399,115 +402,100 @@ export const WebsiteContentProvider: React.FC<{ children: React.ReactNode }> = (
   // Real-time Firestore sync with resilient auto-seeding & schema normalization
   useEffect(() => {
     // 1. Sync Blog Posts
-    const unsubBlogs = onSnapshot(collection(db, "blogPosts"), async (snapshot) => {
-      if (snapshot.empty) {
-        // Automatically seed initial blogs to Firestore if empty
-        for (const blog of INITIAL_BLOGS) {
-          await setDoc(doc(db, "blogPosts", blog.id), cleanUndefined(blog));
-        }
-      } else {
-        const list: BlogPost[] = [];
-        snapshot.forEach((d) => {
-          const data = d.data();
-          list.push({
-            id: d.id,
-            title: data.title || "Construction Insight",
-            excerpt: data.excerpt || "",
-            category: data.category || "General",
-            date: data.date || new Date().toISOString().split("T")[0],
-            author: data.author || "Engineering Team",
-            image: data.image || project1,
-            images: data.images && data.images.length > 0 ? data.images : [data.image || project1],
-            readTime: data.readTime || "5 min read",
-            content: data.content || "",
-            isPublished: data.isPublished !== false,
-          });
+    const unsubBlogs = onSnapshot(collection(db, "blogPosts"), (snapshot) => {
+      const list: BlogPost[] = [];
+      snapshot.forEach((d) => {
+        const data = d.data();
+        list.push({
+          id: d.id,
+          title: data.title || "Construction Insight",
+          excerpt: data.excerpt || "",
+          category: data.category || "General",
+          date: data.date || new Date().toISOString().split("T")[0],
+          author: data.author || "Engineering Team",
+          image: data.image || project1,
+          images: data.images && data.images.length > 0 ? data.images : [data.image || project1],
+          readTime: data.readTime || "5 min read",
+          content: data.content || "",
+          isPublished: data.isPublished !== false,
         });
-        setBlogPosts(list);
-        try { localStorage.setItem("bc_cached_blogs", JSON.stringify(list)); } catch { /* ignore */ }
-      }
+      });
+      setBlogPosts(list);
+      try { localStorage.setItem("bc_cached_blogs", JSON.stringify(list)); } catch { /* ignore */ }
     });
 
-    // 2. Sync Projects (with auto-seeding initial benchmark projects if Firestore is completely empty)
-    const unsubProjects = onSnapshot(collection(db, "projects"), async (snapshot) => {
-      if (snapshot.empty) {
-        // Auto-seed initial projects so Firestore is populated and adding new projects doesn't wipe them out
-        for (const proj of INITIAL_PROJECTS) {
-          await setDoc(doc(db, "projects", proj.id), cleanUndefined({
-            ...proj,
-            name: proj.title,
-            address: proj.location,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          }));
-        }
-      } else {
-        const list: WebsiteProject[] = [];
-        snapshot.forEach((d) => {
-          const data = d.data();
-          list.push({
-            id: d.id,
-            code: data.code || `PROJ-${d.id.slice(-4)}`,
-            title: data.title || data.name || "Construction Project",
-            category: data.category || "Residential",
-            location: data.location || data.address || "Butwal",
-            client: data.client || (data.client_id ? "Client" : "Private Client"),
-            area: data.area || "3,000 Sq. Ft.",
-            status: (data.status === "completed" || data.status === "Completed") 
-              ? "Completed" 
-              : (data.status === "planning" || data.status === "Under Planning") 
-              ? "Under Planning" 
-              : "Ongoing",
-            progress: typeof data.progress === "number" ? data.progress : 0,
-            image: data.image || (data.images && data.images[0]) || project1,
-            images: data.images && data.images.length > 0 ? data.images : [data.image || (data.images && data.images[0]) || project1],
-            description: data.description || "",
-            cost: data.cost || (data.total_cost ? `NPR ${(Number(data.total_cost) / 10000000).toFixed(2)} Crore` : "NPR 1.50 Crore"),
-            startDate: data.startDate || data.start_date || "2025-01-01",
-            completionDate: data.completionDate || data.estimated_completion || "2026-12-31"
-          });
+    // 2. Sync Projects
+    const unsubProjects = onSnapshot(collection(db, "projects"), (snapshot) => {
+      const list: WebsiteProject[] = [];
+      snapshot.forEach((d) => {
+        const data = d.data();
+        list.push({
+          id: d.id,
+          code: data.code || `PROJ-${d.id.slice(-4)}`,
+          title: data.title || data.name || "Construction Project",
+          category: data.category || "Residential",
+          location: data.location || data.address || "Butwal",
+          client: data.client || (data.client_id ? "Client" : "Private Client"),
+          area: data.area || "3,000 Sq. Ft.",
+          status: (data.status === "completed" || data.status === "Completed") 
+            ? "Completed" 
+            : (data.status === "planning" || data.status === "Under Planning") 
+            ? "Under Planning" 
+            : "Ongoing",
+          progress: typeof data.progress === "number" ? data.progress : 0,
+          image: data.image || (data.images && data.images[0]) || project1,
+          images: data.images && data.images.length > 0 ? data.images : [data.image || (data.images && data.images[0]) || project1],
+          description: data.description || "",
+          cost: data.cost || (data.total_cost ? `NPR ${(Number(data.total_cost) / 10000000).toFixed(2)} Crore` : "NPR 1.50 Crore"),
+          startDate: data.startDate || data.start_date || "2025-01-01",
+          completionDate: data.completionDate || data.estimated_completion || "2026-12-31"
         });
-        setProjects(list);
-        try { localStorage.setItem("bc_cached_projects", JSON.stringify(list)); } catch { /* ignore */ }
-      }
+      });
+      setProjects(list);
+      try { localStorage.setItem("bc_cached_projects", JSON.stringify(list)); } catch { /* ignore */ }
     });
 
     // 3. Sync Designs
-    const unsubDesigns = onSnapshot(collection(db, "designs"), async (snapshot) => {
-      if (snapshot.empty) {
-        for (const des of INITIAL_DESIGNS) {
-          await setDoc(doc(db, "designs", des.id), cleanUndefined(des));
-        }
-      } else {
-        const list: HouseDesign[] = [];
-        snapshot.forEach((d) => {
-          const data = d.data();
-          list.push({
-            id: d.id,
-            title: data.title || "House Model",
-            style: data.style || "Modern",
-            description: data.description || "",
-            images: data.images && data.images.length > 0 ? data.images : ["https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"],
-            tags: data.tags || ["modern", "residential"],
-            features: data.features || ["Earthquake-resistant", "Reinforced frame"],
-            baseViews: data.baseViews || 100,
-            growthRate: data.growthRate || 5,
-            currentViews: data.currentViews,
-          });
+    const unsubDesigns = onSnapshot(collection(db, "designs"), (snapshot) => {
+      const list: HouseDesign[] = [];
+      snapshot.forEach((d) => {
+        const data = d.data();
+        list.push({
+          id: d.id,
+          title: data.title || "House Model",
+          style: data.style || "Modern",
+          description: data.description || "",
+          images: data.images && data.images.length > 0 ? data.images : ["https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"],
+          tags: data.tags || ["modern", "residential"],
+          features: data.features || ["Earthquake-resistant", "Reinforced frame"],
+          baseViews: data.baseViews || 100,
+          growthRate: data.growthRate || 5,
+          currentViews: data.currentViews,
         });
-        setDesigns(list);
-        try { localStorage.setItem("bc_cached_designs", JSON.stringify(list)); } catch { /* ignore */ }
-      }
+      });
+      setDesigns(list);
+      try { localStorage.setItem("bc_cached_designs", JSON.stringify(list)); } catch { /* ignore */ }
     });
 
-    // 4. Sync Settings
-    const unsubSettings = onSnapshot(doc(db, "settings", "global"), (docSnap) => {
+    // 4. Sync Settings (Never re-seed mock data in background)
+    const unsubSettings = onSnapshot(doc(db, "settings", "global"), async (docSnap) => {
       if (docSnap.exists()) {
         setSettings(docSnap.data() as WebsiteContentSettings);
+        setLoading(false);
       } else {
-        setDoc(doc(db, "settings", "global"), DEFAULT_SETTINGS);
+        const initialSettingsPayload = {
+          ...DEFAULT_SETTINGS,
+          isSeeded: true,
+          created_at: new Date().toISOString()
+        };
+        try {
+          await setDoc(doc(db, "settings", "global"), initialSettingsPayload);
+        } catch (e) {
+          console.error("Error setting default settings:", e);
+        }
+        setSettings(initialSettingsPayload);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => {
@@ -536,22 +524,20 @@ export const WebsiteContentProvider: React.FC<{ children: React.ReactNode }> = (
   };
 
   const deleteBlogPost = async (id: string) => {
-    setBlogPosts(prev => prev.filter(b => b.id !== id));
-    await deleteDoc(doc(db, "blogPosts", id));
+    setBlogPosts(prev => {
+      const filtered = prev.filter(b => b.id !== id);
+      try { localStorage.setItem("bc_cached_blogs", JSON.stringify(filtered)); } catch { /* ignore */ }
+      return filtered;
+    });
+    try {
+      await deleteDoc(doc(db, "blogPosts", id));
+    } catch (err) {
+      console.error("Failed to delete blog post from Firestore:", err);
+    }
   };
 
   const seedSampleBlogs = async (): Promise<{ success: boolean; count: number }> => {
-    try {
-      let count = 0;
-      for (const blog of INITIAL_BLOGS) {
-        await setDoc(doc(db, "blogPosts", blog.id), cleanUndefined(blog));
-        count++;
-      }
-      return { success: true, count };
-    } catch (err) {
-      console.error("Error seeding sample blogs:", err);
-      return { success: false, count: 0 };
-    }
+    return { success: true, count: 0 };
   };
 
   const addProject = async (project: Omit<WebsiteProject, "id">) => {
@@ -599,8 +585,16 @@ export const WebsiteContentProvider: React.FC<{ children: React.ReactNode }> = (
   };
 
   const deleteProject = async (id: string) => {
-    setProjects(prev => prev.filter(p => p.id !== id));
-    await deleteDoc(doc(db, "projects", id));
+    setProjects(prev => {
+      const filtered = prev.filter(p => p.id !== id);
+      try { localStorage.setItem("bc_cached_projects", JSON.stringify(filtered)); } catch { /* ignore */ }
+      return filtered;
+    });
+    try {
+      await deleteDoc(doc(db, "projects", id));
+    } catch (err) {
+      console.error("Failed to delete project from Firestore:", err);
+    }
   };
 
   const migrateProjectsToFirebase = async (force: boolean = false): Promise<{ success: boolean; count?: number; error?: unknown }> => {
@@ -630,23 +624,7 @@ export const WebsiteContentProvider: React.FC<{ children: React.ReactNode }> = (
   };
 
   const seedSampleProjects = async (): Promise<{ success: boolean; count: number }> => {
-    try {
-      let count = 0;
-      for (const proj of INITIAL_PROJECTS) {
-        await setDoc(doc(db, "projects", proj.id), cleanUndefined({
-          ...proj,
-          name: proj.title,
-          address: proj.location,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }));
-        count++;
-      }
-      return { success: true, count };
-    } catch (err) {
-      console.error("Error seeding sample projects:", err);
-      return { success: false, count: 0 };
-    }
+    return { success: true, count: 0 };
   };
 
   const addDesign = async (design: Omit<HouseDesign, "id">) => {
@@ -662,22 +640,20 @@ export const WebsiteContentProvider: React.FC<{ children: React.ReactNode }> = (
   };
 
   const deleteDesign = async (id: string) => {
-    setDesigns(prev => prev.filter(d => d.id !== id));
-    await deleteDoc(doc(db, "designs", id));
+    setDesigns(prev => {
+      const filtered = prev.filter(d => d.id !== id);
+      try { localStorage.setItem("bc_cached_designs", JSON.stringify(filtered)); } catch { /* ignore */ }
+      return filtered;
+    });
+    try {
+      await deleteDoc(doc(db, "designs", id));
+    } catch (err) {
+      console.error("Failed to delete design from Firestore:", err);
+    }
   };
 
   const seedSampleDesigns = async (): Promise<{ success: boolean; count: number }> => {
-    try {
-      let count = 0;
-      for (const des of INITIAL_DESIGNS) {
-        await setDoc(doc(db, "designs", des.id), cleanUndefined(des));
-        count++;
-      }
-      return { success: true, count };
-    } catch (err) {
-      console.error("Error seeding sample designs:", err);
-      return { success: false, count: 0 };
-    }
+    return { success: true, count: 0 };
   };
 
   const updateSettings = async (newFields: Partial<WebsiteContentSettings>) => {
@@ -685,25 +661,7 @@ export const WebsiteContentProvider: React.FC<{ children: React.ReactNode }> = (
   };
 
   const resetToDefaults = async () => {
-    await setDoc(doc(db, "settings", "global"), DEFAULT_SETTINGS);
-    for (const post of blogPosts) {
-      await deleteDoc(doc(db, "blogPosts", post.id));
-    }
-    for (const b of INITIAL_BLOGS) {
-      await setDoc(doc(db, "blogPosts", b.id), cleanUndefined(b));
-    }
-    for (const proj of projects) {
-      await deleteDoc(doc(db, "projects", proj.id));
-    }
-    for (const p of INITIAL_PROJECTS) {
-      await setDoc(doc(db, "projects", p.id), cleanUndefined(p));
-    }
-    for (const des of designs) {
-      await deleteDoc(doc(db, "designs", des.id));
-    }
-    for (const d of INITIAL_DESIGNS) {
-      await setDoc(doc(db, "designs", d.id), cleanUndefined(d));
-    }
+    // DISABLED
   };
 
   return (

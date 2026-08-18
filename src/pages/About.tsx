@@ -50,7 +50,7 @@ const About = () => {
                   Butwal Construction and Builders
                 </h2>
                 <p className="text-muted-foreground leading-relaxed text-base sm:text-lg">
-                  A sister company of Satyawati Devi Hardware, we bring decades of experience in the construction 
+                  A sister company of Satyawati Devi Hardware, we bring years of specialized experience in the construction 
                   industry combined with modern innovation and technology. Our commitment to excellence has made us 
                   one of the most trusted construction companies in Nepal.
                 </p>

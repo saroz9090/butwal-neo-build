@@ -170,7 +170,7 @@ const Navigation = () => {
             </Link>
 
             {/* Desktop Menu - Streamlined Apple iOS Capsule Styling */}
-            <div className="hidden lg:flex items-center space-x-1 xl:space-x-2">
+            <div className="hidden xl:flex items-center space-x-1 xl:space-x-2">
               <div className="flex items-center space-x-1 glass-ios-pill px-2 py-1.5 rounded-full border-white/15">
                 {primaryNavItems.map((item) => {
                   const active = isActive(item.path);
@@ -199,7 +199,7 @@ const Navigation = () => {
               </div>
 
               {/* Primary Action CTA */}
-              <Link to="/contact" className="ml-2">
+              <Link to="/contact" className="ml-2 hidden xl:block">
                 <Button
                   size="sm"
                   className="bg-primary hover:bg-primary/90 text-white font-bold text-xs xl:text-sm px-4 py-2 rounded-full shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.03] active:scale-[0.96] transition-all duration-200"
@@ -210,7 +210,7 @@ const Navigation = () => {
               </Link>
 
               {/* Social Media Links */}
-              <div className="flex items-center space-x-1 ml-2 border-l border-border/70 pl-3">
+              <div className="hidden xl:flex items-center space-x-1 ml-2 border-l border-border/70 pl-3">
                 {socialLinks.map((social) => (
                   <a
                     key={social.label}
@@ -260,8 +260,8 @@ const Navigation = () => {
             </div>
 
             {/* Mobile / Tablet Menu Toggle */}
-            <div className="lg:hidden flex items-center gap-2">
-              <Link to="/contact">
+            <div className="xl:hidden flex items-center gap-2">
+              <Link to="/contact" className="hidden sm:block">
                 <Button size="sm" className="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
                   Consult
                 </Button>
@@ -285,7 +285,7 @@ const Navigation = () => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.28, ease: "easeOut" }}
-              className="lg:hidden glass-ios backdrop-blur-3xl border-t border-white/15 shadow-2xl overflow-hidden max-h-[85vh] overflow-y-auto pb-8"
+              className="xl:hidden glass-ios backdrop-blur-3xl border-t border-white/15 shadow-2xl overflow-hidden max-h-[85vh] overflow-y-auto pb-8"
             >
               <div className="container mx-auto px-4 py-4 space-y-5">
                 

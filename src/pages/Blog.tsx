@@ -132,13 +132,13 @@ const Blog = () => {
                     onClick={() => navigate(`/blog/${post.id}`)}
                   >
                     <div>
-                      <div className="relative h-56 overflow-hidden">
+                      <div className="relative aspect-square overflow-hidden bg-muted/25">
                         <LazyImage
                           src={post.image}
                           alt={post.title}
-                          className="transition-transform duration-700 group-hover:scale-110"
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/40 to-transparent z-10" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent z-10" />
                       </div>
                       
                       <div className="p-6">

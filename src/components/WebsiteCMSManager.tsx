@@ -15,8 +15,7 @@ import {
   MapPin, 
   Mail, 
   Bell, 
-  RefreshCw,
-  Cloud
+  RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,7 +32,6 @@ import { useAdminProjects, ProjectFormData } from "@/hooks/useAdminProjects";
 import { useAuth } from "@/hooks/useAuth";
 import { getKathmanduDateTimeLocal, formatKathmanduDateTime } from "@/lib/utils";
 import { ImageUploadDropzone } from "@/components/ImageUploadDropzone";
-import { getCloudinaryConfig, saveCloudinaryConfig } from "@/lib/imageUpload";
 
 const WebsiteCMSManager: React.FC = () => {
   const { isTopAdmin } = useAuth();
@@ -57,20 +55,6 @@ const WebsiteCMSManager: React.FC = () => {
   const [isMigrating, setIsMigrating] = useState(false);
   const [isSeedingBlogs, setIsSeedingBlogs] = useState(false);
   const [isSeedingDesigns, setIsSeedingDesigns] = useState(false);
-
-  // Storage Settings State
-  const initialStorageConfig = getCloudinaryConfig();
-  const [cloudName, setCloudName] = useState(initialStorageConfig.cloudName);
-  const [uploadPreset, setUploadPreset] = useState(initialStorageConfig.uploadPreset);
-
-  const handleSaveCloudinarySettings = (e: React.FormEvent) => {
-    e.preventDefault();
-    saveCloudinaryConfig(cloudName, uploadPreset);
-    toast({
-      title: "Media Storage Settings Updated",
-      description: "Custom Cloud CDN parameters have been updated successfully.",
-    });
-  };
 
   const handleMigrateProjects = async () => {
     setIsMigrating(true);
@@ -441,7 +425,7 @@ const WebsiteCMSManager: React.FC = () => {
       </div>
 
       <Tabs defaultValue="projects" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-2xl">
+        <TabsList className="grid w-full grid-cols-3 max-w-lg">
           <TabsTrigger value="projects" className="flex items-center gap-2 text-xs sm:text-sm">
             <Building2 className="h-4 w-4" /> Projects
           </TabsTrigger>
@@ -450,9 +434,6 @@ const WebsiteCMSManager: React.FC = () => {
           </TabsTrigger>
           <TabsTrigger value="designs" className="flex items-center gap-2 text-xs sm:text-sm">
             <Globe className="h-4 w-4" /> House Designs
-          </TabsTrigger>
-          <TabsTrigger value="storage" className="flex items-center gap-2 text-xs sm:text-sm">
-            <Cloud className="h-4 w-4 text-primary" /> Storage & CDN
           </TabsTrigger>
         </TabsList>
 
@@ -978,67 +959,6 @@ const WebsiteCMSManager: React.FC = () => {
               ))}
             </div>
           )}
-        </TabsContent>
-
-        {/* STORAGE & CDN SETTINGS TAB */}
-        <TabsContent value="storage" className="space-y-6">
-          <Card className="glass p-6">
-            <CardHeader className="px-0 pt-0">
-              <CardTitle className="text-xl font-bold flex items-center gap-2">
-                <Cloud className="h-5 w-5 text-primary" /> Image & Media Cloud CDN Settings
-              </CardTitle>
-              <CardDescription>
-                Configure how photos and architectural designs are stored when publishing to GitHub Pages, Vercel, or running on a local server.
-              </CardDescription>
-            </CardHeader>
-
-            <form onSubmit={handleSaveCloudinarySettings} className="space-y-6 pt-2">
-              <div className="p-4 bg-primary/10 border border-primary/20 rounded-xl flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <div className="text-xs space-y-1">
-                  <p className="font-semibold text-foreground">Zero-Configuration WebP Compression (Active by Default)</p>
-                  <p className="text-muted-foreground">
-                    All images dropped into the app are automatically compressed in your browser down to ~15KB–30KB high-speed WebP format. Even without any API keys, images will always upload and display instantly on GitHub Pages and local servers!
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold">Cloudinary Cloud Name (Optional)</label>
-                  <Input 
-                    value={cloudName} 
-                    onChange={(e) => setCloudName(e.target.value)} 
-                    placeholder="e.g. dkz1mrcsn or your_cloud_name" 
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Found in your Cloudinary Dashboard under Account Details.
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold">Unsigned Upload Preset (Optional)</label>
-                  <Input 
-                    value={uploadPreset} 
-                    onChange={(e) => setUploadPreset(e.target.value)} 
-                    placeholder="e.g. butwal_unsigned or ml_default" 
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Created in Cloudinary Settings ➔ Upload ➔ Add upload preset (Signing Mode: Unsigned).
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-border">
-                <div className="text-xs text-muted-foreground">
-                  💡 Saved directly in browser storage so it works across sessions without editing code files.
-                </div>
-                <Button type="submit" className="gradient-primary">
-                  <Save className="h-4 w-4 mr-2" /> Save Storage Configuration
-                </Button>
-              </div>
-            </form>
-          </Card>
         </TabsContent>
       </Tabs>
 

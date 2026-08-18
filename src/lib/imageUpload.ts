@@ -22,12 +22,9 @@ export function getCloudinaryConfig() {
   const envCloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
   const envPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
-  const localCloudName = typeof window !== "undefined" ? localStorage.getItem("butwal_cloudinary_cloud_name") : null;
-  const localPreset = typeof window !== "undefined" ? localStorage.getItem("butwal_cloudinary_preset") : null;
-
   return {
-    cloudName: envCloudName || localCloudName || "",
-    uploadPreset: envPreset || localPreset || "",
+    cloudName: envCloudName || "mk3guyj2",
+    uploadPreset: envPreset || "ml_default",
   };
 }
 

@@ -8,9 +8,7 @@ import {
   Sparkles, 
   Copy, 
   Check, 
-  Link as LinkIcon,
-  Settings,
-  Cloud
+  Link as LinkIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,17 +16,9 @@ import {
   uploadImageToFreeCloud, 
   formatBytes, 
   UploadResult,
-  getCloudinaryConfig,
-  saveCloudinaryConfig
+  getCloudinaryConfig
 } from "@/lib/imageUpload";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 
 interface ImageUploadDropzoneProps {
   id?: string;
@@ -62,11 +52,6 @@ export const ImageUploadDropzone: React.FC<ImageUploadDropzoneProps> = ({
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [manualUrl, setManualUrl] = useState("");
-  const [showConfigModal, setShowConfigModal] = useState(false);
-  
-  const currentConfig = getCloudinaryConfig();
-  const [cloudNameInput, setCloudNameInput] = useState(currentConfig.cloudName);
-  const [presetInput, setPresetInput] = useState(currentConfig.uploadPreset);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -172,15 +157,6 @@ export const ImageUploadDropzone: React.FC<ImageUploadDropzoneProps> = ({
     toast({ title: "Image URL Applied", description: "Image link attached successfully." });
   };
 
-  const handleSaveCloudinary = () => {
-    saveCloudinaryConfig(cloudNameInput, presetInput);
-    setShowConfigModal(false);
-    toast({
-      title: "Cloud Settings Saved",
-      description: "Your Cloudinary settings will be used for future uploads.",
-    });
-  };
-
   return (
     <div className={`space-y-2.5 ${className}`}>
       {label && (
@@ -197,15 +173,6 @@ export const ImageUploadDropzone: React.FC<ImageUploadDropzoneProps> = ({
             >
               <LinkIcon className="w-3 h-3" />
               {showUrlInput ? "Hide Link" : "Paste Link"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowConfigModal(true)}
-              className="text-[11px] text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
-              title="Configure Cloud CDN / Local Storage"
-            >
-              <Settings className="w-3 h-3" />
-              <span>Storage</span>
             </button>
             <span className="text-[11px] text-emerald-500 flex items-center gap-1">
               <Sparkles className="w-3 h-3" /> Auto WebP
@@ -338,54 +305,6 @@ export const ImageUploadDropzone: React.FC<ImageUploadDropzoneProps> = ({
           </Button>
         </div>
       )}
-
-      {/* Cloud Storage Configuration Dialog */}
-      <Dialog open={showConfigModal} onOpenChange={setShowConfigModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Cloud className="w-5 h-5 text-primary" />
-              Image & Media Storage Settings
-            </DialogTitle>
-            <DialogDescription>
-              Images are automatically optimized and compressed. If you want external Cloud CDN URLs when deploying to GitHub Pages or local server, you can optionally configure your Cloudinary credentials below.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-foreground">Cloudinary Cloud Name</label>
-              <Input
-                value={cloudNameInput}
-                onChange={(e) => setCloudNameInput(e.target.value)}
-                placeholder="e.g., your_cloud_name"
-                className="text-xs"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-foreground">Unsigned Upload Preset</label>
-              <Input
-                value={presetInput}
-                onChange={(e) => setPresetInput(e.target.value)}
-                placeholder="e.g., your_upload_preset"
-                className="text-xs"
-              />
-            </div>
-            <div className="p-3 bg-muted/50 rounded-lg text-xs text-muted-foreground space-y-1">
-              <p className="font-semibold text-foreground">💡 Zero-Config Fallback:</p>
-              <p>Even without Cloudinary keys, the system automatically uses client-side WebP compression (to ~15KB), so your image uploads will always work seamlessly on GitHub Pages and local development servers.</p>
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => setShowConfigModal(false)}>
-                Cancel
-              </Button>
-              <Button type="button" size="sm" className="bg-primary text-white" onClick={handleSaveCloudinary}>
-                Save Settings
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

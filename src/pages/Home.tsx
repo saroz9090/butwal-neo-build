@@ -46,6 +46,7 @@ import {
   AnimatedCounter, 
   AnimatedCard 
 } from "@/components/AnimatedSection";
+import { ParallaxSection } from "@/components/ParallaxSection";
 
 export const Home = () => {
   const { settings, projects: dynamicProjects, designs, blogPosts } = useWebsiteContent();
@@ -131,7 +132,7 @@ export const Home = () => {
       </div>
 
       {/* 1. Hero Section with staggered entrance */}
-      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-24 pb-16">
+      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-36 md:pt-40 pb-16">
         <motion.div
           initial={{ scale: 1.15, opacity: 0 }}
           animate={{ scale: 1.05, opacity: 1 }}
@@ -150,9 +151,9 @@ export const Home = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-ios-pill border-primary/40 text-primary-foreground text-xs sm:text-sm font-semibold mb-6 shadow-lg"
+            className="inline-flex flex-wrap items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl glass-ios-pill border-primary/40 text-primary-foreground text-xs sm:text-sm font-semibold mb-6 shadow-lg max-w-full text-center leading-relaxed"
           >
-            <MapPin className="w-4 h-4 text-primary animate-bounce" />
+            <MapPin className="w-4 h-4 text-primary animate-bounce shrink-0" />
             <span>Head Office: Butwal • Regional Branch: Dang (Ghorahi | Tulsipur | Lamahi)</span>
           </motion.div>
 
@@ -227,10 +228,10 @@ export const Home = () => {
 
             <AnimatedSection delay={0.2} className="text-center p-3 rounded-2xl glass-ios-card">
               <div className="text-3xl sm:text-4xl font-extrabold text-amber-400 font-mono mb-1">
-                <AnimatedCounter value={settings.yearsExperience || 15} suffix="+ Yrs" />
+                <AnimatedCounter value={8} suffix="+ Yrs" />
               </div>
               <p className="text-xs sm:text-sm font-semibold text-foreground">Heritage & Trust</p>
-              <span className="text-[10px] text-muted-foreground">Since 2010 in Nepal</span>
+              <span className="text-[10px] text-muted-foreground">Since 2018 (2075 BS) in Nepal</span>
             </AnimatedSection>
 
             <AnimatedSection delay={0.3} className="text-center p-3 rounded-2xl glass-ios-card">

@@ -107,7 +107,7 @@ const BlogPostDetail = () => {
           </div>
 
           {/* Featured Image */}
-          <div className="relative h-[350px] md:h-[500px] rounded-2xl overflow-hidden mb-10 shadow-2xl">
+          <div className="relative aspect-square max-w-2xl mx-auto rounded-2xl overflow-hidden mb-10 shadow-2xl bg-muted/20 border border-white/10">
             <LazyImage src={post.image} alt={post.title} className="w-full h-full object-cover" />
           </div>
 
