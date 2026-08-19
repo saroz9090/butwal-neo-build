@@ -126,13 +126,15 @@ export const Projects = () => {
       // Category
       let matchesCategory = true;
       if (categoryFilter !== "all") {
-        matchesCategory = p.category.toLowerCase() === categoryFilter.toLowerCase();
+        matchesCategory = p.category.toLowerCase().includes(categoryFilter.toLowerCase());
       }
 
       // Status
       let matchesStatus = true;
       if (statusFilter !== "all") {
-        matchesStatus = p.status.toLowerCase() === statusFilter.toLowerCase();
+        const itemStatus = (p.status || "").toLowerCase().trim();
+        const targetStatus = statusFilter.toLowerCase().trim();
+        matchesStatus = itemStatus.includes(targetStatus);
       }
 
       return matchesSearch && matchesLocation && matchesCategory && matchesStatus;

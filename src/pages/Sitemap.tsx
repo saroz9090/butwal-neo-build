@@ -44,6 +44,8 @@ const Sitemap = () => {
         { name: "Buy or Build Advisor", path: "/tools/buy-or-build", description: "Help deciding between buying and building" },
         { name: "Construction Timeline", path: "/tools/timeline", description: "Project scheduling and planning" },
         { name: "Green Build Calculator", path: "/tools/green-calculator", description: "Sustainable construction assessment" },
+        { name: "Paint Area & Cost Calculator", path: "/tools/paint-calculator", description: "Wall & ceiling paint, Putty & BOQ estimator" },
+        { name: "Tiles, Granite & Moulding Calculator", path: "/tools/tiles-calculator", description: "Tile boxes, skirting Rft, and single/double moulding with Nepal 1-ft min rule" },
         { name: "Floor Planner", path: "/floor-planner", description: "Design and plan your floor layout" },
       ]
     },

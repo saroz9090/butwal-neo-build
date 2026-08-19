@@ -59,9 +59,9 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get(/^(?!\/api).*/, (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+    app.use(express.static(distPath, { index: 'index.html', extensions: ['html'] }));
+    app.get('*all', (req, res) => {
+      res.status(200).sendFile(path.join(distPath, 'index.html'));
     });
   }
 

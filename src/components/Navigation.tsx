@@ -23,7 +23,9 @@ import {
   Info, 
   Phone,
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  Paintbrush,
+  Grid3X3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -84,6 +86,8 @@ const Navigation = () => {
 
   const quickAppsList = [
     { name: "Cost Estimator & BOQ", path: "/estimate", icon: Calculator, desc: "Instant price quotes in NPR" },
+    { name: "Tiles & Granite Calculator", path: "/tools/tiles-calculator", icon: Grid3X3, desc: "Tile boxes, skirting & double moulding" },
+    { name: "Paint Area Calculator", path: "/tools/paint-calculator", icon: Paintbrush, desc: "Wall & ceiling paint, Putty & BOQ" },
     { name: "2D Floor Planner", path: "/floor-planner", icon: Layout, desc: "Drag & drop floor planner" },
     { name: "Nepal Permit Assistant", path: "/tools/permits", icon: FileCheck, desc: "Naksa Pass approval steps" },
     { name: "Vastu Shastra Guide", path: "/tools/vastu", icon: Compass, desc: "Room orientation & compliance" },

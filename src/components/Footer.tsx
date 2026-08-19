@@ -103,6 +103,12 @@ const Footer = () => {
               <Link to="/estimate" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
                 Construction Cost Estimator
               </Link>
+              <Link to="/tools/tiles-calculator" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                Tiles, Granite & Moulding Calculator
+              </Link>
+              <Link to="/tools/paint-calculator" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                Paint Area & Cost Calculator
+              </Link>
               <Link to="/group-companies" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
                 Group Companies & Network
               </Link>

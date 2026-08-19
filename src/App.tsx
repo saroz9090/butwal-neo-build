@@ -29,6 +29,8 @@ import VastuGuide from "./pages/tools/VastuGuide";
 import BuyOrBuild from "./pages/tools/BuyOrBuild";
 import ConstructionTimeline from "./pages/tools/ConstructionTimeline";
 import GreenBuildCalculator from "./pages/tools/GreenBuildCalculator";
+import PaintCalculator from "./pages/tools/PaintCalculator";
+import TilesCalculator from "./pages/tools/TilesCalculator";
 import Partnerships from "./pages/Partnerships";
 import Testimonials from "./pages/Testimonials";
 import NotFound from "./pages/NotFound";
@@ -71,6 +73,10 @@ const AnimatedRoutes = () => {
         <Route path="/tools/buy-or-build" element={<PageTransition><BuyOrBuild /></PageTransition>} />
         <Route path="/tools/timeline" element={<PageTransition><ConstructionTimeline /></PageTransition>} />
         <Route path="/tools/green-calculator" element={<PageTransition><GreenBuildCalculator /></PageTransition>} />
+        <Route path="/tools/paint-calculator" element={<PageTransition><PaintCalculator /></PageTransition>} />
+        <Route path="/paint-calculator" element={<PageTransition><PaintCalculator /></PageTransition>} />
+        <Route path="/tools/tiles-calculator" element={<PageTransition><TilesCalculator /></PageTransition>} />
+        <Route path="/tiles-calculator" element={<PageTransition><TilesCalculator /></PageTransition>} />
         <Route path="/partnerships" element={<PageTransition><Partnerships /></PageTransition>} />
         <Route path="/testimonials" element={<PageTransition><Testimonials /></PageTransition>} />
         <Route path="/blog" element={<PageTransition><Blog /></PageTransition>} />

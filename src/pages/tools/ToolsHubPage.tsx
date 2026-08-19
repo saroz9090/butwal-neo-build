@@ -25,7 +25,9 @@ import {
   Building2, 
   DollarSign, 
   ShieldCheck, 
-  Layers
+  Layers,
+  Paintbrush,
+  Grid3X3
 } from "lucide-react";
 
 export interface ToolApp {
@@ -151,6 +153,30 @@ const toolApps: ToolApp[] = [
     recommendedFor: "Visualizing structural integrity & stages"
   },
   {
+    id: "paint-calculator",
+    title: "Paint Area & Cost Calculator",
+    category: "Calculators",
+    description: "Calculate net wall & ceiling painting sq. ft, Putty bags, Primer, and Topcoat liters (Asian Paints, Berger, Nerolac) with live NPR labor costs.",
+    path: "/tools/paint-calculator",
+    icon: Paintbrush,
+    badge: "Finishing App",
+    badgeColor: "bg-rose-500/20 text-rose-400 border-rose-500/30",
+    features: ["Room-by-Room Area Deductions", "Putty & Primer Quantities", "Asian Paints & Berger Specs", "Live NPR Material & Labor BOQ"],
+    recommendedFor: "Homeowners & painters estimating finishing budgets"
+  },
+  {
+    id: "tiles-calculator",
+    title: "Tiles, Granite & Moulding Calculator",
+    category: "Calculators",
+    description: "Calculate tile boxes (1×1, 2×2, 2×4 ft), skirting Rft, and single/double moulding with Nepal's 1-ft min rule & 3x labor equivalent.",
+    path: "/tools/tiles-calculator",
+    icon: Grid3X3,
+    badge: "New Masonry App",
+    badgeColor: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+    features: ["1×1, 2×2, 2×4 Tile Box Counts", "Double & Single Moulding Rft", "Nepal 1-Ft Min Labor Rule", "Cement Bags, Sand & Adhesive BOQ"],
+    recommendedFor: "Floor, bathroom, kitchen counter & stair tiling"
+  },
+  {
     id: "estimate",
     title: "Instant Cost Estimate Generator",
     category: "Calculators",
@@ -171,12 +197,16 @@ export default function ToolsHubPage() {
   const categories = ["All", "Planner", "Calculators", "Legal & Permitting", "Design & 3D", "Eco & Green"];
 
   const filteredTools = toolApps.filter((tool) => {
+    const query = searchQuery.trim().toLowerCase();
     const matchesSearch = 
-      tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tool.features.some(f => f.toLowerCase().includes(searchQuery.toLowerCase()));
+      !query ||
+      tool.title.toLowerCase().includes(query) ||
+      tool.description.toLowerCase().includes(query) ||
+      tool.features.some(f => f.toLowerCase().includes(query));
     
-    const matchesCategory = selectedCategory === "All" || tool.category === selectedCategory;
+    const matchesCategory = 
+      selectedCategory === "All" || 
+      tool.category === selectedCategory;
 
     return matchesSearch && matchesCategory;
   });

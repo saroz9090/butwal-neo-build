@@ -35,6 +35,53 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
+    <!-- Safe ResizeObserver error handler and frame throttle -->
+    <script>
+      (function() {
+        var isResizeObserverError = function(msg) {
+          if (!msg) return false;
+          var str = typeof msg === 'string' ? msg : (msg.message || '');
+          return str.indexOf('ResizeObserver') !== -1 || str.indexOf('undelivered notifications') !== -1;
+        };
+
+        var origOnError = window.onerror;
+        window.onerror = function(message, source, lineno, colno, error) {
+          if (isResizeObserverError(message) || (error && isResizeObserverError(error.message))) {
+            return true;
+          }
+          if (origOnError) return origOnError.apply(this, arguments);
+          return false;
+        };
+
+        window.addEventListener('error', function(event) {
+          if (isResizeObserverError(event.message) || (event.error && isResizeObserverError(event.error.message))) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(event) {
+          var reason = event && event.reason;
+          if (isResizeObserverError(reason)) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+          }
+        }, true);
+
+        if (typeof window.ResizeObserver !== 'undefined') {
+          var NativeResizeObserver = window.ResizeObserver;
+          window.ResizeObserver = function(callback) {
+            return new NativeResizeObserver(function(entries, observer) {
+              window.requestAnimationFrame(function() {
+                callback(entries, observer);
+              });
+            });
+          };
+          window.ResizeObserver.prototype = NativeResizeObserver.prototype;
+        }
+      })();
+    </script>
+
     <!-- JSON-LD Structured Data Schema -->
     <script type="application/ld+json">
     {
