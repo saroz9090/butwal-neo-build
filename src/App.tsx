@@ -31,6 +31,7 @@ import ConstructionTimeline from "./pages/tools/ConstructionTimeline";
 import GreenBuildCalculator from "./pages/tools/GreenBuildCalculator";
 import PaintCalculator from "./pages/tools/PaintCalculator";
 import TilesCalculator from "./pages/tools/TilesCalculator";
+import Visualizer3DPage from "./pages/tools/Visualizer3DPage";
 import Partnerships from "./pages/Partnerships";
 import Testimonials from "./pages/Testimonials";
 import NotFound from "./pages/NotFound";
@@ -77,6 +78,8 @@ const AnimatedRoutes = () => {
         <Route path="/paint-calculator" element={<PageTransition><PaintCalculator /></PageTransition>} />
         <Route path="/tools/tiles-calculator" element={<PageTransition><TilesCalculator /></PageTransition>} />
         <Route path="/tiles-calculator" element={<PageTransition><TilesCalculator /></PageTransition>} />
+        <Route path="/tools/visualizer-3d" element={<PageTransition><Visualizer3DPage /></PageTransition>} />
+        <Route path="/visualizer-3d" element={<PageTransition><Visualizer3DPage /></PageTransition>} />
         <Route path="/partnerships" element={<PageTransition><Partnerships /></PageTransition>} />
         <Route path="/testimonials" element={<PageTransition><Testimonials /></PageTransition>} />
         <Route path="/blog" element={<PageTransition><Blog /></PageTransition>} />

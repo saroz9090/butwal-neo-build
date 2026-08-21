@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, ArrowRight } from "lucide-react";
+import { Calendar, User, ArrowRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useWebsiteContent } from "@/contexts/WebsiteContentContext";
 import LazyImage from "@/components/LazyImage";
 import { formatKathmanduDateTime } from "@/lib/utils";
@@ -11,17 +12,31 @@ import { formatKathmanduDateTime } from "@/lib/utils";
 const Blog = () => {
   const { blogPosts } = useWebsiteContent();
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   const publishedPosts = blogPosts.filter((p) => p.isPublished !== false);
 
   const categories = ["All", ...Array.from(new Set(publishedPosts.map((p) => p.category)))];
 
-  const filteredPosts = selectedCategory === "All"
-    ? publishedPosts
-    : publishedPosts.filter((p) => p.category === selectedCategory);
+  const filteredPosts = publishedPosts.filter((p) => {
+    const query = searchQuery.trim().toLowerCase();
+    const matchesSearch = 
+      !query ||
+      p.title.toLowerCase().includes(query) ||
+      (p.excerpt && p.excerpt.toLowerCase().includes(query)) ||
+      (p.content && p.content.toLowerCase().includes(query)) ||
+      p.category.toLowerCase().includes(query) ||
+      p.author.toLowerCase().includes(query);
+    
+    const matchesCategory = 
+      selectedCategory === "All" || 
+      p.category.toLowerCase() === selectedCategory.toLowerCase();
 
-  const featuredPost = filteredPosts[0] || publishedPosts[0];
+    return matchesSearch && matchesCategory;
+  });
+
+  const featuredPost = filteredPosts[0] || null;
   const gridPosts = filteredPosts.length > 1 ? filteredPosts.slice(1) : [];
 
   return (
@@ -44,28 +59,44 @@ const Blog = () => {
           </p>
         </div>
 
-        {/* Categories */}
-        <div className="flex flex-wrap gap-3 justify-center mb-12 animate-slide-up">
-          {categories.map((cat, idx) => (
-            <Badge
-              key={idx}
-              onClick={() => setSelectedCategory(cat)}
-              variant={selectedCategory === cat ? "default" : "outline"}
-              className={`cursor-pointer px-4 py-2 text-sm transition-all hover:scale-105 ${
-                selectedCategory === cat 
-                  ? "bg-primary text-foreground" 
-                  : "border-primary/50 hover:bg-primary/10"
-              }`}
-            >
-              {cat}
-            </Badge>
-          ))}
+        {/* Search and Categories Bar */}
+        <div className="glass-ios-card border-white/10 shadow-lg rounded-2xl p-4 md:p-6 mb-12 flex flex-col md:flex-row gap-4 items-center justify-between animate-slide-up">
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            {categories.map((cat, idx) => (
+              <Badge
+                key={idx}
+                onClick={() => setSelectedCategory(cat)}
+                variant={selectedCategory === cat ? "default" : "outline"}
+                className={`cursor-pointer px-4 py-2 text-sm transition-all hover:scale-105 ${
+                  selectedCategory === cat 
+                    ? "bg-primary text-primary-foreground font-semibold shadow-sm" 
+                    : "border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {cat}
+              </Badge>
+            ))}
+          </div>
+
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search articles, topics, authors..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 bg-card/60 border-border"
+            />
+          </div>
         </div>
 
         {filteredPosts.length === 0 ? (
-          <div className="text-center py-16 glass rounded-2xl p-8 max-w-xl mx-auto border-dashed">
-            <p className="text-muted-foreground text-lg mb-2">No articles found in this category.</p>
-            <p className="text-xs text-muted-foreground">Articles added or published in the Admin CMS will appear here live.</p>
+          <div className="text-center py-16 glass border-white/10 shadow-lg rounded-2xl p-8 max-w-xl mx-auto">
+            <p className="text-muted-foreground text-lg mb-2">No articles found matching your criteria.</p>
+            <p className="text-xs text-muted-foreground mb-6">Try adjusting your search query or category filter.</p>
+            <Button variant="outline" onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}>
+              Reset Filters
+            </Button>
           </div>
         ) : (
           <>

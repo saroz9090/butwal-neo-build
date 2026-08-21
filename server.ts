@@ -21,6 +21,16 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Trailing slash normalization middleware to prevent redirect loops for GSC and bots
+  app.use((req, res, next) => {
+    if (req.path.length > 1 && req.path.endsWith('/')) {
+      const queryIndex = req.url.indexOf('?');
+      const queryString = queryIndex !== -1 ? req.url.substring(queryIndex) : '';
+      req.url = req.path.slice(0, -1) + queryString;
+    }
+    next();
+  });
+
   // High-Speed Gemini AI Chat Route
   app.post("/api/chat", async (req, res) => {
     const { message } = req.body;

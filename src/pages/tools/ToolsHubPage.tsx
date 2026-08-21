@@ -141,16 +141,16 @@ const toolApps: ToolApp[] = [
     recommendedFor: "First-time buyers making building decisions"
   },
   {
-    id: "under-construction",
-    title: "3D Structural Visualizer App",
+    id: "visualizer-3d",
+    title: "3D Architectural Visualizer Studio",
     category: "Design & 3D",
-    description: "Interactive 3D preview of RCC structural framing, pillar casting, beam reinforcements, and brick masonry stages.",
-    path: "/under-construction",
+    description: "Interactive 3D building visualizer to customize floors, roof styles, material finishes, vehicles, solar panels, and lighting in real-time.",
+    path: "/tools/visualizer-3d",
     icon: Box,
-    badge: "3D Interactive",
+    badge: "3D Studio",
     badgeColor: "bg-pink-500/20 text-pink-400 border-pink-500/30",
-    features: ["3D Structural Mesh View", "RCC Frame Construction Stages", "Camera Orbit Controls", "Material Details"],
-    recommendedFor: "Visualizing structural integrity & stages"
+    features: ["Real-time 3D WebGL Engine", "Material & Color Themes", "Day/Sunset/Night Lighting", "Live NPR Cost Estimator"],
+    recommendedFor: "Visualizing dream homes in 3D with live BOQ"
   },
   {
     id: "paint-calculator",
@@ -267,7 +267,7 @@ export default function ToolsHubPage() {
         </AnimatedSection>
 
         {/* Apps & Tools Grid */}
-        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <StaggerContainer key={selectedCategory + searchQuery} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTools.map((tool) => {
             const Icon = tool.icon;
             return (

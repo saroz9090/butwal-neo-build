@@ -239,7 +239,7 @@ export const HouseDesignsGallery = () => {
             <p className="text-sm text-muted-foreground mt-1">Try selecting different storey filters or clear your search term.</p>
           </div>
         ) : (
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <StaggerContainer key={styleFilter + storeyFilter + searchTerm} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredDesigns.map((design) => (
               <StaggerItem key={design.id}>
                 <AnimatedCard>

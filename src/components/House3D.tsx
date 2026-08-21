@@ -3,21 +3,57 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 
-interface House3DProps {
+export interface House3DProps {
   area: number;
   floors: number;
   materialType?: string;
+  cameraAngle?: "isometric" | "front" | "top" | "side";
+  timeOfDay?: "day" | "sunset" | "night";
+  customWallColor?: string;
+  customRoofColor?: string;
+  includeCar?: boolean;
+  includeSolar?: boolean;
+  includeCompound?: boolean;
+  includePool?: boolean;
+  roofStyle?: "terrace" | "slope";
+  landLength?: number;
+  landWidth?: number;
+  frontSetback?: number;
+  houseLength?: number;
+  houseWidth?: number;
+  architecturalStyle?: "modern_box" | "neoclassical" | "traditional" | "standard";
 }
 
-function HouseModel({ area, floors, materialType = "standard" }: House3DProps) {
+function HouseModel({ 
+  area, 
+  floors, 
+  materialType = "standard", 
+  customWallColor, 
+  customRoofColor,
+  includeCar = true,
+  includeSolar = true,
+  includeCompound = true,
+  includePool = true,
+  roofStyle = "terrace",
+  landLength = 50,
+  landWidth = 40,
+  frontSetback = 12,
+  houseLength = 35,
+  houseWidth = 28,
+  architecturalStyle = "modern_box"
+}: House3DProps) {
   const groupRef = useRef<THREE.Group>(null);
   
-  const baseScale = 0.25; 
-  const width = Math.sqrt(area) * baseScale;
-  const depth = width * 0.8;
+  const scaleFactor = 0.22;
+  const width = Math.max(8, houseWidth * scaleFactor);
+  const depth = Math.max(8, houseLength * scaleFactor);
+  const lWidth = Math.max(15, landWidth * scaleFactor);
+  const lLength = Math.max(15, landLength * scaleFactor);
+  const setback = Math.max(2, frontSetback * scaleFactor * 0.5);
+
   const floorHeight = 4; 
   const totalHeight = floors * floorHeight;
-  const groundSize = Math.max(60, width * 4);
+  const groundSize = Math.max(70, Math.max(lWidth, lLength) * 1.5);
 
   // Slow ambient rotation for showcase presentation
   useFrame(() => {
@@ -125,44 +161,79 @@ function HouseModel({ area, floors, materialType = "standard" }: House3DProps) {
     </group>
   );
 
-  // Modern Premium Architectural Colors
+  // Architectural & Material Color Palette
   const getHouseColors = () => {
-    switch(materialType) {
-      case "premium":
-        return {
-          wall: "#FAF7F2",       // Warm Ivory
-          foundation: "#4E443C", // Deep Earth Umber
-          roof: "#1D2228",       // Charcoal Slate Blue
-          door: "#52321C",       // Rich Teak Wood
-          window: "#EBF3F9",     // Clear Pale Blue
-          balcony: "#3A3A3A",    // Matte Gunmetal
-          parapet: "#EFEAE4"     // Soft Off-white
-        };
-      case "luxury":
-        return {
-          wall: "#FFFFFF",       // Pure Arctic White
-          foundation: "#363636", // Sleek Basalt Black
-          roof: "#151515",       // Pitch Black Obsidian
-          door: "#2E1C14",       // Exotic Dark Walnut
-          window: "#D9EAF7",     // Reflective Ice Glass
-          balcony: "#D4AF37",    // Anodized Champagne Gold Highlights
-          parapet: "#F8F8F8"     // Clean Alabaster
-        };
-      default: // standard
-        return {
-          wall: "#F2EFEB",       // Clean light warm grey
-          foundation: "#5C564E", // Natural Granite Grey
-          roof: "#2A2F35",       // Slate Graphite
-          door: "#783F27",       // Polished Cedar
-          window: "#E5ECEF",     // Standard Sky Reflection Glass
-          balcony: "#4D4D4D",    // Cool Silver Grey
-          parapet: "#EAE6E2"     // Neutral Warm White
-        };
+    let base = (() => {
+      switch(materialType) {
+        case "premium":
+          return {
+            wall: "#FAF7F2",
+            foundation: "#4E443C",
+            roof: "#1D2228",
+            door: "#52321C",
+            window: "#EBF3F9",
+            balcony: "#3A3A3A",
+            parapet: "#EFEAE4"
+          };
+        case "luxury":
+          return {
+            wall: "#FFFFFF",
+            foundation: "#363636",
+            roof: "#151515",
+            door: "#2E1C14",
+            window: "#D9EAF7",
+            balcony: "#D4AF37",
+            parapet: "#F8F8F8"
+          };
+        default:
+          return {
+            wall: "#F2EFEB",
+            foundation: "#5C564E",
+            roof: "#2A2F35",
+            door: "#783F27",
+            window: "#E5ECEF",
+            balcony: "#4D4D4D",
+            parapet: "#EAE6E2"
+          };
+      }
+    })();
+
+    if (architecturalStyle === "neoclassical") {
+      base = {
+        ...base,
+        wall: "#F4EEDC", // Classic Cream Stone
+        foundation: "#5A4D41",
+        roof: "#2D2621",
+        door: "#4A2E1B",
+        balcony: "#C5A059" // Antique Gold / Bronze
+      };
+    } else if (architecturalStyle === "traditional") {
+      base = {
+        ...base,
+        wall: "#EFE3D5", // Warm Terracotta Tone
+        foundation: "#6E5344",
+        roof: "#8B3A2B", // Classic Clay Tile Red
+        door: "#5C3A21"
+      };
+    } else if (architecturalStyle === "modern_box") {
+      base = {
+        ...base,
+        wall: "#FFFFFF",
+        foundation: "#222222",
+        roof: "#111111",
+        balcony: "#1A1A1A"
+      };
     }
+
+    return {
+      ...base,
+      wall: customWallColor || base.wall,
+      roof: customRoofColor || base.roof,
+    };
   };
 
   const colors = getHouseColors();
-  const hasCompound = materialType === "premium" || materialType === "luxury";
+  const hasCompound = materialType === "premium" || materialType === "luxury" || architecturalStyle === "neoclassical";
   const hasPool = materialType === "luxury";
 
   return (
@@ -197,16 +268,44 @@ function HouseModel({ area, floors, materialType = "standard" }: House3DProps) {
           <meshStandardMaterial color={colors.wall} roughness={0.65} metalness={0.02} />
         </mesh>
 
+        {/* Style-specific Architectural Accents */}
+        {architecturalStyle === "neoclassical" && (
+          <>
+            {/* Grand Entrance Porch Columns */}
+            {[-1.2, 1.2].map((x, i) => (
+              <mesh key={`neo-col-${i}`} position={[x, totalHeight / 2, depth / 2 + 0.6]} castShadow receiveShadow>
+                <cylinderGeometry args={[0.3, 0.3, totalHeight, 18]} />
+                <meshStandardMaterial color="#FAF5EB" roughness={0.3} />
+              </mesh>
+            ))}
+            {/* Classical Pediment Header over entrance */}
+            <mesh position={[0, totalHeight * 0.85, depth / 2 + 0.4]} castShadow>
+              <boxGeometry args={[width * 0.5, 0.5, 0.8]} />
+              <meshStandardMaterial color={colors.foundation} roughness={0.5} />
+            </mesh>
+          </>
+        )}
+
+        {architecturalStyle === "modern_box" && (
+          <>
+            {/* Bold Cantilever Upper Overhang Box */}
+            <mesh position={[0, totalHeight * 0.75, depth / 2 + 0.3]} castShadow receiveShadow>
+              <boxGeometry args={[width * 1.05, 0.8, 1.2]} />
+              <meshStandardMaterial color={colors.roof} roughness={0.3} />
+            </mesh>
+          </>
+        )}
+
         {/* Vertical Wooden Accent Panels for modern aesthetic */}
-        {[-width / 2 + 0.5, width / 2 - 0.5].map((x, i) => (
+        {architecturalStyle !== "neoclassical" && [-width / 2 + 0.5, width / 2 - 0.5].map((x, i) => (
           <mesh key={`accent-${i}`} position={[x, totalHeight / 2, depth / 2 + 0.04]} castShadow receiveShadow>
             <boxGeometry args={[0.8, totalHeight * 0.9, 0.08]} />
             <meshStandardMaterial color={colors.door} roughness={0.4} />
           </mesh>
         ))}
 
-        {/* Decorative architectural pillars */}
-        {(materialType === "premium" || materialType === "luxury") && (
+        {/* Decorative architectural pillars for premium/luxury */}
+        {(materialType === "premium" || materialType === "luxury") && architecturalStyle !== "neoclassical" && (
           <>
             {[-width / 2 - 0.25, width / 2 + 0.25].map((x, i) => (
               <mesh key={`pillar-${i}`} position={[x, totalHeight / 2, depth / 2 + 0.4]} castShadow receiveShadow>
@@ -314,37 +413,65 @@ function HouseModel({ area, floors, materialType = "standard" }: House3DProps) {
         <meshStandardMaterial color={colors.roof} roughness={0.5} />
       </mesh>
 
-      {/* Contemporary Slanted Pitched Roof / Penthouse */}
-      <group position={[0, totalHeight + 0.9, 0]}>
-        {/* Penthouse structure */}
-        <mesh position={[0, 0.8, 0]} castShadow receiveShadow>
-          <boxGeometry args={[width * 0.65, 1.6, depth * 0.65]} />
-          <meshStandardMaterial color={colors.wall} roughness={0.7} />
-        </mesh>
-        
-        {/* Slanted architectural roof top */}
-        <mesh position={[0, 1.7, 0]} rotation={[0.06, 0, 0]} castShadow receiveShadow>
-          <boxGeometry args={[width * 0.72, 0.25, depth * 0.72]} />
-          <meshStandardMaterial color={colors.roof} roughness={0.4} />
-        </mesh>
+      {/* Roof Architecture: Flat Terrace vs Robust Sloped Gable */}
+      {roofStyle === "slope" ? (
+        <group position={[0, totalHeight + 0.9, 0]}>
+          {/* Left slope plane */}
+          <mesh position={[-width * 0.25, 0.8, 0]} rotation={[0, 0, Math.PI / 6]} castShadow receiveShadow>
+            <boxGeometry args={[width * 0.62, 0.25, depth + 0.6]} />
+            <meshStandardMaterial color={colors.roof} roughness={0.4} />
+          </mesh>
+          {/* Right slope plane */}
+          <mesh position={[width * 0.25, 0.8, 0]} rotation={[0, 0, -Math.PI / 6]} castShadow receiveShadow>
+            <boxGeometry args={[width * 0.62, 0.25, depth + 0.6]} />
+            <meshStandardMaterial color={colors.roof} roughness={0.4} />
+          </mesh>
+          {/* Ridge cap */}
+          <mesh position={[0, 1.5, 0]} castShadow>
+            <boxGeometry args={[0.3, 0.15, depth + 0.7]} />
+            <meshStandardMaterial color={colors.parapet} roughness={0.3} />
+          </mesh>
+          {includeSolar && (
+            <mesh position={[width * 0.25, 0.95, 0]} rotation={[0, 0, -Math.PI / 6]}>
+              <boxGeometry args={[width * 0.35, 0.04, depth * 0.35]} />
+              <meshStandardMaterial color="#102540" roughness={0.1} metalness={0.8} />
+            </mesh>
+          )}
+        </group>
+      ) : (
+        <group position={[0, totalHeight + 0.9, 0]}>
+          {/* Penthouse structure */}
+          <mesh position={[0, 0.8, 0]} castShadow receiveShadow>
+            <boxGeometry args={[width * 0.65, 1.6, depth * 0.65]} />
+            <meshStandardMaterial color={colors.wall} roughness={0.7} />
+          </mesh>
+          
+          {/* Slanted architectural roof top */}
+          <mesh position={[0, 1.7, 0]} rotation={[0.06, 0, 0]} castShadow receiveShadow>
+            <boxGeometry args={[width * 0.72, 0.25, depth * 0.72]} />
+            <meshStandardMaterial color={colors.roof} roughness={0.4} />
+          </mesh>
 
-        {/* Solar Panels on the roof block */}
-        <mesh position={[0, 1.84, 0]} rotation={[-0.03, 0, 0]}>
-          <boxGeometry args={[width * 0.5, 0.04, depth * 0.4]} />
-          <meshStandardMaterial color="#102540" roughness={0.1} metalness={0.8} />
-        </mesh>
+          {/* Solar Panels on the roof block */}
+          {includeSolar && (
+            <mesh position={[0, 1.84, 0]} rotation={[-0.03, 0, 0]}>
+              <boxGeometry args={[width * 0.5, 0.04, depth * 0.4]} />
+              <meshStandardMaterial color="#102540" roughness={0.1} metalness={0.8} />
+            </mesh>
+          )}
 
-        {/* Brick chimney */}
-        <mesh position={[width * 0.22, 1.6, -depth * 0.18]} castShadow>
-          <boxGeometry args={[0.75, 2.5, 0.75]} />
-          <meshStandardMaterial color="#A0522D" roughness={0.85} />
-        </mesh>
-        {/* Metal Cap of Chimney */}
-        <mesh position={[width * 0.22, 2.85, -depth * 0.18]} castShadow>
-          <boxGeometry args={[0.85, 0.08, 0.85]} />
-          <meshStandardMaterial color="#222222" metalness={0.9} />
-        </mesh>
-      </group>
+          {/* Brick chimney */}
+          <mesh position={[width * 0.22, 1.6, -depth * 0.18]} castShadow>
+            <boxGeometry args={[0.75, 2.5, 0.75]} />
+            <meshStandardMaterial color="#A0522D" roughness={0.85} />
+          </mesh>
+          {/* Metal Cap of Chimney */}
+          <mesh position={[width * 0.22, 2.85, -depth * 0.18]} castShadow>
+            <boxGeometry args={[0.85, 0.08, 0.85]} />
+            <meshStandardMaterial color="#222222" metalness={0.9} />
+          </mesh>
+        </group>
+      )}
 
       {/* Rooftop Parapet wall protection */}
       <mesh position={[0, totalHeight + 1.15, 0]} castShadow receiveShadow>
@@ -353,32 +480,34 @@ function HouseModel({ area, floors, materialType = "standard" }: House3DProps) {
       </mesh>
 
       {/* Spacious Dedicated Parking with high quality driveway */}
-      <group position={[width / 2 + 7.5, 0, -depth / 2 + 1]}>
-        {/* Paving block driveway */}
-        <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[13, 9]} />
-          <meshStandardMaterial color="#444444" roughness={0.95} />
-        </mesh>
+      {includeCar && (
+        <group position={[width / 2 + 7.5, 0, -depth / 2 + 1]}>
+          {/* Paving block driveway */}
+          <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+            <planeGeometry args={[13, 9]} />
+            <meshStandardMaterial color="#444444" roughness={0.95} />
+          </mesh>
 
-        {/* Minimal White grid divider border lines */}
-        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[12.6, 8.6]} />
-          <meshStandardMaterial color="#FFFFFF" transparent opacity={0.6} />
-        </mesh>
-        <mesh position={[0, 0.022, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[12.4, 8.4]} />
-          <meshStandardMaterial color="#3A3A3A" roughness={0.95} />
-        </mesh>
+          {/* Minimal White grid divider border lines */}
+          <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+            <planeGeometry args={[12.6, 8.6]} />
+            <meshStandardMaterial color="#FFFFFF" transparent opacity={0.6} />
+          </mesh>
+          <mesh position={[0, 0.022, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+            <planeGeometry args={[12.4, 8.4]} />
+            <meshStandardMaterial color="#3A3A3A" roughness={0.95} />
+          </mesh>
 
-        {/* Modern low-poly stylized cars and bikes */}
-        <Car position={[-2.4, 0, 0.5]} color="#D32F2F" rotationY={Math.PI / 18} />
-        <Car position={[2.4, 0, 1.8]} color="#1565C0" rotationY={-Math.PI / 12} />
-        <Motorcycle position={[2.8, 0, -2.4]} color="#FBC02D" rotationY={Math.PI / 6} />
-        <Motorcycle position={[-2.8, 0, -2.4]} color="#388E3C" rotationY={-Math.PI / 8} />
-      </group>
+          {/* Modern low-poly stylized cars and bikes */}
+          <Car position={[-2.4, 0, 0.5]} color="#D32F2F" rotationY={Math.PI / 18} />
+          <Car position={[2.4, 0, 1.8]} color="#1565C0" rotationY={-Math.PI / 12} />
+          <Motorcycle position={[2.8, 0, -2.4]} color="#FBC02D" rotationY={Math.PI / 6} />
+          <Motorcycle position={[-2.8, 0, -2.4]} color="#388E3C" rotationY={-Math.PI / 8} />
+        </group>
+      )}
 
-      {/* Compound Boundary Wall for Luxury / Premium Estates */}
-      {hasCompound && (
+      {/* Compound Boundary Wall */}
+      {includeCompound && (
         <>
           <group position={[0, 0, 0]}>
             {/* Left Gate Wall */}
@@ -412,7 +541,7 @@ function HouseModel({ area, floors, materialType = "standard" }: House3DProps) {
       )}
 
       {/* Luxury Swimming Pool with water refraction & wooden sun-deck */}
-      {hasPool && (
+      {includePool && (
         <group position={[-width - 7, 0, 1]}>
           {/* Wooden deck */}
           <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
@@ -551,27 +680,83 @@ function HouseModel({ area, floors, materialType = "standard" }: House3DProps) {
   );
 }
 
-export default function House3D({ area, floors, materialType = "standard" }: House3DProps) {
+export default function House3D({ 
+  area, 
+  floors, 
+  materialType = "standard", 
+  cameraAngle = "isometric", 
+  timeOfDay = "day",
+  customWallColor,
+  customRoofColor,
+  includeCar = true,
+  includeSolar = true,
+  includeCompound = true,
+  includePool = true,
+  roofStyle = "terrace"
+}: House3DProps) {
+  const getCameraPosition = (): [number, number, number] => {
+    switch(cameraAngle) {
+      case "front": return [0, 6, 28];
+      case "top": return [0, 38, 0.1];
+      case "side": return [28, 6, 0];
+      default: return [22, 13, 22]; // isometric
+    }
+  };
+
+  const getLighting = () => {
+    switch(timeOfDay) {
+      case "sunset":
+        return {
+          ambient: 0.45,
+          sunPos: [35, 10, 20] as [number, number, number],
+          sunIntensity: 1.2,
+          sunColor: "#FFB07A",
+          skyColor: "#FF7F50",
+          groundColor: "#4A3525"
+        };
+      case "night":
+        return {
+          ambient: 0.15,
+          sunPos: [15, 25, 15] as [number, number, number],
+          sunIntensity: 0.3,
+          sunColor: "#A0C4FF",
+          skyColor: "#0B132B",
+          groundColor: "#1C2541"
+        };
+      default: // day
+        return {
+          ambient: 0.6,
+          sunPos: [24, 30, 24] as [number, number, number],
+          sunIntensity: 1.4,
+          sunColor: "#FFFFFF",
+          skyColor: "#87CEEB",
+          groundColor: "#3D5334"
+        };
+    }
+  };
+
+  const lighting = getLighting();
+  const camPos = getCameraPosition();
+
   return (
-    <div className="w-full h-[450px] rounded-xl overflow-hidden glass relative group/canvas border border-white/10 shadow-inner">
+    <div className="w-full h-full min-h-[500px] rounded-2xl overflow-hidden glass relative group/canvas border border-white/10 shadow-2xl">
       <Canvas shadows>
-        <PerspectiveCamera makeDefault position={[22, 13, 22]} fov={38} />
+        <PerspectiveCamera makeDefault position={camPos} fov={38} />
         <OrbitControls 
           enableZoom={true}
           enablePan={true}
-          minDistance={10}
+          minDistance={8}
           maxDistance={70} 
-          target={[0, 5, 0]}
-          maxPolarAngle={Math.PI / 2 - 0.05} // Keep camera above ground level
+          target={[0, 4, 0]}
+          maxPolarAngle={Math.PI / 2 - 0.02} 
         />
         
-        {/* Soft elegant environmental light */}
-        <ambientLight intensity={0.5} />
+        <ambientLight intensity={lighting.ambient} />
         
-        {/* Main Sun key light casting crisp sharp real-time shadows */}
         <directionalLight 
-          position={[24, 30, 24]} 
-          intensity={1.3} 
+          position={lighting.sunPos} 
+          intensity={lighting.sunIntensity} 
+          color={lighting.sunColor}
           castShadow 
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
@@ -583,13 +768,22 @@ export default function House3D({ area, floors, materialType = "standard" }: Hou
           shadow-bias={-0.0005}
         />
         
-        {/* Soft fill light */}
         <pointLight position={[-15, 12, -15]} intensity={0.4} />
         
-        {/* Sky gradient hemispherical light for rich color contrast */}
-        <hemisphereLight intensity={0.35} color="#87CEEB" groundColor="#3D5334" />
+        <hemisphereLight intensity={0.4} color={lighting.skyColor} groundColor={lighting.groundColor} />
         
-        <HouseModel area={area} floors={floors} materialType={materialType} />
+        <HouseModel 
+          area={area} 
+          floors={floors} 
+          materialType={materialType} 
+          customWallColor={customWallColor}
+          customRoofColor={customRoofColor}
+          includeCar={includeCar}
+          includeSolar={includeSolar}
+          includeCompound={includeCompound}
+          includePool={includePool}
+          roofStyle={roofStyle}
+        />
       </Canvas>
     </div>
   );
